@@ -9,14 +9,7 @@ import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.NpmPackage;
-import com.vaadin.flow.component.html.Footer;
-import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.Header;
-import com.vaadin.flow.component.html.ListItem;
-import com.vaadin.flow.component.html.Nav;
-import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.html.UnorderedList;
+import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.RouterLink;
 
@@ -106,6 +99,11 @@ public class MainLayout extends AppLayout {
         nav.addClassNames("border-b", "border-contrast-10", "flex-grow", "overflow-auto");
         nav.getElement().setAttribute("aria-labelledby", "views");
 
+        // Add the Pi4J logo
+        Image img = new Image("https://raw.githubusercontent.com/Pi4J/pi4j-logo/master/logo/Pi4J_Logo.svg", "Pi4J logo");
+        img.setWidth("160px");
+        nav.add(img);
+
         // Wrap the links in a list; improves accessibility
         UnorderedList list = new UnorderedList();
         list.addClassNames("list-none", "m-0", "p-0");
@@ -119,20 +117,16 @@ public class MainLayout extends AppLayout {
     }
 
     private MenuItemInfo[] createMenuItems() {
-        return new MenuItemInfo[]{ //
-                new MenuItemInfo("LED", "la la-lightbulb", LEDView.class), //
-
-                new MenuItemInfo("Button", "la la-power-off", ButtonView.class), //
-
-                new MenuItemInfo("About", "lab la-java", AboutView.class), //
-
+        return new MenuItemInfo[]{
+                new MenuItemInfo("LED", "la la-lightbulb", LEDView.class),
+                new MenuItemInfo("Button", "la la-power-off", ButtonView.class),
+                new MenuItemInfo("About", "lab la-java", AboutView.class)
         };
     }
 
     private Footer createFooter() {
         Footer layout = new Footer();
         layout.addClassNames("flex", "items-center", "my-s", "px-m", "py-xs");
-
         return layout;
     }
 
