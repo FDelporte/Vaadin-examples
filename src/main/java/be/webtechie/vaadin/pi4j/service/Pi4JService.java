@@ -6,17 +6,21 @@ import com.pi4j.io.gpio.digital.DigitalInput;
 import com.pi4j.io.gpio.digital.DigitalOutput;
 import com.pi4j.io.gpio.digital.DigitalState;
 import com.pi4j.io.gpio.digital.PullResistance;
-import com.pi4j.util.Console;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class Pi4JService {
 
+    Logger logger = LoggerFactory.getLogger(Pi4JService.class);
+
     private final Context pi4j;
-    private final Console console;
 
     private static final int PIN_BUTTON = 24; // PIN 18 = BCM 24
     private static final int PIN_LED = 22; // PIN 15 = BCM 22
@@ -27,7 +31,6 @@ public class Pi4JService {
 
     public Pi4JService() {
         pi4j = Pi4J.newAutoContext();
-        console = new Console();
 
         buttonListeners = new ArrayList<>();
 
@@ -39,14 +42,15 @@ public class Pi4JService {
         try {
             var ledConfig = DigitalOutput.newConfigBuilder(pi4j)
                     .id("led")
-                    .name("LED Flasher")
+                    .name("LED")
                     .address(PIN_LED)
                     .shutdown(DigitalState.LOW)
                     .initial(DigitalState.LOW)
                     .provider("pigpio-digital-output");
             led = pi4j.create(ledConfig);
+            logger.info("The LED has been initialized on pin {}", PIN_LED);
         } catch (Exception ex) {
-            console.println("Error while initializing the LED: " + ex.getMessage());
+            logger.error("Error while initializing the LED: {}", ex.getMessage());
         }
     }
 
@@ -54,15 +58,19 @@ public class Pi4JService {
         try {
             var buttonConfig = DigitalInput.newConfigBuilder(pi4j)
                     .id("button")
-                    .name("Press button")
+                    .name("Button")
                     .address(PIN_BUTTON)
                     .pull(PullResistance.PULL_DOWN)
                     .debounce(3000L)
                     .provider("pigpio-digital-input");
             button = pi4j.create(buttonConfig);
-            button.addListener(e -> buttonListeners.forEach(bl -> bl.onButtonEvent(e.state())));
+            button.addListener(e -> {
+                logger.info("Button state changed to {}", e.state());
+                buttonListeners.forEach(bl -> bl.onButtonEvent(e.state()));
+            });
+            logger.info("The button has been initialized on pin {}", PIN_BUTTON);
         } catch (Exception ex) {
-            console.println("Error while initializing the button: " + ex.getMessage());
+            logger.error("Error while initializing the button: {}", ex.getMessage());
         }
     }
 
@@ -87,7 +95,7 @@ public class Pi4JService {
         if (pi4j == null || pi4j.platform() == null) {
             return "None";
         }
-        return pi4j.platform().describe().description();
+        return pi4j.platform().name();
     }
 
     /**
@@ -101,7 +109,9 @@ public class Pi4JService {
         if (pi4j == null || pi4j.platforms() == null) {
             return "None";
         }
-        return pi4j.platforms().describe().description();
+        return pi4j.platforms().all().entrySet().stream()
+                .map(e -> e.getKey() + ": " + e.getValue())
+                .collect(Collectors.joining(","));
     }
 
     /**
@@ -112,7 +122,9 @@ public class Pi4JService {
         if (pi4j == null || pi4j.providers() == null) {
             return "None";
         }
-        return pi4j.providers().describe().description();
+        return pi4j.providers().all().entrySet().stream()
+                .map(e -> e.getKey() + ": " + e.getValue())
+                .collect(Collectors.joining(","));
     }
 
     /**
@@ -122,7 +134,9 @@ public class Pi4JService {
         if (pi4j == null || pi4j.registry() == null) {
             return "None";
         }
-        return pi4j.registry().describe().description();
+        return pi4j.registry().all().entrySet().stream()
+                .map(e -> e.getKey() + ": " + e.getValue())
+                .collect(Collectors.joining(","));
     }
 
     /**
