@@ -84,6 +84,15 @@ public class Pi4JService {
     }
 
     /**
+     * Toggle the LED on or off.
+     *
+     * @param on
+     */
+    public void setLedState(boolean on) {
+        led.setState(on);
+    }
+
+    /**
      * A single 'default' platform is auto-assigned during Pi4J initialization based on a weighting value provided
      * by each platform implementation at runtime. Additionally, you can override this behavior and assign your own
      * 'default' platform anytime after initialization.
@@ -137,14 +146,5 @@ public class Pi4JService {
         return pi4j.registry().all().entrySet().stream()
                 .map(e -> e.getKey() + ": " + e.getValue())
                 .collect(Collectors.joining(","));
-    }
-
-    /**
-     * Toggle the LED on or off.
-     *
-     * @param on
-     */
-    public void setLedState(boolean on) {
-        led.setState(on);
     }
 }
