@@ -15,15 +15,15 @@ public class AboutView extends VerticalLayout {
 
     public AboutView(@Autowired Pi4JService pi4JService) {
         setSpacing(false);
-
-        add(new H2("Java"));
-        add(new Paragraph("Version: " + System.getProperty("java.version")));
-        add(new H2("Pi4J"));
-        add(new Paragraph("Default platform: " + pi4JService.getDefaultPlatform()));
-        add(new Paragraph("Loaded platforms: " + pi4JService.getLoadedPlatforms()));
-        add(new Paragraph("Providers: " + pi4JService.getProviders()));
-        add(new Paragraph("Registry: " + pi4JService.getRegistry()));
-
+        add(
+            new H2("Java"),
+            new Paragraph("Version: " + System.getProperty("java.version")),
+            new H2("Pi4J"),
+            new Paragraph("Default platform: " + pi4JService.getDefaultPlatform()),
+            new Paragraph("Loaded platforms: " + pi4JService.getLoadedPlatforms()),
+            new Paragraph("Providers: " + pi4JService.getProviders()),
+            new Paragraph("Registry: " + pi4JService.getRegistry())
+        );
         setSizeFull();
         getStyle().set("text-align", "left");
     }

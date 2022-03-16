@@ -10,9 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,15 +24,12 @@ public class Pi4JService {
     private static final int PIN_BUTTON = 24; // PIN 18 = BCM 24
     private static final int PIN_LED = 22; // PIN 15 = BCM 22
 
-    private final List<ButtonListener> buttonListeners;
+    private final Queue<ButtonListener> buttonListeners;
     private DigitalOutput led;
-    private DigitalInput button;
 
     public Pi4JService() {
         pi4j = Pi4J.newAutoContext();
-
-        buttonListeners = new ArrayList<>();
-
+        buttonListeners = new ConcurrentLinkedQueue<>();
         initLed();
         initButton();
     }
@@ -63,7 +59,7 @@ public class Pi4JService {
                     .pull(PullResistance.PULL_DOWN)
                     .debounce(3000L)
                     .provider("pigpio-digital-input");
-            button = pi4j.create(buttonConfig);
+            var button = pi4j.create(buttonConfig);
             button.addListener(e -> {
                 logger.info("Button state changed to {}", e.state());
                 buttonListeners.forEach(bl -> bl.onButtonEvent(e.state()));
