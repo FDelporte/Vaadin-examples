@@ -1,7 +1,8 @@
 # Pi4J Demo
 
-This is a Spring-based demo project to show how a Vaadin User Interface (website) can interact with the GPIOs of a
-Raspberry Pi by using the [Pi4J library](https://www.pi4j.com).
+This is a Spring-based demo project to show how a Vaadin User Interface (website) can interact with the GPIOs of a Raspberry Pi by using the [Pi4J library](https://www.pi4j.com).
+
+This project is described in detail in [this Foojay.io article](https://foojay.io/today/blink-a-led-on-raspberry-pi-with-vaadin/).
 
 ![Vaadin UI](doc/vaadin-ui.png)
 
