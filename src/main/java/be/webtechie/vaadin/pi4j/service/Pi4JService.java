@@ -17,14 +17,11 @@ import java.util.stream.Collectors;
 @Service
 public class Pi4JService {
 
-    Logger logger = LoggerFactory.getLogger(Pi4JService.class);
-
-    private final Context pi4j;
-
     private static final int PIN_BUTTON = 24; // PIN 18 = BCM 24
     private static final int PIN_LED = 22; // PIN 15 = BCM 22
-
+    private final Context pi4j;
     private final Queue<ButtonListener> buttonListeners;
+    Logger logger = LoggerFactory.getLogger(Pi4JService.class);
     private DigitalOutput led;
 
     public Pi4JService() {
@@ -85,6 +82,9 @@ public class Pi4JService {
      * @param on
      */
     public void setLedState(boolean on) {
+        if (led == null) {
+            return;
+        }
         led.setState(on);
     }
 

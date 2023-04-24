@@ -1,19 +1,36 @@
 # Pi4J Demo
 
-This is a Spring-based demo project to show how a Vaadin User Interface (website) can interact with the GPIOs of a Raspberry Pi by using the [Pi4J library](https://www.pi4j.com).
+This is a Spring-based demo project to show how a Vaadin User Interface (website) can interact with the GPIOs of a
+Raspberry Pi by using the [Pi4J library](https://www.pi4j.com).
 
-This project is described in detail in [this Foojay.io article](https://foojay.io/today/blink-a-led-on-raspberry-pi-with-vaadin/).
+Following versions of this code are available in branches:
+
+* [vaadin-23-spring-2.6](https://github.com/FDelporte/Vaadin-examples/tree/vaadin-23-spring-2.6): initial example with
+  LED output and button input, based on Vaadin 23 and Spring Boot 2.6. It is described in detail
+  in [this Foojay.io article](https://foojay.io/today/blink-a-led-on-raspberry-pi-with-vaadin/).
+* [main](https://github.com/FDelporte/Vaadin-examples/tree/main): extended example with Vaadin 24.0.4, Spring Boot
+  3.0.6, and Pi4J 2.3.0.
+
+## Vaadin UI
+
+The base code with different Vaadin layouts, was generated on [start.vaadin.com/app](https://start.vaadin.com/app).
 
 ![Vaadin UI](doc/vaadin-ui.png)
 
-The GPIO interaction is based on
+## GPIO interfaces
+
+### Minimal LED and button
+
+The GPIO interaction of the initial example is based on
 the [Pi4J minimal example application](https://pi4j.com/getting-started/minimal-example-application/)
 and uses a button and a LED to demonstration digital input and output interaction. The wiring is very simple and only
 needs a few components
 
 ![Wiring diagram](https://pi4j.com/assets/getting-started/minimal/led-button_bb.png)
 
-The base code was generated on [start.vaadin.com/app](https://start.vaadin.com/app).
+### Extended device examples
+
+TODO
 
 ## Upload to Raspberry Pi
 
