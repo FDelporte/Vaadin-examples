@@ -1,7 +1,7 @@
 package be.webtechie.vaadin.pi4j.views.button;
 
-import be.webtechie.vaadin.pi4j.service.ButtonListener;
 import be.webtechie.vaadin.pi4j.service.Pi4JService;
+import be.webtechie.vaadin.pi4j.service.button.ButtonListener;
 import be.webtechie.vaadin.pi4j.views.MainLayout;
 import com.pi4j.io.gpio.digital.DigitalState;
 import com.vaadin.flow.component.UI;
@@ -14,13 +14,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @PageTitle("Button")
-@Route(value = "Button", layout = MainLayout.class)
+@Route(value = "button", layout = MainLayout.class)
 public class ButtonView extends HorizontalLayout implements ButtonListener {
-
-    Logger logger = LoggerFactory.getLogger(ButtonView.class);
 
     private final UI ui;
     private final Label lbl;
+    Logger logger = LoggerFactory.getLogger(ButtonView.class);
 
     public ButtonView(@Autowired Pi4JService pi4JService) {
         ui = UI.getCurrent();

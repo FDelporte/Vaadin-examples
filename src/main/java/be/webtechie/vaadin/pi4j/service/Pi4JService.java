@@ -1,5 +1,10 @@
 package be.webtechie.vaadin.pi4j.service;
 
+import be.webtechie.vaadin.pi4j.service.button.ButtonListener;
+import be.webtechie.vaadin.pi4j.service.matrix.LedMatrixComponent;
+import be.webtechie.vaadin.pi4j.service.matrix.MatrixDirection;
+import be.webtechie.vaadin.pi4j.service.matrix.MatrixListener;
+import be.webtechie.vaadin.pi4j.service.matrix.MatrixSymbol;
 import com.pi4j.Pi4J;
 import com.pi4j.context.Context;
 import com.pi4j.io.gpio.digital.DigitalInput;
@@ -21,14 +26,20 @@ public class Pi4JService {
     private static final int PIN_LED = 22; // PIN 15 = BCM 22
     private final Context pi4j;
     private final Queue<ButtonListener> buttonListeners;
+    private final Queue<MatrixListener> matrixListeners;
     Logger logger = LoggerFactory.getLogger(Pi4JService.class);
     private DigitalOutput led;
+    private LedMatrixComponent ledMatrix;
+    private MatrixSymbol currentSymbol = MatrixSymbol.EMPTY;
+    private MatrixDirection currentDirection = MatrixDirection.UP;
 
     public Pi4JService() {
         pi4j = Pi4J.newAutoContext();
         buttonListeners = new ConcurrentLinkedQueue<>();
+        matrixListeners = new ConcurrentLinkedQueue<>();
         initLed();
         initButton();
+        initLedMatrix();
     }
 
     private void initLed() {
@@ -67,6 +78,17 @@ public class Pi4JService {
         }
     }
 
+    private void initLedMatrix() {
+        try {
+            ledMatrix = new LedMatrixComponent(pi4j);
+            ledMatrix.rotate(currentDirection);
+            ledMatrix.print(currentSymbol);
+            logger.info("The LED matrix has been initialized on pin {}", PIN_BUTTON);
+        } catch (Exception ex) {
+            logger.error("Error while initializing the LED matrix: {}", ex.getMessage());
+        }
+    }
+
     /**
      * Add a button listener which will get all state changes of the button DigitalInput
      *
@@ -74,6 +96,15 @@ public class Pi4JService {
      */
     public void addButtonListener(ButtonListener buttonListener) {
         buttonListeners.add(buttonListener);
+    }
+
+    /**
+     * Add a matrix listener which will get all matrix changes of the LedMatrix
+     *
+     * @param matrixListener
+     */
+    public void addMatrixListener(MatrixListener matrixListener) {
+        matrixListeners.add(matrixListener);
     }
 
     /**
@@ -142,5 +173,25 @@ public class Pi4JService {
         return pi4j.registry().all().entrySet().stream()
                 .map(e -> e.getKey() + ": " + e.getValue())
                 .collect(Collectors.joining(","));
+    }
+
+    public void ledMatrixClear() {
+        ledMatrixPrint(MatrixSymbol.EMPTY);
+    }
+
+    public void ledMatrixPrint(MatrixSymbol symbol) {
+        ledMatrix.print(symbol);
+        currentSymbol = symbol;
+        notifyMatrixListeners();
+    }
+
+    public void ledMatrixRotate(MatrixDirection direction) {
+        ledMatrix.rotate(direction);
+        currentDirection = direction;
+        notifyMatrixListeners();
+    }
+
+    private void notifyMatrixListeners() {
+        matrixListeners.forEach(ml -> ml.onMatrixChange(currentSymbol, currentDirection));
     }
 }
