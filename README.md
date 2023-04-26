@@ -5,11 +5,12 @@ Raspberry Pi by using the [Pi4J library](https://www.pi4j.com).
 
 Following versions of this code are available in branches:
 
-* [vaadin-23-spring-2.6](https://github.com/FDelporte/Vaadin-examples/tree/vaadin-23-spring-2.6): initial example with
+* [vaadin-23-spring-2.6](https://github.com/FDelporte/Vaadin-examples/tree/vaadin-23-spring-2.6): Initial example with
   LED output and button input, based on Vaadin 23 and Spring Boot 2.6. It is described in detail
-  in [this Foojay.io article](https://foojay.io/today/blink-a-led-on-raspberry-pi-with-vaadin/).
-* [main](https://github.com/FDelporte/Vaadin-examples/tree/main): extended example with Vaadin 24.0.4, Spring Boot
-  3.0.6, and Pi4J 2.3.0.
+  in [this Foojay.io blog post](https://foojay.io/today/blink-a-led-on-raspberry-pi-with-vaadin/).
+* [main](https://github.com/FDelporte/Vaadin-examples/tree/main): WORK IN PROGRESS ... Extended example with Vaadin
+  24.0.4, Spring Boot
+  3.0.6, and Pi4J 2.3.0. Blog post is "under construction".
 
 ## Vaadin UI
 
