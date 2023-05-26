@@ -5,7 +5,6 @@ import be.webtechie.vaadin.pi4j.service.matrix.MatrixDirection;
 import be.webtechie.vaadin.pi4j.service.matrix.MatrixListener;
 import be.webtechie.vaadin.pi4j.service.matrix.MatrixSymbol;
 import be.webtechie.vaadin.pi4j.service.touch.TouchListener;
-import com.pi4j.Pi4J;
 import com.pi4j.context.Context;
 import com.pi4j.io.gpio.digital.DigitalInput;
 import com.pi4j.io.gpio.digital.DigitalOutput;
@@ -23,7 +22,7 @@ import java.util.stream.Collectors;
 public class Pi4JService {
 
     private static final int PIN_LED = 22;
-    private static final int PIN_TOUCH = 11;
+    private static final int PIN_TOUCH = 17;
     private static final long TOUCH_DEBOUNCE = 10000;
     private final Context pi4j;
     private final Queue<TouchListener> touchListeners;
@@ -35,7 +34,7 @@ public class Pi4JService {
     private MatrixDirection currentDirection = MatrixDirection.UP;
 
     public Pi4JService() {
-        pi4j = Pi4J.newAutoContext();
+        pi4j = CrowPiPlatform.buildNewContext();
         touchListeners = new ConcurrentLinkedQueue<>();
         matrixListeners = new ConcurrentLinkedQueue<>();
         initLed();
