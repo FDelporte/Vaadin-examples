@@ -1,7 +1,7 @@
-package be.webtechie.vaadin.pi4j.views.button;
+package be.webtechie.vaadin.pi4j.views.touch;
 
 import be.webtechie.vaadin.pi4j.service.Pi4JService;
-import be.webtechie.vaadin.pi4j.service.button.ButtonListener;
+import be.webtechie.vaadin.pi4j.service.touch.TouchListener;
 import be.webtechie.vaadin.pi4j.views.MainLayout;
 import com.pi4j.io.gpio.digital.DigitalState;
 import com.vaadin.flow.component.UI;
@@ -13,17 +13,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-@PageTitle("Button")
-@Route(value = "button", layout = MainLayout.class)
-public class ButtonView extends HorizontalLayout implements ButtonListener {
+@PageTitle("Touch")
+@Route(value = "touch", layout = MainLayout.class)
+public class TouchView extends HorizontalLayout implements TouchListener {
 
     private final UI ui;
     private final Label lbl;
-    Logger logger = LoggerFactory.getLogger(ButtonView.class);
+    Logger logger = LoggerFactory.getLogger(TouchView.class);
 
-    public ButtonView(@Autowired Pi4JService pi4JService) {
+    public TouchView(@Autowired Pi4JService pi4JService) {
         ui = UI.getCurrent();
-        lbl = new Label("Waiting for button change...");
+        lbl = new Label("Waiting for touch event...");
         add(lbl);
 
         setMargin(true);
@@ -33,9 +33,9 @@ public class ButtonView extends HorizontalLayout implements ButtonListener {
     }
 
     @Override
-    public void onButtonEvent(DigitalState state) {
+    public void onTouchEvent(DigitalState state) {
         var isPressed = state.equals(DigitalState.HIGH);
-        logger.info("Button event in listener: {} - Is on: {}", state, isPressed);
-        ui.accessSynchronously(() -> lbl.setText(isPressed ? "Button is pressed" : "Button is released"));
+        logger.info("Touch event in listener: {} - Is on: {}", state, isPressed);
+        ui.accessSynchronously(() -> lbl.setText(isPressed ? "Touch sensor is pressed" : "Touch sensor is released"));
     }
 }

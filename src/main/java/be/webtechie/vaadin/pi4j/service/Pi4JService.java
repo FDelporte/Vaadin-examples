@@ -1,10 +1,10 @@
 package be.webtechie.vaadin.pi4j.service;
 
-import be.webtechie.vaadin.pi4j.service.button.ButtonListener;
 import be.webtechie.vaadin.pi4j.service.matrix.LedMatrixComponent;
 import be.webtechie.vaadin.pi4j.service.matrix.MatrixDirection;
 import be.webtechie.vaadin.pi4j.service.matrix.MatrixListener;
 import be.webtechie.vaadin.pi4j.service.matrix.MatrixSymbol;
+import be.webtechie.vaadin.pi4j.service.touch.TouchListener;
 import com.pi4j.Pi4J;
 import com.pi4j.context.Context;
 import com.pi4j.io.gpio.digital.DigitalInput;
@@ -22,10 +22,11 @@ import java.util.stream.Collectors;
 @Service
 public class Pi4JService {
 
-    private static final int PIN_BUTTON = 24; // PIN 18 = BCM 24
-    private static final int PIN_LED = 22; // PIN 15 = BCM 22
+    private static final int PIN_LED = 22;
+    private static final int PIN_TOUCH = 17;
+    private static final long TOUCH_DEBOUNCE = 10000;
     private final Context pi4j;
-    private final Queue<ButtonListener> buttonListeners;
+    private final Queue<TouchListener> touchListeners;
     private final Queue<MatrixListener> matrixListeners;
     private final Logger logger = LoggerFactory.getLogger(Pi4JService.class);
     private DigitalOutput led;
@@ -35,10 +36,10 @@ public class Pi4JService {
 
     public Pi4JService() {
         pi4j = Pi4J.newAutoContext();
-        buttonListeners = new ConcurrentLinkedQueue<>();
+        touchListeners = new ConcurrentLinkedQueue<>();
         matrixListeners = new ConcurrentLinkedQueue<>();
         initLed();
-        initButton();
+        initTouch();
         initLedMatrix();
     }
 
@@ -58,23 +59,23 @@ public class Pi4JService {
         }
     }
 
-    private void initButton() {
+    private void initTouch() {
         try {
-            var buttonConfig = DigitalInput.newConfigBuilder(pi4j)
-                    .id("button")
-                    .name("Button")
-                    .address(PIN_BUTTON)
-                    .pull(PullResistance.PULL_DOWN)
-                    .debounce(3000L)
-                    .provider("pigpio-digital-input");
-            var button = pi4j.create(buttonConfig);
-            button.addListener(e -> {
-                logger.info("Button state changed to {}", e.state());
-                buttonListeners.forEach(bl -> bl.onButtonEvent(e.state()));
+            var touchConfig = DigitalInput.newConfigBuilder(pi4j)
+                    .id("BCM" + PIN_TOUCH)
+                    .name("TouchSensor")
+                    .address(PIN_TOUCH)
+                    .debounce(TOUCH_DEBOUNCE)
+                    .pull(PullResistance.PULL_UP)
+                    .build();
+            var touch = pi4j.create(touchConfig);
+            touch.addListener(e -> {
+                logger.info("Touch state changed to {}", e.state());
+                touchListeners.forEach(bl -> bl.onTouchEvent(e.state()));
             });
-            logger.info("The button has been initialized on pin {}", PIN_BUTTON);
+            logger.info("The touch sensor has been initialized on pin {}", PIN_TOUCH);
         } catch (Exception ex) {
-            logger.error("Error while initializing the button: {}", ex.getMessage());
+            logger.error("Error while initializing the touch sensor: {}", ex.getMessage());
         }
     }
 
@@ -83,9 +84,9 @@ public class Pi4JService {
             ledMatrix = new LedMatrixComponent(pi4j);
             ledMatrix.setEnabled(true);
             ledMatrix.setBrightness(7);
-            ledMatrix.rotate(currentDirection);
-            ledMatrix.print(currentSymbol);
-            logger.info("The LED matrix has been initialized on pin {}", PIN_BUTTON);
+            ledMatrixRotate(currentDirection);
+            ledMatrixPrint(currentSymbol);
+            logger.info("The LED matrix has been initialized");
         } catch (Exception ex) {
             logger.error("Error while initializing the LED matrix: {}", ex.getMessage());
         }
@@ -94,10 +95,10 @@ public class Pi4JService {
     /**
      * Add a button listener which will get all state changes of the button DigitalInput
      *
-     * @param buttonListener
+     * @param touchListener
      */
-    public void addButtonListener(ButtonListener buttonListener) {
-        buttonListeners.add(buttonListener);
+    public void addButtonListener(TouchListener touchListener) {
+        touchListeners.add(touchListener);
     }
 
     /**
