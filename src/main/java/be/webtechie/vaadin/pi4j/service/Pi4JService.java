@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 public class Pi4JService {
 
     private static final int PIN_LED = 22;
-    private static final int PIN_TOUCH = 17;
+    private static final int PIN_TOUCH = 11;
     private static final long TOUCH_DEBOUNCE = 10000;
     private final Context pi4j;
     private final Queue<TouchListener> touchListeners;
