@@ -27,7 +27,7 @@ public class Pi4JService {
     private final Context pi4j;
     private final Queue<ButtonListener> buttonListeners;
     private final Queue<MatrixListener> matrixListeners;
-    Logger logger = LoggerFactory.getLogger(Pi4JService.class);
+    private final Logger logger = LoggerFactory.getLogger(Pi4JService.class);
     private DigitalOutput led;
     private LedMatrixComponent ledMatrix;
     private MatrixSymbol currentSymbol = MatrixSymbol.EMPTY;
@@ -81,6 +81,8 @@ public class Pi4JService {
     private void initLedMatrix() {
         try {
             ledMatrix = new LedMatrixComponent(pi4j);
+            ledMatrix.setEnabled(true);
+            ledMatrix.setBrightness(7);
             ledMatrix.rotate(currentDirection);
             ledMatrix.print(currentSymbol);
             logger.info("The LED matrix has been initialized on pin {}", PIN_BUTTON);
@@ -147,7 +149,7 @@ public class Pi4JService {
         }
         return pi4j.platforms().all().entrySet().stream()
                 .map(e -> e.getKey() + ": " + e.getValue())
-                .collect(Collectors.joining(","));
+                .collect(Collectors.joining(", "));
     }
 
     /**
@@ -160,7 +162,7 @@ public class Pi4JService {
         }
         return pi4j.providers().all().entrySet().stream()
                 .map(e -> e.getKey() + ": " + e.getValue())
-                .collect(Collectors.joining(","));
+                .collect(Collectors.joining(", "));
     }
 
     /**
@@ -172,7 +174,7 @@ public class Pi4JService {
         }
         return pi4j.registry().all().entrySet().stream()
                 .map(e -> e.getKey() + ": " + e.getValue())
-                .collect(Collectors.joining(","));
+                .collect(Collectors.joining(", "));
     }
 
     public void ledMatrixClear() {
@@ -180,12 +182,14 @@ public class Pi4JService {
     }
 
     public void ledMatrixPrint(MatrixSymbol symbol) {
+        logger.info("LED matrix print: {}", symbol.name());
         ledMatrix.print(symbol);
         currentSymbol = symbol;
         notifyMatrixListeners();
     }
 
     public void ledMatrixRotate(MatrixDirection direction) {
+        logger.info("LED matrix rotate: {}", direction.name());
         ledMatrix.rotate(direction);
         currentDirection = direction;
         notifyMatrixListeners();
