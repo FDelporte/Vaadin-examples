@@ -1,4 +1,4 @@
-package be.webtechie.vaadin.pi4j.views.led;
+package be.webtechie.vaadin.pi4j.views.electronics;
 
 import be.webtechie.vaadin.pi4j.service.Pi4JService;
 import be.webtechie.vaadin.pi4j.service.matrix.MatrixDirection;
@@ -22,11 +22,11 @@ import java.time.format.DateTimeFormatter;
 
 @PageTitle("8x8 LED Matrix")
 @Route(value = "matrix", layout = MainLayout.class)
-public class MatrixView extends VerticalLayout implements MatrixListener {
+public class SevenSegmentView extends VerticalLayout implements MatrixListener {
 
     private final ListBox<Label> currentState;
 
-    public MatrixView(@Autowired Pi4JService pi4JService) {
+    public SevenSegmentView(@Autowired Pi4JService pi4JService) {
         setMargin(true);
 
         var clear = new Button("Clear");
@@ -41,14 +41,14 @@ public class MatrixView extends VerticalLayout implements MatrixListener {
             }
         });
 
-        var rotateUp = new Button("Rotate", LineAwesomeIcon.ARROW_ALT_CIRCLE_UP_SOLID.create());
-        rotateUp.addClickListener(e -> pi4JService.ledMatrixRotate(MatrixDirection.UP));
-        var rotateDown = new Button("Rotate", LineAwesomeIcon.ARROW_ALT_CIRCLE_DOWN_SOLID.create());
-        rotateDown.addClickListener(e -> pi4JService.ledMatrixRotate(MatrixDirection.DOWN));
-        var rotateLeft = new Button("Rotate", LineAwesomeIcon.ARROW_ALT_CIRCLE_LEFT_SOLID.create());
-        rotateLeft.addClickListener(e -> pi4JService.ledMatrixRotate(MatrixDirection.LEFT));
-        var rotateRight = new Button("Rotate", LineAwesomeIcon.ARROW_ALT_CIRCLE_RIGHT_SOLID.create());
-        rotateRight.addClickListener(e -> pi4JService.ledMatrixRotate(MatrixDirection.RIGHT));
+        var rotateUp = new Button("Move", LineAwesomeIcon.ARROW_ALT_CIRCLE_UP_SOLID.create());
+        rotateUp.addClickListener(e -> pi4JService.ledMatrixMove(MatrixDirection.UP));
+        var rotateDown = new Button("Move", LineAwesomeIcon.ARROW_ALT_CIRCLE_DOWN_SOLID.create());
+        rotateDown.addClickListener(e -> pi4JService.ledMatrixMove(MatrixDirection.DOWN));
+        var rotateLeft = new Button("Move", LineAwesomeIcon.ARROW_ALT_CIRCLE_LEFT_SOLID.create());
+        rotateLeft.addClickListener(e -> pi4JService.ledMatrixMove(MatrixDirection.LEFT));
+        var rotateRight = new Button("Move", LineAwesomeIcon.ARROW_ALT_CIRCLE_RIGHT_SOLID.create());
+        rotateRight.addClickListener(e -> pi4JService.ledMatrixMove(MatrixDirection.RIGHT));
 
         var rotateHolder = new HorizontalLayout(rotateUp, rotateDown, rotateLeft, rotateRight);
 

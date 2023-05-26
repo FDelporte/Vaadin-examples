@@ -1,4 +1,4 @@
-package be.webtechie.vaadin.pi4j.views.touch;
+package be.webtechie.vaadin.pi4j.views.electronics;
 
 import be.webtechie.vaadin.pi4j.service.Pi4JService;
 import be.webtechie.vaadin.pi4j.service.touch.TouchListener;

@@ -10,7 +10,7 @@ Following versions of this code are available in branches:
   in [this Foojay.io blog post](https://foojay.io/today/blink-a-led-on-raspberry-pi-with-vaadin/).
 * [main](https://github.com/FDelporte/Vaadin-examples/tree/main): WORK IN PROGRESS ... Extended example with Vaadin
   24.0.4, Spring Boot
-  3.0.6, and Pi4J 2.3.0. Blog post is "under construction".
+  3.0.6, and Pi4J 2.3.0. Configuration of the component is specific for the CrowPi 1. Blog post is "under construction".
 
 ## Vaadin UI
 

@@ -1,4 +1,4 @@
-package be.webtechie.vaadin.pi4j.views.led;
+package be.webtechie.vaadin.pi4j.views.electronics;
 
 import be.webtechie.vaadin.pi4j.service.Pi4JService;
 import be.webtechie.vaadin.pi4j.views.MainLayout;

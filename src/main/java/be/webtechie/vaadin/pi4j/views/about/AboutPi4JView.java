@@ -20,6 +20,9 @@ public class AboutPi4JView extends VerticalLayout {
         add(
                 new H2("Java"),
                 new Paragraph("Version: " + System.getProperty("java.version")),
+                new Paragraph("Runtime version: " + System.getProperty("java.runtime.version")),
+                new Paragraph("Vendor: " + System.getProperty("java.vendor")),
+                new Paragraph("Vendor version: " + System.getProperty("java.vendor.version")),
                 new H2("Pi4J"),
                 new Paragraph("Default platform: " + pi4JService.getDefaultPlatform()),
                 new Paragraph("Loaded platforms: " + pi4JService.getLoadedPlatforms()),

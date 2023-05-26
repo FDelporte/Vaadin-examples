@@ -4,6 +4,7 @@ import be.webtechie.vaadin.pi4j.service.matrix.LedMatrixComponent;
 import be.webtechie.vaadin.pi4j.service.matrix.MatrixDirection;
 import be.webtechie.vaadin.pi4j.service.matrix.MatrixListener;
 import be.webtechie.vaadin.pi4j.service.matrix.MatrixSymbol;
+import be.webtechie.vaadin.pi4j.service.segment.SevenSegmentComponent;
 import be.webtechie.vaadin.pi4j.service.touch.TouchListener;
 import com.pi4j.context.Context;
 import com.pi4j.io.gpio.digital.DigitalInput;
@@ -30,6 +31,7 @@ public class Pi4JService {
     private final Logger logger = LoggerFactory.getLogger(Pi4JService.class);
     private DigitalOutput led;
     private LedMatrixComponent ledMatrix;
+    private SevenSegmentComponent sevenSegment;
     private MatrixSymbol currentSymbol = MatrixSymbol.EMPTY;
     private MatrixDirection currentDirection = MatrixDirection.UP;
 
@@ -40,6 +42,7 @@ public class Pi4JService {
         initLed();
         initTouch();
         initLedMatrix();
+        initSevenSegment();
     }
 
     private void initLed() {
@@ -83,11 +86,23 @@ public class Pi4JService {
             ledMatrix = new LedMatrixComponent(pi4j);
             ledMatrix.setEnabled(true);
             ledMatrix.setBrightness(7);
-            ledMatrixRotate(currentDirection);
             ledMatrixPrint(currentSymbol);
             logger.info("The LED matrix has been initialized");
         } catch (Exception ex) {
             logger.error("Error while initializing the LED matrix: {}", ex.getMessage());
+        }
+    }
+
+    private void initSevenSegment() {
+        try {
+            sevenSegment = new SevenSegmentComponent(pi4j);
+            sevenSegment.setEnabled(true);
+            // Activate full brightness and disable blinking
+            // These are the defaults and just here for demonstration purposes
+            sevenSegment.setBlinkRate(0);
+            sevenSegment.setBrightness(15);
+        } catch (Exception ex) {
+            logger.error("Error while initializing the seven segment component: {}", ex.getMessage());
         }
     }
 
@@ -119,6 +134,11 @@ public class Pi4JService {
             return;
         }
         led.setState(on);
+    }
+
+    public void setSevenSegmentDigit(int position, int i) {
+        logger.info("Setting digit {} on position {}", i, position);
+        sevenSegment.setDigit(position, i);
     }
 
     /**
@@ -188,7 +208,7 @@ public class Pi4JService {
         notifyMatrixListeners();
     }
 
-    public void ledMatrixRotate(MatrixDirection direction) {
+    public void ledMatrixMove(MatrixDirection direction) {
         logger.info("LED matrix rotate: {}", direction.name());
         ledMatrix.rotate(direction);
         currentDirection = direction;
