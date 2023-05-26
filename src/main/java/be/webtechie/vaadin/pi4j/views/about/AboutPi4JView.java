@@ -10,12 +10,12 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
 import org.springframework.beans.factory.annotation.Autowired;
 
-@PageTitle("About")
-@Route(value = "about", layout = MainLayout.class)
+@PageTitle("About - Pi4J Information")
+@Route(value = "about/pi4j", layout = MainLayout.class)
 @RouteAlias(value = "", layout = MainLayout.class)
-public class AboutView extends VerticalLayout {
+public class AboutPi4JView extends VerticalLayout {
 
-    public AboutView(@Autowired Pi4JService pi4JService) {
+    public AboutPi4JView(@Autowired Pi4JService pi4JService) {
         setSpacing(false);
         add(
                 new H2("Java"),

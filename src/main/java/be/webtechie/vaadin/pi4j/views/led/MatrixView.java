@@ -53,8 +53,7 @@ public class MatrixView extends VerticalLayout implements MatrixListener {
         var rotateHolder = new HorizontalLayout(rotateUp, rotateDown, rotateLeft, rotateRight);
 
         currentState = new ListBox<>();
-        currentState.
-                pi4JService.addMatrixListener(this);
+        pi4JService.addMatrixListener(this);
 
         add(clear, symbols, rotateHolder, currentState);
     }
