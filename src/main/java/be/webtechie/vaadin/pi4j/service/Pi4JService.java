@@ -5,6 +5,8 @@ import be.webtechie.vaadin.pi4j.service.matrix.MatrixDirection;
 import be.webtechie.vaadin.pi4j.service.matrix.MatrixListener;
 import be.webtechie.vaadin.pi4j.service.matrix.MatrixSymbol;
 import be.webtechie.vaadin.pi4j.service.segment.SevenSegmentComponent;
+import be.webtechie.vaadin.pi4j.service.segment.SevenSegmentListener;
+import be.webtechie.vaadin.pi4j.service.segment.SevenSegmentSymbol;
 import be.webtechie.vaadin.pi4j.service.touch.TouchListener;
 import com.pi4j.context.Context;
 import com.pi4j.io.gpio.digital.DigitalInput;
@@ -28,6 +30,7 @@ public class Pi4JService {
     private final Context pi4j;
     private final Queue<TouchListener> touchListeners;
     private final Queue<MatrixListener> matrixListeners;
+    private final Queue<SevenSegmentListener> sevenSegmentListeners;
     private final Logger logger = LoggerFactory.getLogger(Pi4JService.class);
     private DigitalOutput led;
     private LedMatrixComponent ledMatrix;
@@ -39,6 +42,7 @@ public class Pi4JService {
         pi4j = CrowPiPlatform.buildNewContext();
         touchListeners = new ConcurrentLinkedQueue<>();
         matrixListeners = new ConcurrentLinkedQueue<>();
+        sevenSegmentListeners = new ConcurrentLinkedQueue<>();
         initLed();
         initTouch();
         initLedMatrix();
@@ -109,19 +113,28 @@ public class Pi4JService {
     /**
      * Add a button listener which will get all state changes of the button DigitalInput
      *
-     * @param touchListener
+     * @param listener
      */
-    public void addButtonListener(TouchListener touchListener) {
-        touchListeners.add(touchListener);
+    public void addButtonListener(TouchListener listener) {
+        touchListeners.add(listener);
     }
 
     /**
      * Add a matrix listener which will get all matrix changes of the LedMatrix
      *
-     * @param matrixListener
+     * @param listener
      */
-    public void addMatrixListener(MatrixListener matrixListener) {
-        matrixListeners.add(matrixListener);
+    public void addMatrixListener(MatrixListener listener) {
+        matrixListeners.add(listener);
+    }
+
+    /**
+     * Add a seven segment listener which will get all seven segment changes of the SevenSegmentDisplay
+     *
+     * @param listener
+     */
+    public void addSevenSegmentListener(SevenSegmentListener listener) {
+        sevenSegmentListeners.add(listener);
     }
 
     /**
@@ -136,9 +149,17 @@ public class Pi4JService {
         led.setState(on);
     }
 
-    public void setSevenSegmentDigit(int position, int i) {
-        logger.info("Setting digit {} on position {}", i, position);
-        sevenSegment.setDigit(position, i);
+    /**
+     * Set a symbol on one of the seven segment display.
+     *
+     * @param position
+     * @param symbol
+     */
+    public void setSevenSegmentDigit(int position, SevenSegmentSymbol symbol) {
+        logger.info("Setting digit {} on position {}", symbol.name(), position);
+        sevenSegment.setSymbol(position, symbol);
+        sevenSegment.refresh();
+        sevenSegmentListeners.forEach(ssl -> ssl.onSevenSegmentChange(position, symbol));
     }
 
     /**
