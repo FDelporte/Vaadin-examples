@@ -5,10 +5,9 @@ import be.webtechie.vaadin.pi4j.service.matrix.MatrixDirection;
 import be.webtechie.vaadin.pi4j.service.matrix.MatrixListener;
 import be.webtechie.vaadin.pi4j.service.matrix.MatrixSymbol;
 import be.webtechie.vaadin.pi4j.views.MainLayout;
+import be.webtechie.vaadin.pi4j.views.component.LogGrid;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.html.Label;
-import com.vaadin.flow.component.listbox.ListBox;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
@@ -16,52 +15,46 @@ import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.lineawesome.LineAwesomeIcon;
 
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-
 @PageTitle("8x8 LED Matrix")
 @Route(value = "matrix", layout = MainLayout.class)
 public class MatrixView extends VerticalLayout implements MatrixListener {
 
-    private final ListBox<Label> currentState;
+    private final LogGrid logs;
 
     public MatrixView(@Autowired Pi4JService pi4JService) {
         setMargin(true);
 
         var clear = new Button("Clear");
-        clear.addClickListener(e -> pi4JService.ledMatrixClear());
+        clear.addClickListener(e -> pi4JService.clearLedMatrix());
 
         var symbols = new ComboBox<MatrixSymbol>();
         symbols.setItems(MatrixSymbol.values());
         symbols.setItemLabelGenerator(MatrixSymbol::name);
         symbols.addValueChangeListener(e -> {
             if (symbols.getValue() != null) {
-                pi4JService.ledMatrixPrint(symbols.getValue());
+                pi4JService.setLedMatrix(symbols.getValue());
             }
         });
 
         var rotateUp = new Button("Move", LineAwesomeIcon.ARROW_ALT_CIRCLE_UP_SOLID.create());
-        rotateUp.addClickListener(e -> pi4JService.ledMatrixMove(MatrixDirection.UP));
+        rotateUp.addClickListener(e -> pi4JService.moveLedMatrix(MatrixDirection.UP));
         var rotateDown = new Button("Move", LineAwesomeIcon.ARROW_ALT_CIRCLE_DOWN_SOLID.create());
-        rotateDown.addClickListener(e -> pi4JService.ledMatrixMove(MatrixDirection.DOWN));
+        rotateDown.addClickListener(e -> pi4JService.moveLedMatrix(MatrixDirection.DOWN));
         var rotateLeft = new Button("Move", LineAwesomeIcon.ARROW_ALT_CIRCLE_LEFT_SOLID.create());
-        rotateLeft.addClickListener(e -> pi4JService.ledMatrixMove(MatrixDirection.LEFT));
+        rotateLeft.addClickListener(e -> pi4JService.moveLedMatrix(MatrixDirection.LEFT));
         var rotateRight = new Button("Move", LineAwesomeIcon.ARROW_ALT_CIRCLE_RIGHT_SOLID.create());
-        rotateRight.addClickListener(e -> pi4JService.ledMatrixMove(MatrixDirection.RIGHT));
+        rotateRight.addClickListener(e -> pi4JService.moveLedMatrix(MatrixDirection.RIGHT));
 
         var rotateHolder = new HorizontalLayout(rotateUp, rotateDown, rotateLeft, rotateRight);
 
-        currentState = new ListBox<>();
-        pi4JService.addMatrixListener(this);
+        logs = new LogGrid();
+        add(clear, symbols, rotateHolder, logs);
 
-        add(clear, symbols, rotateHolder, currentState);
+        pi4JService.addMatrixListener(this);
     }
 
     @Override
     public void onMatrixChange(MatrixSymbol symbol, MatrixDirection direction) {
-        currentState.addComponentAsFirst(new Label(ZonedDateTime.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("HH.mm.ss"))
-                + " - Symbol: " + symbol.name()
-                + " - Direction: " + direction.name()));
+        logs.addLine("Symbol: " + symbol.name() + " - Direction: " + direction.name());
     }
 }

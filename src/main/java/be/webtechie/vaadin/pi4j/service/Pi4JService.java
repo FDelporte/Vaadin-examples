@@ -90,7 +90,7 @@ public class Pi4JService {
             ledMatrix = new LedMatrixComponent(pi4j);
             ledMatrix.setEnabled(true);
             ledMatrix.setBrightness(7);
-            ledMatrixPrint(currentSymbol);
+            setLedMatrix(currentSymbol);
             logger.info("The LED matrix has been initialized");
         } catch (Exception ex) {
             logger.error("Error while initializing the LED matrix: {}", ex.getMessage());
@@ -150,19 +150,6 @@ public class Pi4JService {
     }
 
     /**
-     * Set a symbol on one of the seven segment display.
-     *
-     * @param position
-     * @param symbol
-     */
-    public void setSevenSegmentDigit(int position, SevenSegmentSymbol symbol) {
-        logger.info("Setting digit {} on position {}", symbol.name(), position);
-        sevenSegment.setSymbol(position, symbol);
-        sevenSegment.refresh();
-        sevenSegmentListeners.forEach(ssl -> ssl.onSevenSegmentChange(position, symbol));
-    }
-
-    /**
      * A single 'default' platform is auto-assigned during Pi4J initialization based on a weighting value provided
      * by each platform implementation at runtime. Additionally, you can override this behavior and assign your own
      * 'default' platform anytime after initialization.
@@ -218,25 +205,66 @@ public class Pi4JService {
                 .collect(Collectors.joining(", "));
     }
 
-    public void ledMatrixClear() {
-        ledMatrixPrint(MatrixSymbol.EMPTY);
+    public void clearLedMatrix() {
+        logger.info("Clearing LED matrix");
+        try {
+            ledMatrix.clear();
+            ledMatrix.refresh();
+        } catch (Exception ex) {
+            logger.error("Can't clear LED matrix: {}", ex.getMessage());
+        }
     }
 
-    public void ledMatrixPrint(MatrixSymbol symbol) {
+    public void setLedMatrix(MatrixSymbol symbol) {
         logger.info("LED matrix print: {}", symbol.name());
-        ledMatrix.print(symbol);
+        try {
+            ledMatrix.print(symbol);
+        } catch (Exception ex) {
+            logger.error("Can't set LED matrix: {}", ex.getMessage());
+        }
         currentSymbol = symbol;
         notifyMatrixListeners();
     }
 
-    public void ledMatrixMove(MatrixDirection direction) {
+    public void moveLedMatrix(MatrixDirection direction) {
         logger.info("LED matrix rotate: {}", direction.name());
-        ledMatrix.rotate(direction);
+        try {
+            ledMatrix.rotate(direction);
+        } catch (Exception ex) {
+            logger.error("Can't move LED matrix: {}", ex.getMessage());
+        }
         currentDirection = direction;
         notifyMatrixListeners();
     }
 
     private void notifyMatrixListeners() {
         matrixListeners.forEach(ml -> ml.onMatrixChange(currentSymbol, currentDirection));
+    }
+
+    /**
+     * Set a symbol on one of the seven segment display.
+     *
+     * @param position
+     * @param symbol
+     */
+    public void setSevenSegment(int position, SevenSegmentSymbol symbol) {
+        logger.info("Setting digit {} on position {} of seven segment display", symbol.name(), position);
+        try {
+            sevenSegment.setSymbol(position, symbol);
+            sevenSegment.refresh();
+        } catch (Exception ex) {
+            logger.error("Can't set seven segment: {}", ex.getMessage());
+        }
+        sevenSegmentListeners.forEach(ssl -> ssl.onSevenSegmentChange(position, symbol));
+    }
+
+    public void clearSevenSegment() {
+        logger.info("Clearing seven segment display");
+        try {
+            sevenSegment.clear();
+            sevenSegment.refresh();
+        } catch (Exception ex) {
+            logger.error("Can't clear seven segment: {}", ex.getMessage());
+        }
     }
 }
