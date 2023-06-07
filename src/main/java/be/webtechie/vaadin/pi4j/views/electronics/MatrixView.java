@@ -6,22 +6,25 @@ import be.webtechie.vaadin.pi4j.service.matrix.MatrixListener;
 import be.webtechie.vaadin.pi4j.service.matrix.MatrixSymbol;
 import be.webtechie.vaadin.pi4j.views.MainLayout;
 import be.webtechie.vaadin.pi4j.views.component.LogGrid;
+import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.lineawesome.LineAwesomeIcon;
 
 @PageTitle("8x8 LED Matrix")
 @Route(value = "matrix", layout = MainLayout.class)
 public class MatrixView extends VerticalLayout implements MatrixListener {
 
+    private final Pi4JService pi4JService;
     private final LogGrid logs;
 
-    public MatrixView(@Autowired Pi4JService pi4JService) {
+    public MatrixView(Pi4JService pi4JService) {
+        this.pi4JService = pi4JService;
         setMargin(true);
 
         var clear = new Button("Clear");
@@ -49,8 +52,16 @@ public class MatrixView extends VerticalLayout implements MatrixListener {
 
         logs = new LogGrid();
         add(clear, symbols, rotateHolder, logs);
+    }
 
+    @Override
+    public void onAttach(AttachEvent attachEvent) {
         pi4JService.addMatrixListener(this);
+    }
+
+    @Override
+    public void onDetach(DetachEvent detachEvent) {
+        pi4JService.removeMatrixListener(this);
     }
 
     @Override

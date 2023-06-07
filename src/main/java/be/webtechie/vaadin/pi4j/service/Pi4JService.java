@@ -119,6 +119,10 @@ public class Pi4JService {
         touchListeners.add(listener);
     }
 
+    public void removeButtonListener(TouchListener listener) {
+        touchListeners.remove(listener);
+    }
+
     /**
      * Add a matrix listener which will get all matrix changes of the LedMatrix
      *
@@ -128,6 +132,10 @@ public class Pi4JService {
         matrixListeners.add(listener);
     }
 
+    public void removeMatrixListener(MatrixListener listener) {
+        matrixListeners.remove(listener);
+    }
+
     /**
      * Add a seven segment listener which will get all seven segment changes of the SevenSegmentDisplay
      *
@@ -135,6 +143,10 @@ public class Pi4JService {
      */
     public void addSevenSegmentListener(SevenSegmentListener listener) {
         sevenSegmentListeners.add(listener);
+    }
+
+    public void removeSevenSegmentListener(SevenSegmentListener listener) {
+        sevenSegmentListeners.remove(listener);
     }
 
     /**

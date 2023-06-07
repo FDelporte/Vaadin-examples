@@ -5,6 +5,8 @@ import be.webtechie.vaadin.pi4j.service.segment.SevenSegmentListener;
 import be.webtechie.vaadin.pi4j.service.segment.SevenSegmentSymbol;
 import be.webtechie.vaadin.pi4j.views.MainLayout;
 import be.webtechie.vaadin.pi4j.views.component.LogGrid;
+import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -12,7 +14,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,10 +22,13 @@ import java.util.List;
 @Route(value = "sevensegment", layout = MainLayout.class)
 public class SevenSegmentView extends VerticalLayout implements SevenSegmentListener {
 
+    private final Pi4JService pi4JService;
     private final LogGrid logs;
     private final List<ComboBox<SevenSegmentSymbol>> comboboxes;
 
-    public SevenSegmentView(@Autowired Pi4JService pi4JService) {
+    public SevenSegmentView(Pi4JService pi4JService) {
+        this.pi4JService = pi4JService;
+
         comboboxes = new ArrayList<>();
         setMargin(true);
 
@@ -53,8 +57,16 @@ public class SevenSegmentView extends VerticalLayout implements SevenSegmentList
 
         logs = new LogGrid();
         add(logs);
+    }
 
+    @Override
+    public void onAttach(AttachEvent attachEvent) {
         pi4JService.addSevenSegmentListener(this);
+    }
+
+    @Override
+    public void onDetach(DetachEvent detachEvent) {
+        pi4JService.removeSevenSegmentListener(this);
     }
 
     @Override
