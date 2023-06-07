@@ -19,7 +19,7 @@ public class LogGrid extends Grid<LogGrid.LogLine> {
     public LogGrid() {
         this.lines = Collections.synchronizedList(new ArrayList<>());
 
-        this.addColumn(new LocalDateTimeRenderer<>(LogLine::timestamp, "HH.mm.ss.SSS"))
+        this.addColumn(new LocalDateTimeRenderer<>(LogLine::timestamp, "HH:mm:ss.SSS"))
                 .setHeader("Timestamp")
                 .setFlexGrow(1);
         this.addColumn(LogLine::message).setHeader("Message")
@@ -29,7 +29,7 @@ public class LogGrid extends Grid<LogGrid.LogLine> {
 
     public void addLine(String message) {
         logger.debug("Adding line {}", message);
-        lines.add(new LogLine(LocalDateTime.now(), message));
+        lines.add(0, new LogLine(LocalDateTime.now(), message));
         this.getDataProvider().refreshAll();
     }
 

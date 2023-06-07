@@ -65,7 +65,12 @@ public class MatrixView extends VerticalLayout implements MatrixListener {
     }
 
     @Override
-    public void onMatrixChange(MatrixSymbol symbol, MatrixDirection direction) {
-        logs.addLine("Symbol: " + symbol.name() + " - Direction: " + direction.name());
+    public void onMatrixSymbolChange(MatrixSymbol symbol) {
+        logs.addLine("Symbol: " + symbol.name());
+    }
+
+    @Override
+    public void onMatrixDirectionChange(MatrixDirection direction) {
+        logs.addLine("Direction: " + direction.name());
     }
 }

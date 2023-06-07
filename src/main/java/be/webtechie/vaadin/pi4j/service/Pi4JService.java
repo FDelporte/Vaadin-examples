@@ -35,8 +35,6 @@ public class Pi4JService {
     private DigitalOutput led;
     private LedMatrixComponent ledMatrix;
     private SevenSegmentComponent sevenSegment;
-    private MatrixSymbol currentSymbol = MatrixSymbol.EMPTY;
-    private MatrixDirection currentDirection = MatrixDirection.UP;
 
     public Pi4JService() {
         pi4j = CrowPiPlatform.buildNewContext();
@@ -90,7 +88,6 @@ public class Pi4JService {
             ledMatrix = new LedMatrixComponent(pi4j);
             ledMatrix.setEnabled(true);
             ledMatrix.setBrightness(7);
-            setLedMatrix(currentSymbol);
             logger.info("The LED matrix has been initialized");
         } catch (Exception ex) {
             logger.error("Error while initializing the LED matrix: {}", ex.getMessage());
@@ -234,8 +231,7 @@ public class Pi4JService {
         } catch (Exception ex) {
             logger.error("Can't set LED matrix: {}", ex.getMessage());
         }
-        currentSymbol = symbol;
-        notifyMatrixListeners();
+        matrixListeners.forEach(ml -> ml.onMatrixSymbolChange(symbol));
     }
 
     public void moveLedMatrix(MatrixDirection direction) {
@@ -245,12 +241,11 @@ public class Pi4JService {
         } catch (Exception ex) {
             logger.error("Can't move LED matrix: {}", ex.getMessage());
         }
-        currentDirection = direction;
-        notifyMatrixListeners();
+        matrixListeners.forEach(ml -> ml.onMatrixDirectionChange(direction));
     }
 
     private void notifyMatrixListeners() {
-        matrixListeners.forEach(ml -> ml.onMatrixChange(currentSymbol, currentDirection));
+
     }
 
     /**
