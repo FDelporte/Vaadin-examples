@@ -1,6 +1,8 @@
 package be.webtechie.vaadin.pi4j.service.matrix;
 
-public interface MatrixListener {
+import be.webtechie.vaadin.pi4j.service.ChangeListener;
+
+public interface MatrixListener extends ChangeListener {
 
     void onMatrixSymbolChange(MatrixSymbol symbol);
 

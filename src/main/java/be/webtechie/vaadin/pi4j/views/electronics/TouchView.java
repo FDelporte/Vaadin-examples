@@ -36,12 +36,12 @@ public class TouchView extends HorizontalLayout implements TouchListener {
 
     @Override
     public void onAttach(AttachEvent attachEvent) {
-        pi4JService.addButtonListener(this);
+        pi4JService.addListener(this);
     }
 
     @Override
     public void onDetach(DetachEvent detachEvent) {
-        pi4JService.removeButtonListener(this);
+        pi4JService.removeListener(this);
     }
 
     @Override

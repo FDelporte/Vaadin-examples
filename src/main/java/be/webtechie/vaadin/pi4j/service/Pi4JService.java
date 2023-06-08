@@ -1,5 +1,7 @@
 package be.webtechie.vaadin.pi4j.service;
 
+import be.webtechie.vaadin.pi4j.service.lcd.LcdDisplayComponent;
+import be.webtechie.vaadin.pi4j.service.lcd.LcdDisplayListener;
 import be.webtechie.vaadin.pi4j.service.matrix.LedMatrixComponent;
 import be.webtechie.vaadin.pi4j.service.matrix.MatrixDirection;
 import be.webtechie.vaadin.pi4j.service.matrix.MatrixListener;
@@ -28,21 +30,19 @@ public class Pi4JService {
     private static final int PIN_TOUCH = 17;
     private static final long TOUCH_DEBOUNCE = 10000;
     private final Context pi4j;
-    private final Queue<TouchListener> touchListeners;
-    private final Queue<MatrixListener> matrixListeners;
-    private final Queue<SevenSegmentListener> sevenSegmentListeners;
+    private final Queue<ChangeListener> listeners;
     private final Logger logger = LoggerFactory.getLogger(Pi4JService.class);
     private DigitalOutput led;
+    private LcdDisplayComponent lcdDisplay;
     private LedMatrixComponent ledMatrix;
     private SevenSegmentComponent sevenSegment;
 
     public Pi4JService() {
         pi4j = CrowPiPlatform.buildNewContext();
-        touchListeners = new ConcurrentLinkedQueue<>();
-        matrixListeners = new ConcurrentLinkedQueue<>();
-        sevenSegmentListeners = new ConcurrentLinkedQueue<>();
+        listeners = new ConcurrentLinkedQueue<>();
         initLed();
         initTouch();
+        initLcdDisplay();
         initLedMatrix();
         initSevenSegment();
     }
@@ -75,11 +75,25 @@ public class Pi4JService {
             var touch = pi4j.create(touchConfig);
             touch.addListener(e -> {
                 logger.info("Touch state changed to {}", e.state());
-                touchListeners.forEach(bl -> bl.onTouchEvent(e.state()));
+                listeners.stream()
+                        .filter(l -> l instanceof TouchListener)
+                        .forEach(l -> ((TouchListener) l).onTouchEvent(e.state()));
             });
             logger.info("The touch sensor has been initialized on pin {}", PIN_TOUCH);
         } catch (Exception ex) {
             logger.error("Error while initializing the touch sensor: {}", ex.getMessage());
+        }
+    }
+
+    private void initLcdDisplay() {
+        try {
+            lcdDisplay = new LcdDisplayComponent(pi4j);
+            lcdDisplay.initialize();
+            lcdDisplay.writeLine("Hello", 1);
+            lcdDisplay.writeLine("   World!", 2);
+            logger.info("The LCD display has been initialized");
+        } catch (Exception ex) {
+            logger.error("Error while initializing the lcd display: {}", ex.getMessage());
         }
     }
 
@@ -108,42 +122,16 @@ public class Pi4JService {
     }
 
     /**
-     * Add a button listener which will get all state changes of the button DigitalInput
+     * Add a change listener which will get all state changes of a component
      *
      * @param listener
      */
-    public void addButtonListener(TouchListener listener) {
-        touchListeners.add(listener);
+    public void addListener(ChangeListener listener) {
+        listeners.add(listener);
     }
 
-    public void removeButtonListener(TouchListener listener) {
-        touchListeners.remove(listener);
-    }
-
-    /**
-     * Add a matrix listener which will get all matrix changes of the LedMatrix
-     *
-     * @param listener
-     */
-    public void addMatrixListener(MatrixListener listener) {
-        matrixListeners.add(listener);
-    }
-
-    public void removeMatrixListener(MatrixListener listener) {
-        matrixListeners.remove(listener);
-    }
-
-    /**
-     * Add a seven segment listener which will get all seven segment changes of the SevenSegmentDisplay
-     *
-     * @param listener
-     */
-    public void addSevenSegmentListener(SevenSegmentListener listener) {
-        sevenSegmentListeners.add(listener);
-    }
-
-    public void removeSevenSegmentListener(SevenSegmentListener listener) {
-        sevenSegmentListeners.remove(listener);
+    public void removeListener(ChangeListener listener) {
+        listeners.remove(listener);
     }
 
     /**
@@ -231,7 +219,9 @@ public class Pi4JService {
         } catch (Exception ex) {
             logger.error("Can't set LED matrix: {}", ex.getMessage());
         }
-        matrixListeners.forEach(ml -> ml.onMatrixSymbolChange(symbol));
+        listeners.stream()
+                .filter(l -> l instanceof MatrixListener)
+                .forEach(l -> ((MatrixListener) l).onMatrixSymbolChange(symbol));
     }
 
     public void moveLedMatrix(MatrixDirection direction) {
@@ -241,7 +231,9 @@ public class Pi4JService {
         } catch (Exception ex) {
             logger.error("Can't move LED matrix: {}", ex.getMessage());
         }
-        matrixListeners.forEach(ml -> ml.onMatrixDirectionChange(direction));
+        listeners.stream()
+                .filter(l -> l instanceof MatrixListener)
+                .forEach(l -> ((MatrixListener) l).onMatrixDirectionChange(direction));
     }
 
     private void notifyMatrixListeners() {
@@ -262,7 +254,9 @@ public class Pi4JService {
         } catch (Exception ex) {
             logger.error("Can't set seven segment: {}", ex.getMessage());
         }
-        sevenSegmentListeners.forEach(ssl -> ssl.onSevenSegmentChange(position, symbol));
+        listeners.stream()
+                .filter(l -> l instanceof SevenSegmentListener)
+                .forEach(l -> ((SevenSegmentListener) l).onSevenSegmentChange(position, symbol));
     }
 
     public void clearSevenSegment() {
@@ -273,5 +267,26 @@ public class Pi4JService {
         } catch (Exception ex) {
             logger.error("Can't clear seven segment: {}", ex.getMessage());
         }
+    }
+
+    public void clearLcdDisplay() {
+        logger.info("Clearing LCD display");
+        try {
+            lcdDisplay.clearDisplay();
+        } catch (Exception ex) {
+            logger.error("Can't clear seven segment: {}", ex.getMessage());
+        }
+    }
+
+    public void setLcdDisplay(int i, String text) {
+        logger.info("Setting LCD display line {} to '{}'", i, text);
+        try {
+            lcdDisplay.writeLine(text, i);
+        } catch (Exception ex) {
+            logger.error("Can't set text on LCD display: {}", ex.getMessage());
+        }
+        listeners.stream()
+                .filter(l -> l instanceof LcdDisplayListener)
+                .forEach(l -> ((LcdDisplayListener) l).onLcdDisplayChange(i, text));
     }
 }

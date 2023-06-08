@@ -15,21 +15,16 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @PageTitle("Seven Segment Display")
 @Route(value = "sevensegment", layout = MainLayout.class)
 public class SevenSegmentView extends VerticalLayout implements SevenSegmentListener {
 
     private final Pi4JService pi4JService;
     private final LogGrid logs;
-    private final List<ComboBox<SevenSegmentSymbol>> comboboxes;
 
     public SevenSegmentView(Pi4JService pi4JService) {
         this.pi4JService = pi4JService;
 
-        comboboxes = new ArrayList<>();
         setMargin(true);
 
         var clear = new Button("Clear");
@@ -52,7 +47,6 @@ public class SevenSegmentView extends VerticalLayout implements SevenSegmentList
                 }
             });
             symbolHolder.add(symbol);
-            comboboxes.add(symbol);
         }
 
         logs = new LogGrid();
@@ -61,12 +55,12 @@ public class SevenSegmentView extends VerticalLayout implements SevenSegmentList
 
     @Override
     public void onAttach(AttachEvent attachEvent) {
-        pi4JService.addSevenSegmentListener(this);
+        pi4JService.addListener(this);
     }
 
     @Override
     public void onDetach(DetachEvent detachEvent) {
-        pi4JService.removeSevenSegmentListener(this);
+        pi4JService.removeListener(this);
     }
 
     @Override

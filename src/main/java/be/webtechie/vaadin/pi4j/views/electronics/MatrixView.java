@@ -56,12 +56,12 @@ public class MatrixView extends VerticalLayout implements MatrixListener {
 
     @Override
     public void onAttach(AttachEvent attachEvent) {
-        pi4JService.addMatrixListener(this);
+        pi4JService.addListener(this);
     }
 
     @Override
     public void onDetach(DetachEvent detachEvent) {
-        pi4JService.removeMatrixListener(this);
+        pi4JService.removeListener(this);
     }
 
     @Override
