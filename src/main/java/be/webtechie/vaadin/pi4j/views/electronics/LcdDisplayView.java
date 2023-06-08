@@ -32,7 +32,7 @@ public class LcdDisplayView extends VerticalLayout implements LcdDisplayListener
         row1.setMaxLength(16);
 
         var setRow1 = new Button("Set row 1");
-        setRow1.addClickListener(e -> pi4JService.setLcdDisplay(0, row1.getValue()));
+        setRow1.addClickListener(e -> pi4JService.setLcdDisplay(1, row1.getValue()));
 
         TextField row2 = new TextField();
         row2.setLabel("Row 2");
@@ -40,7 +40,7 @@ public class LcdDisplayView extends VerticalLayout implements LcdDisplayListener
         row2.setMaxLength(16);
 
         var setRow2 = new Button("Set row 2");
-        setRow2.addClickListener(e -> pi4JService.setLcdDisplay(1, row2.getValue()));
+        setRow2.addClickListener(e -> pi4JService.setLcdDisplay(2, row2.getValue()));
 
         logs = new LogGrid();
         add(clear, row1, setRow1, row2, setRow2, logs);
@@ -58,6 +58,6 @@ public class LcdDisplayView extends VerticalLayout implements LcdDisplayListener
 
     @Override
     public void onLcdDisplayChange(int row, String text) {
-        logs.addLine("Set on row " + (row + 1) + ": '" + text + "'");
+        logs.addLine("Set on row " + row + ": '" + text + "'");
     }
 }
