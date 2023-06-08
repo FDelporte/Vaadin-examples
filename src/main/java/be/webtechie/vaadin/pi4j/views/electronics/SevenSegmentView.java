@@ -72,6 +72,5 @@ public class SevenSegmentView extends VerticalLayout implements SevenSegmentList
     @Override
     public void onSevenSegmentChange(int position, SevenSegmentSymbol symbol) {
         logs.addLine("Position: " + (position + 1) + " - Symbol: " + symbol.name());
-        comboboxes.get(position).setValue(symbol);
     }
 }
