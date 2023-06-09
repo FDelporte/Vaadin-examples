@@ -1,7 +1,7 @@
 package be.webtechie.vaadin.pi4j.views.electronics;
 
+import be.webtechie.vaadin.pi4j.service.ChangeListener;
 import be.webtechie.vaadin.pi4j.service.Pi4JService;
-import be.webtechie.vaadin.pi4j.service.segment.SevenSegmentListener;
 import be.webtechie.vaadin.pi4j.service.segment.SevenSegmentSymbol;
 import be.webtechie.vaadin.pi4j.views.MainLayout;
 import be.webtechie.vaadin.pi4j.views.component.LogGrid;
@@ -14,10 +14,13 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @PageTitle("Seven Segment Display")
 @Route(value = "sevensegment", layout = MainLayout.class)
-public class SevenSegmentView extends VerticalLayout implements SevenSegmentListener {
+public class SevenSegmentView extends VerticalLayout implements ChangeListener {
+    private final Logger logger = LoggerFactory.getLogger(SevenSegmentView.class);
 
     private final Pi4JService pi4JService;
     private final LogGrid logs;
@@ -64,7 +67,11 @@ public class SevenSegmentView extends VerticalLayout implements SevenSegmentList
     }
 
     @Override
-    public void onSevenSegmentChange(int position, SevenSegmentSymbol symbol) {
-        logs.addLine("Position: " + (position + 1) + " - Symbol: " + symbol.name());
+    public void onMessage(ChangeListener.ChangeType type, String message) {
+        if (!type.equals(ChangeType.SEGMENT)) {
+            return;
+        }
+        logger.debug("Message received: {}", message);
+        logs.addLine(message);
     }
 }

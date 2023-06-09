@@ -1,8 +1,8 @@
 package be.webtechie.vaadin.pi4j.views.electronics;
 
+import be.webtechie.vaadin.pi4j.service.ChangeListener;
 import be.webtechie.vaadin.pi4j.service.Pi4JService;
 import be.webtechie.vaadin.pi4j.service.matrix.MatrixDirection;
-import be.webtechie.vaadin.pi4j.service.matrix.MatrixListener;
 import be.webtechie.vaadin.pi4j.service.matrix.MatrixSymbol;
 import be.webtechie.vaadin.pi4j.views.MainLayout;
 import be.webtechie.vaadin.pi4j.views.component.LogGrid;
@@ -14,17 +14,21 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.vaadin.lineawesome.LineAwesomeIcon;
 
 @PageTitle("8x8 LED Matrix")
 @Route(value = "matrix", layout = MainLayout.class)
-public class MatrixView extends VerticalLayout implements MatrixListener {
+public class MatrixView extends VerticalLayout implements ChangeListener {
+    private final Logger logger = LoggerFactory.getLogger(MatrixView.class);
 
     private final Pi4JService pi4JService;
     private final LogGrid logs;
 
     public MatrixView(Pi4JService pi4JService) {
         this.pi4JService = pi4JService;
+
         setMargin(true);
 
         var clear = new Button("Clear");
@@ -65,12 +69,11 @@ public class MatrixView extends VerticalLayout implements MatrixListener {
     }
 
     @Override
-    public void onMatrixSymbolChange(MatrixSymbol symbol) {
-        logs.addLine("Symbol: " + symbol.name());
-    }
-
-    @Override
-    public void onMatrixDirectionChange(MatrixDirection direction) {
-        logs.addLine("Direction: " + direction.name());
+    public void onMessage(ChangeListener.ChangeType type, String message) {
+        if (!type.equals(ChangeType.MATRIX)) {
+            return;
+        }
+        logger.debug("Message received: {}", message);
+        logs.addLine(message);
     }
 }

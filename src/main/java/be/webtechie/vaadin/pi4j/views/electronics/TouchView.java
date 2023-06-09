@@ -1,7 +1,7 @@
 package be.webtechie.vaadin.pi4j.views.electronics;
 
+import be.webtechie.vaadin.pi4j.service.ChangeListener;
 import be.webtechie.vaadin.pi4j.service.Pi4JService;
-import be.webtechie.vaadin.pi4j.service.touch.TouchListener;
 import be.webtechie.vaadin.pi4j.views.MainLayout;
 import com.pi4j.io.gpio.digital.DigitalState;
 import com.vaadin.flow.component.AttachEvent;
@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 @PageTitle("Touch")
 @Route(value = "touch", layout = MainLayout.class)
-public class TouchView extends HorizontalLayout implements TouchListener {
+public class TouchView extends HorizontalLayout implements ChangeListener {
 
     private final Pi4JService pi4JService;
     private final UI ui;
@@ -45,9 +45,13 @@ public class TouchView extends HorizontalLayout implements TouchListener {
     }
 
     @Override
-    public void onTouchEvent(DigitalState state) {
+    public void onMessage(ChangeListener.ChangeType type, String message) {
+        if (!type.equals(ChangeType.TOUCH)) {
+            return;
+        }
+        var state = DigitalState.parse(message);
         var isPressed = state.equals(DigitalState.HIGH);
-        logger.info("Touch event in listener: {} - Is on: {}", state, isPressed);
+        logger.debug("Touch event in listener: {} - Is on: {}", state, isPressed);
         ui.accessSynchronously(() -> {
             lbl.setText(isPressed ? "Touch sensor is pressed" : "Touch sensor is released");
             lbl.getStyle().set("color", isPressed ? "#009900" : "#990000");
