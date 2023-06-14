@@ -1,5 +1,7 @@
 package be.webtechie.vaadin.pi4j.service;
 
+import be.webtechie.vaadin.pi4j.service.buzzer.BuzzerComponent;
+import be.webtechie.vaadin.pi4j.service.buzzer.Note;
 import be.webtechie.vaadin.pi4j.service.lcd.LcdDisplayComponent;
 import be.webtechie.vaadin.pi4j.service.matrix.LedMatrixComponent;
 import be.webtechie.vaadin.pi4j.service.matrix.MatrixDirection;
@@ -35,6 +37,7 @@ public class Pi4JService {
     private LcdDisplayComponent lcdDisplay;
     private LedMatrixComponent ledMatrix;
     private SevenSegmentComponent sevenSegment;
+    private BuzzerComponent buzzer;
 
     public Pi4JService() {
         pi4j = CrowPiPlatform.buildNewContext();
@@ -44,6 +47,7 @@ public class Pi4JService {
         initLcdDisplay();
         initLedMatrix();
         initSevenSegment();
+        initBuzzer();
     }
 
     private void initLed() {
@@ -113,6 +117,16 @@ public class Pi4JService {
             // These are the defaults and just here for demonstration purposes
             sevenSegment.setBlinkRate(0);
             sevenSegment.setBrightness(15);
+            logger.info("The segment display has been initialized");
+        } catch (Exception ex) {
+            logger.error("Error while initializing the seven segment component: {}", ex.getMessage());
+        }
+    }
+
+    private void initBuzzer() {
+        try {
+            buzzer = new BuzzerComponent(pi4j);
+            logger.info("The buzzer has been initialized");
         } catch (Exception ex) {
             logger.error("Error while initializing the seven segment component: {}", ex.getMessage());
         }
@@ -120,21 +134,20 @@ public class Pi4JService {
 
     /**
      * Add a change listener which will get all state changes of a component
-     *
-     * @param listener
      */
     public synchronized void addListener(ChangeListener listener) {
         listeners.add(listener);
     }
 
+    /**
+     * Remove a change listener
+     */
     public synchronized void removeListener(ChangeListener listener) {
         listeners.remove(listener);
     }
 
     /**
      * Toggle the LED on or off.
-     *
-     * @param on
      */
     public void setLedState(boolean on) {
         if (led == null) {
@@ -231,9 +244,6 @@ public class Pi4JService {
 
     /**
      * Set a symbol on one of the seven segment display.
-     *
-     * @param position
-     * @param symbol
      */
     public void setSevenSegment(int position, SevenSegmentSymbol symbol) {
         logger.info("Setting digit {} on position {} of seven segment display", symbol.name(), position);
@@ -246,6 +256,9 @@ public class Pi4JService {
         broadcast(ChangeListener.ChangeType.SEGMENT, "Position: " + (position + 1) + " - Symbol: " + symbol.name());
     }
 
+    /**
+     * Clear the seven segment display.
+     */
     public void clearSevenSegment() {
         logger.info("Clearing seven segment display");
         try {
@@ -256,6 +269,9 @@ public class Pi4JService {
         }
     }
 
+    /**
+     * Clear the LCD display.
+     */
     public void clearLcdDisplay() {
         logger.info("Clearing LCD display");
         try {
@@ -265,6 +281,9 @@ public class Pi4JService {
         }
     }
 
+    /**
+     * Set a text to one of the rows of the LCD display.
+     */
     public void setLcdDisplay(int row, String text) {
         logger.info("Setting LCD display line {} to '{}'", row, text);
         try {
@@ -275,7 +294,23 @@ public class Pi4JService {
         broadcast(ChangeListener.ChangeType.LCD, "Set on row " + row + ": '" + text + "'");
     }
 
-    public synchronized <T> void broadcast(ChangeListener.ChangeType type, String message) {
+    /**
+     * Play a note on the buzzer.
+     */
+    public void playNote(Note note) {
+        logger.info("Playing not {}", note);
+        try {
+            buzzer.playTone(note.getFrequency(), 500);
+        } catch (Exception ex) {
+            logger.error("Can't play note: {}", ex.getMessage());
+        }
+        broadcast(ChangeListener.ChangeType.BUZZER, "Played note " + note.name());
+    }
+
+    /**
+     * Broadcast a change to one of the components to all the listeners.
+     **/
+    public synchronized void broadcast(ChangeListener.ChangeType type, String message) {
         logger.debug("Broadcast {} to {}", type.name(), message);
         for (ChangeListener listener : listeners) {
             executor.execute(() -> {

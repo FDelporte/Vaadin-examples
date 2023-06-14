@@ -72,6 +72,7 @@ public class MainLayout extends AppLayout {
         nav.addItem(new AppNavItem("Pi4J Info", AboutPi4JView.class, LineAwesomeIcon.JAVA.create()));
         nav.addItem(new AppNavItem("System Info", AboutSystemView.class, LineAwesomeIcon.JAVA.create()));
         nav.addItem(new AppNavItem("LED", LEDView.class, LineAwesomeIcon.LIGHTBULB_SOLID.create()));
+        nav.addItem(new AppNavItem("Buzzer", BuzzerView.class, LineAwesomeIcon.VOLUME_UP_SOLID.create()));
         nav.addItem(new AppNavItem("Touch", TouchView.class, LineAwesomeIcon.POWER_OFF_SOLID.create()));
         nav.addItem(new AppNavItem("LCD Display", LcdDisplayView.class, LineAwesomeIcon.TABLE_SOLID.create()));
         nav.addItem(new AppNavItem("LED Matrix", MatrixView.class, LineAwesomeIcon.TABLE_SOLID.create()));

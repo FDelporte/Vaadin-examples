@@ -1,5 +1,6 @@
 package be.webtechie.vaadin.pi4j.service.lcd;
 
+import be.webtechie.vaadin.pi4j.service.SleepHelper;
 import com.pi4j.context.Context;
 
 /**
@@ -138,7 +139,7 @@ public class LcdDisplayComponent {
      */
     public void moveCursorHome() {
         write(LCD_RETURN_HOME);
-        sleep(3);
+        SleepHelper.sleep(3);
     }
 
     /**
@@ -168,7 +169,7 @@ public class LcdDisplayComponent {
      */
     public void clearDisplay() {
         write(LCD_CLEAR_DISPLAY);
-        sleep(3);
+        SleepHelper.sleep(3);
         moveCursorHome();
     }
 
@@ -229,13 +230,5 @@ public class LcdDisplayComponent {
         mcp.setPin(LCD_D7, (b & 0b0000_1000) > 0);
         mcp.writePins();
         mcp.pulsePin(LCD_EN, 1);
-    }
-
-    void sleep(long milliseconds) {
-        try {
-            Thread.sleep(milliseconds);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
     }
 }

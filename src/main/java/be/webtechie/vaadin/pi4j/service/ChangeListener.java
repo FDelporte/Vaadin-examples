@@ -4,6 +4,7 @@ public interface ChangeListener {
     void onMessage(ChangeType type, String message);
 
     enum ChangeType {
+        BUZZER,
         LCD,
         MATRIX,
         SEGMENT,

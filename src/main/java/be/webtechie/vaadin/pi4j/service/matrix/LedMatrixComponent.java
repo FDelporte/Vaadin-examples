@@ -1,5 +1,6 @@
 package be.webtechie.vaadin.pi4j.service.matrix;
 
+import be.webtechie.vaadin.pi4j.service.SleepHelper;
 import com.pi4j.context.Context;
 import com.pi4j.io.spi.Spi;
 import com.pi4j.io.spi.SpiConfig;
@@ -422,7 +423,7 @@ public class LedMatrixComponent extends MAX7219 {
     public void transition(MatrixSymbol symbol, MatrixDirection scrollMatrixDirection, long scrollDelay) {
         for (int i = 0; i < WIDTH; i++) {
             scroll(scrollMatrixDirection, MatrixScrollMode.REPLACE, symbol.getRows(), i);
-            sleep(scrollDelay);
+            SleepHelper.sleep(scrollDelay);
         }
     }
 
@@ -517,19 +518,5 @@ public class LedMatrixComponent extends MAX7219 {
      */
     protected Spi getSpi() {
         return this.spi;
-    }
-
-    /**
-     * Utility function to sleep for the specified amount of milliseconds.
-     * An {@link InterruptedException} will be catched and ignored while setting the interrupt flag again.
-     *
-     * @param milliseconds Time in milliseconds to sleep
-     */
-    private void sleep(long milliseconds) {
-        try {
-            Thread.sleep(milliseconds);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
     }
 }

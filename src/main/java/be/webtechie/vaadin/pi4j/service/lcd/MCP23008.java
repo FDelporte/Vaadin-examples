@@ -1,5 +1,6 @@
 package be.webtechie.vaadin.pi4j.service.lcd;
 
+import be.webtechie.vaadin.pi4j.service.SleepHelper;
 import com.pi4j.context.Context;
 import com.pi4j.io.i2c.I2C;
 import com.pi4j.io.i2c.I2CConfig;
@@ -86,9 +87,9 @@ public class MCP23008 {
     public void pulsePin(int bit, int pulseWidth) {
         checkPinNumber(bit);
         setAndWritePin(bit, false);
-        sleep(1);
+        SleepHelper.sleep(1);
         setAndWritePin(bit, true);
-        sleep(pulseWidth);
+        SleepHelper.sleep(pulseWidth);
         setAndWritePin(bit, false);
     }
 
@@ -154,13 +155,5 @@ public class MCP23008 {
      */
     public byte getGpioState() {
         return this.gpioState;
-    }
-
-    void sleep(long milliseconds) {
-        try {
-            Thread.sleep(milliseconds);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
     }
 }
