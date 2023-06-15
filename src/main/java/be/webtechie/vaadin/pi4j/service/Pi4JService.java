@@ -300,7 +300,7 @@ public class Pi4JService {
     public void playNote(Note note) {
         logger.info("Playing not {}", note);
         try {
-            buzzer.playTone(note.getFrequency(), 500);
+            buzzer.playTone(note.getFrequency(), 150);
         } catch (Exception ex) {
             logger.error("Can't play note: {}", ex.getMessage());
         }
