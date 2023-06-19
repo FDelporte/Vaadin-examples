@@ -103,6 +103,7 @@ public class Pi4JService {
             ledMatrix = new LedMatrixComponent(pi4j);
             ledMatrix.setEnabled(true);
             ledMatrix.setBrightness(7);
+            ledMatrix.clear();
             logger.info("The LED matrix has been initialized");
         } catch (Exception ex) {
             logger.error("Error while initializing the LED matrix: {}", ex.getMessage());
@@ -117,6 +118,7 @@ public class Pi4JService {
             // These are the defaults and just here for demonstration purposes
             sevenSegment.setBlinkRate(0);
             sevenSegment.setBrightness(15);
+            sevenSegment.clear();
             logger.info("The segment display has been initialized");
         } catch (Exception ex) {
             logger.error("Error while initializing the seven segment component: {}", ex.getMessage());

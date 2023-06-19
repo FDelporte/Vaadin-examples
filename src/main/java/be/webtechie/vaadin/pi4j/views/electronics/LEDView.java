@@ -13,13 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class LEDView extends HorizontalLayout {
 
     public LEDView(@Autowired Pi4JService pi4JService) {
+        setMargin(true);
+        
         var turnOnOff = new Checkbox("Turn the LED on");
         turnOnOff.addValueChangeListener(e -> pi4JService.setLedState(e.getValue()));
-
-        setMargin(true);
-        setVerticalComponentAlignment(Alignment.END, turnOnOff);
-
         add(turnOnOff);
     }
-
 }

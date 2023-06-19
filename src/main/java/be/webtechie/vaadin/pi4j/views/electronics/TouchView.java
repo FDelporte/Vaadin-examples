@@ -26,12 +26,11 @@ public class TouchView extends HorizontalLayout implements ChangeListener {
     public TouchView(Pi4JService pi4JService) {
         this.pi4JService = pi4JService;
 
+        setMargin(true);
+
         ui = UI.getCurrent();
         lbl = new Label("Waiting for touch event...");
         add(lbl);
-
-        setMargin(true);
-        setVerticalComponentAlignment(Alignment.END, lbl);
     }
 
     @Override
