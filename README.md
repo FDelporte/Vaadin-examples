@@ -8,30 +8,21 @@ Following versions of this code are available in branches:
 * [vaadin-23-spring-2.6](https://github.com/FDelporte/Vaadin-examples/tree/vaadin-23-spring-2.6): Initial example with
   LED output and button input, based on Vaadin 23 and Spring Boot 2.6. It is described in detail
   in [this Foojay.io blog post](https://foojay.io/today/blink-a-led-on-raspberry-pi-with-vaadin/).
-* [main](https://github.com/FDelporte/Vaadin-examples/tree/main): WORK IN PROGRESS ... Extended example with Vaadin
-  24.0.4, Spring Boot
-  3.0.6, and Pi4J 2.3.0. Configuration of the component is specific for the CrowPi 1. Blog post is "under construction".
+* [main](https://github.com/FDelporte/Vaadin-examples/tree/main): Extended example with Vaadin 24.0.4, Spring Boot
+  3.0.6, and Pi4J 2.3.0. Configuration of the component is specific for the CrowPi 1, based on example
+  code [described here](https://pi4j.com/getting-started/crowpi/).
 
 ## Vaadin UI
 
 The base code with different Vaadin layouts, was generated on [start.vaadin.com/app](https://start.vaadin.com/app).
 
-![Vaadin UI](doc/vaadin-ui.png)
+![Vaadin UI](doc/screenshot-running-on-rpi.png)
 
-## GPIO interfaces
+## Components
 
-### Minimal LED and button
+The application can interact with various components in the CrowPi1.
 
-The GPIO interaction of the initial example is based on
-the [Pi4J minimal example application](https://pi4j.com/getting-started/minimal-example-application/)
-and uses a button and a LED to demonstration digital input and output interaction. The wiring is very simple and only
-needs a few components
-
-![Wiring diagram](https://pi4j.com/assets/getting-started/minimal/led-button_bb.png)
-
-### Extended device examples
-
-TODO
+![Demo content on CrowPi](doc/demo-content-on-crowpi.jpg)
 
 ## Upload to Raspberry Pi
 
@@ -100,8 +91,7 @@ Once the JAR file is built, you can run it using
 ## Project structure
 
 - `MainLayout.java` in `src/main/java` contains the navigation setup (i.e., the side/top bar and the main menu). This
-  setup uses
-  [App Layout](https://vaadin.com/components/vaadin-app-layout).
+  setup uses [App Layout](https://vaadin.com/components/vaadin-app-layout).
 - `views` package in `src/main/java` contains the server-side Java views of your application.
 - `views` folder in `frontend/` contains the client-side JavaScript views of your application.
 - `themes` folder in `frontend/` contains the custom CSS styles.
