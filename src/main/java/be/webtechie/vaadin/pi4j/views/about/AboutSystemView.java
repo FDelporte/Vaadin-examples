@@ -1,5 +1,6 @@
 package be.webtechie.vaadin.pi4j.views.about;
 
+import be.webtechie.vaadin.pi4j.service.Pi4JService;
 import be.webtechie.vaadin.pi4j.service.SystemInformationService;
 import be.webtechie.vaadin.pi4j.views.MainLayout;
 import com.vaadin.flow.component.button.Button;
@@ -29,13 +30,13 @@ public class AboutSystemView extends VerticalLayout {
     private final Paragraph players = new Paragraph();
 
 
-    public AboutSystemView(SystemInformationService sis, ScheduledExecutorService es) {
+    public AboutSystemView(SystemInformationService sis, Pi4JService pi4JService, ScheduledExecutorService es) {
         this.sis = sis;
         setSpacing(false);
 
         scheduledFuture = es.scheduleWithFixedDelay(this::updateDetails, 5, 5, TimeUnit.SECONDS);
-        add(new H3("Server details"));
-        add(new Paragraph("Running on: " + "TODO" + ". Below some usage stats."));
+
+        add(new H3("Usage statistics"));
         add(memory, cpu, players);
 
         Paragraph latencyReport = new Paragraph();

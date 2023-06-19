@@ -13,6 +13,7 @@
     <properties>
         <java.version>19</java.version>
         <pi4j.version>2.3.0</pi4j.version>
+        <pi4j.boardinfo.version>0.2.0</pi4j.boardinfo.version>
         <vaadin.version>24.0.4</vaadin.version>
         <selenium.version>4.8.3</selenium.version>
     </properties>
@@ -71,6 +72,7 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- Pi4J -->
         <dependency>
             <groupId>com.pi4j</groupId>
             <artifactId>pi4j-core</artifactId>
@@ -85,6 +87,13 @@
             <groupId>com.pi4j</groupId>
             <artifactId>pi4j-plugin-pigpio</artifactId>
             <version>${pi4j.version}</version>
+        </dependency>
+
+        <!-- Pi4J Board Info library -->
+        <dependency>
+            <groupId>com.pi4j</groupId>
+            <artifactId>pi4j-board-info</artifactId>
+            <version>${pi4j.boardinfo.version}</version>
         </dependency>
 
         <dependency>

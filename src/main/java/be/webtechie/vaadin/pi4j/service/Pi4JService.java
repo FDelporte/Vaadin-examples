@@ -8,6 +8,8 @@ import be.webtechie.vaadin.pi4j.service.matrix.MatrixDirection;
 import be.webtechie.vaadin.pi4j.service.matrix.MatrixSymbol;
 import be.webtechie.vaadin.pi4j.service.segment.SevenSegmentComponent;
 import be.webtechie.vaadin.pi4j.service.segment.SevenSegmentSymbol;
+import com.pi4j.boardinfo.model.DetectedBoard;
+import com.pi4j.boardinfo.util.BoardModelDetection;
 import com.pi4j.context.Context;
 import com.pi4j.io.gpio.digital.DigitalInput;
 import com.pi4j.io.gpio.digital.DigitalOutput;
@@ -30,6 +32,7 @@ public class Pi4JService {
     private static final int PIN_TOUCH = 17;
     private static final long TOUCH_DEBOUNCE = 10000;
     static Executor executor = Executors.newSingleThreadExecutor();
+    private final DetectedBoard detectedBoard;
     private final Context pi4j;
     private final Queue<ChangeListener> listeners;
     private final Logger logger = LoggerFactory.getLogger(Pi4JService.class);
@@ -40,6 +43,7 @@ public class Pi4JService {
     private BuzzerComponent buzzer;
 
     public Pi4JService() {
+        detectedBoard = BoardModelDetection.getDetectedBoard();
         pi4j = CrowPiPlatform.buildNewContext();
         listeners = new ConcurrentLinkedQueue<>();
         initLed();
@@ -146,6 +150,13 @@ public class Pi4JService {
      */
     public synchronized void removeListener(ChangeListener listener) {
         listeners.remove(listener);
+    }
+
+    /**
+     * Return the info about the detected board
+     */
+    public DetectedBoard getDetectedBoard() {
+        return detectedBoard;
     }
 
     /**

@@ -18,11 +18,18 @@ public class AboutPi4JView extends VerticalLayout {
     public AboutPi4JView(@Autowired Pi4JService pi4JService) {
         setSpacing(false);
         add(
+                new H2("Detected board"),
+                new Paragraph("Board model: " + pi4JService.getDetectedBoard().getBoardModel().getLabel()
+                        + ", " + pi4JService.getDetectedBoard().getBoardModel().getNumberOfCpu()
+                        + "x" + pi4JService.getDetectedBoard().getBoardModel().getCpu()),
+                new Paragraph("OS: " + pi4JService.getDetectedBoard().getOperatingSystem().getName()
+                        + ", " + pi4JService.getDetectedBoard().getOperatingSystem().getArchitecture()
+                        + ", " + pi4JService.getDetectedBoard().getOperatingSystem().getVersion()),
                 new H2("Java"),
-                new Paragraph("Version: " + System.getProperty("java.version")),
-                new Paragraph("Runtime version: " + System.getProperty("java.runtime.version")),
-                new Paragraph("Vendor: " + System.getProperty("java.vendor")),
-                new Paragraph("Vendor version: " + System.getProperty("java.vendor.version")),
+                new Paragraph("Version: " + pi4JService.getDetectedBoard().getJavaInfo().getVersion()
+                        + " (" + pi4JService.getDetectedBoard().getJavaInfo().getRuntime() + ")"),
+                new Paragraph("Vendor: " + pi4JService.getDetectedBoard().getJavaInfo().getVendor()
+                        + " (" + pi4JService.getDetectedBoard().getJavaInfo().getVendorVersion() + ")"),
                 new H2("Pi4J"),
                 new Paragraph("Default platform: " + pi4JService.getDefaultPlatform()),
                 new Paragraph("Loaded platforms: " + pi4JService.getLoadedPlatforms()),
