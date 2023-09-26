@@ -1,5 +1,7 @@
 package be.webtechie.vaadin.pi4j.service.segment;
 
+import org.apache.commons.codec.binary.Hex;
+
 public enum SevenSegmentSymbol {
     EMPTY("EMPTY", fromSegments()),
     MINUS("-", fromSegments(SegmentMapping.CENTER)),
@@ -50,5 +52,13 @@ public enum SevenSegmentSymbol {
 
     public Byte getValue() {
         return value;
+    }
+
+    public String getHexValue() {
+        return ("#" + Hex.encodeHexString(new byte[]{value})).toUpperCase();
+    }
+
+    public String getBitsValue() {
+        return Integer.toBinaryString(value & 0xFF);
     }
 }

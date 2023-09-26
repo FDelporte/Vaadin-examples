@@ -242,7 +242,8 @@ public class Pi4JService {
         } catch (Exception ex) {
             logger.error("Can't set LED matrix: {}", ex.getMessage());
         }
-        broadcast(ChangeListener.ChangeType.MATRIX, "Symbol: " + symbol.name());
+        broadcast(ChangeListener.ChangeType.MATRIX, "Symbol: " + symbol.name()
+                + " - HEX: " + symbol.getHexValue());
     }
 
     public void moveLedMatrix(MatrixDirection direction) {
@@ -266,7 +267,10 @@ public class Pi4JService {
         } catch (Exception ex) {
             logger.error("Can't set seven segment: {}", ex.getMessage());
         }
-        broadcast(ChangeListener.ChangeType.SEGMENT, "Position: " + (position + 1) + " - Symbol: " + symbol.name());
+        broadcast(ChangeListener.ChangeType.SEGMENT, "Position: " + (position + 1)
+                + " - Symbol: " + symbol.name()
+                + " - HEX: " + symbol.getHexValue()
+                + " - Bits: " + symbol.getBitsValue());
     }
 
     /**
@@ -317,7 +321,9 @@ public class Pi4JService {
         } catch (Exception ex) {
             logger.error("Can't play note: {}", ex.getMessage());
         }
-        broadcast(ChangeListener.ChangeType.BUZZER, "Played note " + note.name());
+        broadcast(ChangeListener.ChangeType.BUZZER, "Played note " + note.name()
+                + " - Frequency: " + note.getFrequency()
+                + " - HEX: " + note.getHexValue());
     }
 
     /**

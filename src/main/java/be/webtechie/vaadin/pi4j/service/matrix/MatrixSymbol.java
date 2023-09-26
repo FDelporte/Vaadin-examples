@@ -1,5 +1,7 @@
 package be.webtechie.vaadin.pi4j.service.matrix;
 
+import org.apache.commons.codec.binary.Hex;
+
 /**
  * Mapping of various symbols to their respective 8x8 encoding.
  * Each symbol can be linked to an optional ASCII code which can be looked up using {@link #getByChar(char)}.
@@ -192,5 +194,9 @@ public enum MatrixSymbol {
      */
     public byte[] getRows() {
         return this.rows;
+    }
+
+    public String getHexValue() {
+        return ("#" + Hex.encodeHexString(rows)).toUpperCase();
     }
 }

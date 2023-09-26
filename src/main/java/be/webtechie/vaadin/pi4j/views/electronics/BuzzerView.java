@@ -64,3 +64,4 @@ public class BuzzerView extends VerticalLayout implements ChangeListener {
         logs.addLine(message);
     }
 }
+
