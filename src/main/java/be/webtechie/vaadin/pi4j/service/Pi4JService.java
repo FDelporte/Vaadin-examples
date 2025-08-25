@@ -59,8 +59,7 @@ public class Pi4JService {
                     .name("LED")
                     .address(PIN_LED)
                     .shutdown(DigitalState.LOW)
-                    .initial(DigitalState.LOW)
-                    .provider("pigpio-digital-output");
+                    .initial(DigitalState.LOW);
             led = pi4j.create(ledConfig);
             logger.info("The LED has been initialized on pin {}", PIN_LED);
         } catch (Exception ex) {
