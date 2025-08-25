@@ -1,74 +1,78 @@
 package be.webtechie.vaadin.pi4j.views;
 
-import be.webtechie.vaadin.pi4j.service.SystemInformationService;
-import be.webtechie.vaadin.pi4j.views.about.AboutPi4JView;
-import be.webtechie.vaadin.pi4j.views.about.AboutSystemView;
 import be.webtechie.vaadin.pi4j.views.electronics.*;
-import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.html.Footer;
 import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Header;
-import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.SvgIcon;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.component.sidenav.SideNavItem;
-import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.Layout;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
+import com.vaadin.flow.server.menu.MenuConfiguration;
+import com.vaadin.flow.server.menu.MenuEntry;
 import com.vaadin.flow.theme.lumo.LumoUtility;
+
+import java.util.List;
 
 /**
  * The main view is a top-level placeholder for other views.
  */
+@Layout
+@AnonymousAllowed
 public class MainLayout extends AppLayout {
 
-    private final SystemInformationService systemInformationService;
-    private H2 viewTitle;
+    private H1 viewTitle;
 
-    public MainLayout(SystemInformationService systemInformationService) {
-        this.systemInformationService = systemInformationService;
+    public MainLayout() {
+        setPrimarySection(Section.DRAWER);
+        addDrawerContent();
+        addHeaderContent();
+    }
 
+    private void addHeaderContent() {
         DrawerToggle toggle = new DrawerToggle();
+        toggle.setAriaLabel("Menu toggle");
 
-        H1 title = new H1("Pi4J Vaadin Demo");
-        title.getStyle().set("font-size", "var(--lumo-font-size-l)").set("margin", "0");
+        viewTitle = new H1();
+        viewTitle.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
 
-        SideNav nav = getSideNav();
-
-        Scroller scroller = new Scroller(nav);
-        scroller.setClassName(LumoUtility.Padding.SMALL);
-
-        addToDrawer(scroller);
-        addToNavbar(toggle, title);
+        addToNavbar(true, toggle, viewTitle);
     }
 
-    @Override
-    protected void onAttach(AttachEvent attachEvent) {
-        systemInformationService.register();
+    private void addDrawerContent() {
+        Span appName = new Span("Pi4J Vaadin Demo");
+        appName.addClassNames(LumoUtility.FontWeight.SEMIBOLD, LumoUtility.FontSize.LARGE);
+        Header header = new Header(appName);
+
+        Scroller scroller = new Scroller(createNavigation());
+
+        addToDrawer(header, scroller, createFooter());
     }
 
-    @Override
-    protected void onDetach(DetachEvent detachEvent) {
-        systemInformationService.deRegister();
-    }
+    private SideNav createNavigation() {
+        SideNav nav = new SideNav();
 
-    private SideNav getSideNav() {
-        var nav = new SideNav();
-        nav.addItem(new SideNavItem("Pi4J Info", AboutPi4JView.class, VaadinIcon.INFO.create()));
-        nav.addItem(new SideNavItem("System Info", AboutSystemView.class, VaadinIcon.SERVER.create()));
-        nav.addItem(new SideNavItem("LED", LEDView.class, VaadinIcon.LIGHTBULB.create()));
-        nav.addItem(new SideNavItem("Buzzer", BuzzerView.class, VaadinIcon.VOLUME_UP.create()));
-        nav.addItem(new SideNavItem("Touch", TouchView.class, VaadinIcon.TOUCH.create()));
-        nav.addItem(new SideNavItem("LCD Display", LcdDisplayView.class, VaadinIcon.VIEWPORT.create()));
-        nav.addItem(new SideNavItem("LED Matrix", MatrixView.class, VaadinIcon.GRID_SMALL.create()));
-        nav.addItem(new SideNavItem("Seven Segments", SevenSegmentView.class, VaadinIcon.TABLE.create()));
+        List<MenuEntry> menuEntries = MenuConfiguration.getMenuEntries();
+        menuEntries.forEach(entry -> {
+            if (entry.icon() != null) {
+                nav.addItem(new SideNavItem(entry.title(), entry.path(), new SvgIcon(entry.icon())));
+            } else {
+                nav.addItem(new SideNavItem(entry.title(), entry.path()));
+            }
+        });
+
         return nav;
     }
 
     private Footer createFooter() {
-        return new Footer();
+        Footer layout = new Footer();
+
+        return layout;
     }
 
     @Override
@@ -78,7 +82,6 @@ public class MainLayout extends AppLayout {
     }
 
     private String getCurrentPageTitle() {
-        PageTitle title = getContent().getClass().getAnnotation(PageTitle.class);
-        return title == null ? "" : title.value();
+        return MenuConfiguration.getPageHeader(getContent()).orElse("");
     }
 }

@@ -2,25 +2,27 @@ package be.webtechie.vaadin.pi4j.views.electronics;
 
 import be.webtechie.vaadin.pi4j.service.ChangeListener;
 import be.webtechie.vaadin.pi4j.service.Pi4JService;
-import be.webtechie.vaadin.pi4j.views.MainLayout;
 import com.pi4j.io.gpio.digital.DigitalState;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
 @PageTitle("Touch")
-@Route(value = "touch", layout = MainLayout.class)
+@Route("touch")
+@Menu(order = 1, icon = LineAwesomeIconUrl.POWER_OFF_SOLID)
 public class TouchView extends HorizontalLayout implements ChangeListener {
 
     private final Pi4JService pi4JService;
     private final UI ui;
-    private final Label lbl;
+    private final H2 lbl;
     Logger logger = LoggerFactory.getLogger(TouchView.class);
 
     public TouchView(Pi4JService pi4JService) {
@@ -29,7 +31,7 @@ public class TouchView extends HorizontalLayout implements ChangeListener {
         setMargin(true);
 
         ui = UI.getCurrent();
-        lbl = new Label("Waiting for touch event...");
+        lbl = new H2("Waiting for touch event...");
         add(lbl);
     }
 
