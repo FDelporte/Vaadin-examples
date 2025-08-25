@@ -11,17 +11,16 @@
     <packaging>jar</packaging>
 
     <properties>
-        <java.version>19</java.version>
-        <pi4j.version>2.3.0</pi4j.version>
-        <pi4j.boardinfo.version>0.2.0</pi4j.boardinfo.version>
-        <vaadin.version>24.0.4</vaadin.version>
+        <java.version>24</java.version>
+        <pi4j.version>3.0.1</pi4j.version>
+        <vaadin.version>24.8.6</vaadin.version>
         <selenium.version>4.8.3</selenium.version>
     </properties>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.0.6</version>
+        <version>3.5.4</version>
     </parent>
 
     <repositories>
@@ -47,6 +46,7 @@
     </dependencyManagement>
 
     <dependencies>
+        <!-- Vaadin -->
         <dependency>
             <groupId>com.vaadin</groupId>
             <!-- Replace artifactId with vaadin-core to use only free components -->
@@ -62,6 +62,7 @@
             <version>1.1.0</version>
         </dependency>
 
+        <!-- Spring -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
@@ -89,13 +90,7 @@
             <version>${pi4j.version}</version>
         </dependency>
 
-        <!-- Pi4J Board Info library -->
-        <dependency>
-            <groupId>com.pi4j</groupId>
-            <artifactId>pi4j-board-info</artifactId>
-            <version>${pi4j.boardinfo.version}</version>
-        </dependency>
-
+        <!-- Test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
