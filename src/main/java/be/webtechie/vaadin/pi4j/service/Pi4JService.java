@@ -8,6 +8,7 @@ import be.webtechie.vaadin.pi4j.service.matrix.MatrixDirection;
 import be.webtechie.vaadin.pi4j.service.matrix.MatrixSymbol;
 import be.webtechie.vaadin.pi4j.service.segment.SevenSegmentComponent;
 import be.webtechie.vaadin.pi4j.service.segment.SevenSegmentSymbol;
+import com.pi4j.Pi4J;
 import com.pi4j.boardinfo.model.BoardInfo;
 import com.pi4j.context.Context;
 import com.pi4j.io.gpio.digital.DigitalInput;
@@ -41,7 +42,7 @@ public class Pi4JService {
     private BuzzerComponent buzzer;
 
     public Pi4JService() {
-        pi4j = CrowPiPlatform.buildNewContext();
+        pi4j = Pi4J.newAutoContext();
         listeners = new ConcurrentLinkedQueue<>();
         initLed();
         initTouch();
