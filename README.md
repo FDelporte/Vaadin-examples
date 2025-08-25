@@ -37,6 +37,12 @@ and upload to your Raspberry Pi with (replace login `pi` and the IP address with
 $ scp target/pi4jdemo-1.0-SNAPSHOT.jar pi@192.168.0.222://home/pi/
 ```
 
+Build and upload in one command:
+
+```shell
+./mvnw package -Pproduction && scp target/pi4jdemo-1.0-SNAPSHOT.jar frank@crowpi2.local://home/frank/vaadin-examples/ 
+```
+
 ## Run on Raspberry Pi
 
 We can now start the application on our Raspberry Pi, but need to run with `sudo` as Pi4J (still) needs this to be able
@@ -81,7 +87,7 @@ Eclipse, IntelliJ IDEA, NetBeans, and VS Code).
 
 ## Deploying to Production
 
-To create a production build, call `mvnw clean package -Pproduction` (Windows), or `./mvnw clean package -Pproduction` (
+To create a production build, call `mvnw package -Pproduction` (Windows), or `./mvnw package -Pproduction` (
 Mac & Linux). This will build a JAR file with all the dependencies and front-end resources, ready to be deployed. The
 file can be found in the `target` folder after the build completes.
 

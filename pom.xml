@@ -14,7 +14,6 @@
         <java.version>24</java.version>
         <pi4j.version>3.0.2</pi4j.version>
         <vaadin.version>24.8.6</vaadin.version>
-        <selenium.version>4.8.3</selenium.version>
     </properties>
 
     <parent>
@@ -49,17 +48,11 @@
         <!-- Vaadin -->
         <dependency>
             <groupId>com.vaadin</groupId>
-            <!-- Replace artifactId with vaadin-core to use only free components -->
-            <artifactId>vaadin</artifactId>
+            <artifactId>vaadin-core</artifactId>
         </dependency>
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-spring-boot-starter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.parttio</groupId>
-            <artifactId>line-awesome</artifactId>
-            <version>1.1.0</version>
         </dependency>
 
         <!-- Spring -->

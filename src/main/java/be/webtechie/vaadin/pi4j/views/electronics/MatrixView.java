@@ -10,13 +10,13 @@ import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vaadin.lineawesome.LineAwesomeIcon;
 
 @PageTitle("8x8 LED Matrix")
 @Route(value = "matrix", layout = MainLayout.class)
@@ -43,13 +43,13 @@ public class MatrixView extends VerticalLayout implements ChangeListener {
             }
         });
 
-        var rotateUp = new Button("Move", LineAwesomeIcon.ARROW_ALT_CIRCLE_UP_SOLID.create());
+        var rotateUp = new Button("Move", VaadinIcon.ARROW_UP.create());
         rotateUp.addClickListener(e -> pi4JService.moveLedMatrix(MatrixDirection.UP));
-        var rotateDown = new Button("Move", LineAwesomeIcon.ARROW_ALT_CIRCLE_DOWN_SOLID.create());
+        var rotateDown = new Button("Move", VaadinIcon.ARROW_DOWN.create());
         rotateDown.addClickListener(e -> pi4JService.moveLedMatrix(MatrixDirection.DOWN));
-        var rotateLeft = new Button("Move", LineAwesomeIcon.ARROW_ALT_CIRCLE_LEFT_SOLID.create());
+        var rotateLeft = new Button("Move", VaadinIcon.ARROW_LEFT.create());
         rotateLeft.addClickListener(e -> pi4JService.moveLedMatrix(MatrixDirection.LEFT));
-        var rotateRight = new Button("Move", LineAwesomeIcon.ARROW_ALT_CIRCLE_RIGHT_SOLID.create());
+        var rotateRight = new Button("Move", VaadinIcon.ARROW_RIGHT.create());
         rotateRight.addClickListener(e -> pi4JService.moveLedMatrix(MatrixDirection.RIGHT));
 
         var rotateHolder = new HorizontalLayout(rotateUp, rotateDown, rotateLeft, rotateRight);
