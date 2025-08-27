@@ -27,3 +27,5 @@
         * `/package-lock.json`
         * `/tsconfig.json`
         * `/types.d.ts`
+        * `/vite.config.ts`
+        * `/vite.generated.ts`
