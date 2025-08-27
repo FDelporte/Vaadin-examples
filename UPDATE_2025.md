@@ -18,4 +18,12 @@
 * Vaadin
     * SideNav
     * Needed to fix a build problem causing the production version to throw console error about push not working: make
-      sure to remove `src/main/bundles` when upgrading Vaadin versions.
+      sure to remove `src/main/bundles` when upgrading Vaadin versions. Remove all these to make sure the build will be
+      OK:
+        * `/frontend/generated/`
+        * `/src/main/bundles`
+        * `/target`
+        * `/package.json`
+        * `/package-lock.json`
+        * `/tsconfig.json`
+        * `/types.d.ts`
