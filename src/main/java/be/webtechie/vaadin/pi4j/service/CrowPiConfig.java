@@ -1,8 +1,8 @@
 package be.webtechie.vaadin.pi4j.service;
 
 public enum CrowPiConfig {
-    CROWPI_1(22, 17, 18),
-    CROWPI_2(21, 17, 2);
+    CROWPI_1_RPI_4(22, 17, 0),
+    CROWPI_2_RPI_5(21, 17, 2);
 
     private final int pinLed;
     private final int pinTouch;

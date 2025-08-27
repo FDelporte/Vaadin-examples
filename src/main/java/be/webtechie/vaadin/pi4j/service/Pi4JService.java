@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 @Service
 public class Pi4JService {
 
-    private static final CrowPiConfig crowPiConfig = CrowPiConfig.CROWPI_2;
+    private static final CrowPiConfig crowPiConfig = CrowPiConfig.CROWPI_2_RPI_5;
     private static final long TOUCH_DEBOUNCE = 10000;
     static Executor executor = Executors.newSingleThreadExecutor();
     private final Context pi4j;
