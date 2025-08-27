@@ -9,7 +9,7 @@ Following versions of this code are available in branches:
 * [vaadin-23-spring-2.6](https://github.com/FDelporte/Vaadin-examples/tree/vaadin-23-spring-2.6): Initial example with
   LED output and button input, based on Vaadin 23 and Spring Boot 2.6. It is described in detail
   in [this Foojay.io blog post](https://foojay.io/today/blink-a-led-on-raspberry-pi-with-vaadin/).
-* [vaadin-24-spring-3.0](https://github.com/FDelporte/Vaadin-examples/tree/vaadin-23-spring-2.6): Example used during a
+* [vaadin-24-spring-3.0](https://github.com/FDelporte/Vaadin-examples/tree/vaadin-24-spring-3.0): Example used during a
   few conference talks,
   e.g. [Controlling Electronics with Java and Pi4J through a web interface (J-Spring 2023)](https://www.youtube.com/watch?v=FXKsBKKB_Xg)
   and [Unlocking the Potential of Bits and Bytes (Devoxx 2023)](https://www.youtube.com/watch?v=ex0t2uaL27I).
