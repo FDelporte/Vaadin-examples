@@ -46,6 +46,9 @@ public class Pi4JService {
     private BuzzerComponent buzzer;
 
     public Pi4JService() {
+        // This application uses different communication types.
+        // As not all Pi4J plugins provide all communication types, we need to explicitly define them.
+        // There is also extra configuration needed for the PWM on Raspberry Pi 5.
         pi4j = Pi4J.newContextBuilder()
                 .add(new GpioDDigitalInputProviderImpl())
                 .add(new GpioDDigitalOutputProviderImpl())
