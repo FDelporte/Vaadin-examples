@@ -5,12 +5,14 @@ Raspberry Pi by using the [Pi4J library](https://www.pi4j.com).
 
 Following versions of this code are available in branches:
 
+* [main](https://github.com/FDelporte/Vaadin-examples/tree/main): Latest version.
 * [vaadin-23-spring-2.6](https://github.com/FDelporte/Vaadin-examples/tree/vaadin-23-spring-2.6): Initial example with
   LED output and button input, based on Vaadin 23 and Spring Boot 2.6. It is described in detail
   in [this Foojay.io blog post](https://foojay.io/today/blink-a-led-on-raspberry-pi-with-vaadin/).
-* [main](https://github.com/FDelporte/Vaadin-examples/tree/main): Extended example with Vaadin 24.0.4, Spring Boot
-  3.0.6, and Pi4J 2.3.0. Configuration of the component is specific for the CrowPi 1, based on example
-  code [described here](https://pi4j.com/getting-started/crowpi/).
+* [vaadin-24-spring-3.0](https://github.com/FDelporte/Vaadin-examples/tree/vaadin-23-spring-2.6): Example used during a
+  few conference talks,
+  e.g. [Controlling Electronics with Java and Pi4J through a web interface (J-Spring 2023)](https://www.youtube.com/watch?v=FXKsBKKB_Xg)
+  and [Unlocking the Potential of Bits and Bytes (Devoxx 2023)](https://www.youtube.com/watch?v=ex0t2uaL27I).
 
 ## Vaadin UI
 
