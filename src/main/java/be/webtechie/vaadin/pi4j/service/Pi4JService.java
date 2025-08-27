@@ -15,6 +15,11 @@ import com.pi4j.io.gpio.digital.DigitalInput;
 import com.pi4j.io.gpio.digital.DigitalOutput;
 import com.pi4j.io.gpio.digital.DigitalState;
 import com.pi4j.io.gpio.digital.PullResistance;
+import com.pi4j.plugin.gpiod.provider.gpio.digital.GpioDDigitalInputProviderImpl;
+import com.pi4j.plugin.gpiod.provider.gpio.digital.GpioDDigitalOutputProviderImpl;
+import com.pi4j.plugin.linuxfs.provider.i2c.LinuxFsI2CProviderImpl;
+import com.pi4j.plugin.linuxfs.provider.pwm.LinuxFsPwmProviderImpl;
+import com.pi4j.plugin.linuxfs.provider.spi.LinuxFsSpiProviderImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -41,8 +46,16 @@ public class Pi4JService {
     private BuzzerComponent buzzer;
 
     public Pi4JService() {
-        pi4j = Pi4J.newAutoContext();
+        pi4j = Pi4J.newContextBuilder()
+                .add(new GpioDDigitalInputProviderImpl())
+                .add(new GpioDDigitalOutputProviderImpl())
+                .add(new LinuxFsI2CProviderImpl())
+                .add(new LinuxFsSpiProviderImpl())
+                .add(new LinuxFsPwmProviderImpl("/sys/class/pwm/", 0))
+                .build();
+
         listeners = new ConcurrentLinkedQueue<>();
+
         initLed();
         initTouch();
         initLcdDisplay();
@@ -127,7 +140,7 @@ public class Pi4JService {
 
     private void initBuzzer() {
         try {
-            buzzer = new BuzzerComponent(pi4j);
+            buzzer = new BuzzerComponent(pi4j, crowPiConfig.getChannelPwmBuzzer());
             logger.info("The buzzer has been initialized");
         } catch (Exception ex) {
             logger.error("Error while initializing the seven segment component: {}", ex.getMessage());

@@ -13,17 +13,7 @@ public class BuzzerComponent {
     /**
      * If no pin is specified by the user, the default BCM pin 18 is used.
      */
-    protected static final int DEFAULT_PIN = 18;
     protected final Pwm pwm;
-
-    /**
-     * Creates a new buzzer component using the default pin.
-     *
-     * @param pi4j Pi4J context
-     */
-    public BuzzerComponent(Context pi4j) {
-        this(pi4j, DEFAULT_PIN);
-    }
 
     /**
      * Creates a new buzzer component with a custom BCM pin.
