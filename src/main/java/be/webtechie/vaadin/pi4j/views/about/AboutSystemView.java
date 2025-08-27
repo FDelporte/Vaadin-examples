@@ -2,13 +2,14 @@ package be.webtechie.vaadin.pi4j.views.about;
 
 import be.webtechie.vaadin.pi4j.service.Pi4JService;
 import be.webtechie.vaadin.pi4j.service.SystemInformationService;
-import be.webtechie.vaadin.pi4j.views.MainLayout;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
 import java.lang.management.MemoryUsage;
 import java.util.concurrent.ScheduledExecutorService;
@@ -20,7 +21,8 @@ import java.util.concurrent.TimeUnit;
  * https://github.com/mstahv/VaadinTetris/blob/master/src/main/java/org/vaadin/example/ServerDetails.java
  */
 @PageTitle("About - System Information")
-@Route(value = "about/system", layout = MainLayout.class)
+@Route("about/system")
+@Menu(order = 1, icon = LineAwesomeIconUrl.PENCIL_RULER_SOLID)
 public class AboutSystemView extends VerticalLayout {
 
     private final ScheduledFuture<?> scheduledFuture;

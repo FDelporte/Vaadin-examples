@@ -8,8 +8,8 @@ import be.webtechie.vaadin.pi4j.service.matrix.MatrixDirection;
 import be.webtechie.vaadin.pi4j.service.matrix.MatrixSymbol;
 import be.webtechie.vaadin.pi4j.service.segment.SevenSegmentComponent;
 import be.webtechie.vaadin.pi4j.service.segment.SevenSegmentSymbol;
-import com.pi4j.boardinfo.model.DetectedBoard;
-import com.pi4j.boardinfo.util.BoardModelDetection;
+import com.pi4j.Pi4J;
+import com.pi4j.boardinfo.model.BoardInfo;
 import com.pi4j.context.Context;
 import com.pi4j.io.gpio.digital.DigitalInput;
 import com.pi4j.io.gpio.digital.DigitalOutput;
@@ -28,11 +28,9 @@ import java.util.stream.Collectors;
 @Service
 public class Pi4JService {
 
-    private static final int PIN_LED = 22;
-    private static final int PIN_TOUCH = 17;
+    private static final CrowPiConfig crowPiConfig = CrowPiConfig.CROWPI_2;
     private static final long TOUCH_DEBOUNCE = 10000;
     static Executor executor = Executors.newSingleThreadExecutor();
-    private final DetectedBoard detectedBoard;
     private final Context pi4j;
     private final Queue<ChangeListener> listeners;
     private final Logger logger = LoggerFactory.getLogger(Pi4JService.class);
@@ -43,8 +41,7 @@ public class Pi4JService {
     private BuzzerComponent buzzer;
 
     public Pi4JService() {
-        detectedBoard = BoardModelDetection.getDetectedBoard();
-        pi4j = CrowPiPlatform.buildNewContext();
+        pi4j = Pi4J.newAutoContext();
         listeners = new ConcurrentLinkedQueue<>();
         initLed();
         initTouch();
@@ -59,12 +56,11 @@ public class Pi4JService {
             var ledConfig = DigitalOutput.newConfigBuilder(pi4j)
                     .id("led")
                     .name("LED")
-                    .address(PIN_LED)
+                    .address(crowPiConfig.getPinLed())
                     .shutdown(DigitalState.LOW)
-                    .initial(DigitalState.LOW)
-                    .provider("pigpio-digital-output");
+                    .initial(DigitalState.LOW);
             led = pi4j.create(ledConfig);
-            logger.info("The LED has been initialized on pin {}", PIN_LED);
+            logger.info("The LED has been initialized on pin {}", crowPiConfig.getPinLed());
         } catch (Exception ex) {
             logger.error("Error while initializing the LED: {}", ex.getMessage());
         }
@@ -73,9 +69,9 @@ public class Pi4JService {
     private void initTouch() {
         try {
             var touchConfig = DigitalInput.newConfigBuilder(pi4j)
-                    .id("BCM" + PIN_TOUCH)
+                    .id("BCM" + crowPiConfig.getPinTouch())
                     .name("TouchSensor")
-                    .address(PIN_TOUCH)
+                    .address(crowPiConfig.getPinTouch())
                     .debounce(TOUCH_DEBOUNCE)
                     .pull(PullResistance.PULL_UP)
                     .build();
@@ -84,7 +80,7 @@ public class Pi4JService {
                 logger.info("Touch state changed to {}", e.state());
                 broadcast(ChangeListener.ChangeType.TOUCH, String.valueOf(e.state().value()));
             });
-            logger.info("The touch sensor has been initialized on pin {}", PIN_TOUCH);
+            logger.info("The touch sensor has been initialized on pin {}", crowPiConfig.getPinTouch());
         } catch (Exception ex) {
             logger.error("Error while initializing the touch sensor: {}", ex.getMessage());
         }
@@ -155,8 +151,8 @@ public class Pi4JService {
     /**
      * Return the info about the detected board
      */
-    public DetectedBoard getDetectedBoard() {
-        return detectedBoard;
+    public BoardInfo getBoardInfo() {
+        return pi4j.boardInfo();
     }
 
     /**
@@ -315,7 +311,7 @@ public class Pi4JService {
      * Play a note on the buzzer.
      */
     public void playNote(Note note) {
-        logger.info("Playing not {}", note);
+        logger.info("Playing note {}", note);
         try {
             buzzer.playTone(note.getFrequency(), 150);
         } catch (Exception ex) {
