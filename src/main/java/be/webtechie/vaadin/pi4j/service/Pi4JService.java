@@ -6,6 +6,7 @@ import be.webtechie.vaadin.pi4j.service.lcd.LcdDisplayComponent;
 import be.webtechie.vaadin.pi4j.service.matrix.LedMatrixComponent;
 import be.webtechie.vaadin.pi4j.service.matrix.MatrixDirection;
 import be.webtechie.vaadin.pi4j.service.matrix.MatrixSymbol;
+import be.webtechie.vaadin.pi4j.service.rgbmatrix.RgbLedMatrixComponent;
 import be.webtechie.vaadin.pi4j.service.segment.SevenSegmentComponent;
 import be.webtechie.vaadin.pi4j.service.segment.SevenSegmentSymbol;
 import com.pi4j.Pi4J;
@@ -24,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.awt.*;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
@@ -42,6 +44,7 @@ public class Pi4JService {
     private DigitalOutput led;
     private LcdDisplayComponent lcdDisplay;
     private LedMatrixComponent ledMatrix;
+    private RgbLedMatrixComponent rgbLedMatrixComponent;
     private SevenSegmentComponent sevenSegment;
     private BuzzerComponent buzzer;
 
@@ -62,9 +65,14 @@ public class Pi4JService {
         initLed();
         initTouch();
         initLcdDisplay();
-        initLedMatrix();
         initSevenSegment();
         initBuzzer();
+
+        if (crowPiConfig.getHasRGBMatrix()) {
+            initRgbLedMatrix();
+        } else {
+            initLedMatrix();
+        }
     }
 
     private void initLed() {
@@ -114,6 +122,9 @@ public class Pi4JService {
         }
     }
 
+    /**
+     * Uses a single-color (red) 8x8 LED matrix controlled by the MAX7219 chip via SPI
+     */
     private void initLedMatrix() {
         try {
             ledMatrix = new LedMatrixComponent(pi4j);
@@ -126,9 +137,21 @@ public class Pi4JService {
         }
     }
 
+    /**
+     * Uses a single-color (red) 8x8 LED matrix controlled by the MAX7219 chip via SPI
+     */
+    private void initRgbLedMatrix() {
+        try {
+            rgbLedMatrixComponent = new RgbLedMatrixComponent(pi4j, 12);
+            logger.info("The RGB LED matrix has been initialized");
+        } catch (Exception ex) {
+            logger.error("Error while initializing the RGB LED matrix: {}", ex.getMessage());
+        }
+    }
+
     private void initSevenSegment() {
         try {
-            sevenSegment = new SevenSegmentComponent(pi4j);
+            sevenSegment = new SevenSegmentComponent(pi4j, crowPiConfig.getSevenSegmentDisplayIndexes());
             sevenSegment.setEnabled(true);
             // Activate full brightness and disable blinking
             // These are the defaults and just here for demonstration purposes
@@ -240,8 +263,13 @@ public class Pi4JService {
     public void clearLedMatrix() {
         logger.info("Clearing LED matrix");
         try {
-            ledMatrix.clear();
-            ledMatrix.refresh();
+            if (crowPiConfig.getHasRGBMatrix()) {
+                rgbLedMatrixComponent.clear();
+                rgbLedMatrixComponent.refresh();
+            } else {
+                ledMatrix.clear();
+                ledMatrix.refresh();
+            }
         } catch (Exception ex) {
             logger.error("Can't clear LED matrix: {}", ex.getMessage());
         }
@@ -250,7 +278,11 @@ public class Pi4JService {
     public void setLedMatrix(MatrixSymbol symbol) {
         logger.info("LED matrix print: {}", symbol.name());
         try {
-            ledMatrix.print(symbol);
+            if (crowPiConfig.getHasRGBMatrix()) {
+                rgbLedMatrixComponent.print(symbol, Color.BLUE);
+            } else {
+                ledMatrix.print(symbol);
+            }
         } catch (Exception ex) {
             logger.error("Can't set LED matrix: {}", ex.getMessage());
         }
@@ -261,7 +293,11 @@ public class Pi4JService {
     public void moveLedMatrix(MatrixDirection direction) {
         logger.info("LED matrix rotate: {}", direction.name());
         try {
-            ledMatrix.rotate(direction);
+            if (crowPiConfig.getHasRGBMatrix()) {
+                rgbLedMatrixComponent.rotate(direction);
+            } else {
+                ledMatrix.rotate(direction);
+            }
         } catch (Exception ex) {
             logger.error("Can't move LED matrix: {}", ex.getMessage());
         }

@@ -3,6 +3,8 @@ package be.webtechie.vaadin.pi4j.service.segment;
 import com.pi4j.context.Context;
 import com.pi4j.io.i2c.I2C;
 import com.pi4j.io.i2c.I2CConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -27,18 +29,16 @@ public class SevenSegmentComponent extends HT16K33 {
      * Internal buffer index for the colon of the seven-segment display
      */
     private static final int COLON_INDEX = 4;
-    /**
-     * Internal buffer indices for the digits of the seven-segment display
-     */
-    private static final int[] DIGIT_INDICES = new int[]{0, 2, 6, 8};
+    private final int[] sevenSegmentDisplayIndexes;
+    private final Logger logger = LoggerFactory.getLogger(SevenSegmentComponent.class);
 
     /**
      * Creates a new seven-segment display component with the default bus and device address.
      *
      * @param pi4j Pi4J context
      */
-    public SevenSegmentComponent(Context pi4j) {
-        this(pi4j, DEFAULT_BUS, DEFAULT_DEVICE);
+    public SevenSegmentComponent(Context pi4j, int[] sevenSegmentDisplayIndexes) {
+        this(pi4j, DEFAULT_BUS, DEFAULT_DEVICE, sevenSegmentDisplayIndexes);
     }
 
     /**
@@ -48,8 +48,9 @@ public class SevenSegmentComponent extends HT16K33 {
      * @param bus    Bus address
      * @param device Device address
      */
-    public SevenSegmentComponent(Context pi4j, int bus, int device) {
+    public SevenSegmentComponent(Context pi4j, int bus, int device, int[] sevenSegmentDisplayIndexes) {
         super(pi4j.create(buildI2CConfig(pi4j, bus, device)));
+        this.sevenSegmentDisplayIndexes = sevenSegmentDisplayIndexes;
     }
 
 
@@ -84,14 +85,15 @@ public class SevenSegmentComponent extends HT16K33 {
     /**
      * Sets the raw digit at the specified position. This method will take a byte value which gets processed by the underlying chip.
      * The byte represents a bitset where each bit belongs to a specific segment and decides if its enabled (1) or disabled (0).
-     * Valid values can be crafted using the {@link #fromSegments(Segment...)} method.
      * This will only affect the internal buffer and does not get displayed until {@link #refresh()} gets called.
      *
      * @param position Desired position of digit from 0-3.
      * @param value    Raw byte value to be displayed.
      */
     protected void setRawDigit(int position, byte value) {
-        buffer[resolveDigitIndex(position)] = value;
+        var digitIndex = resolveDigitIndex(position);
+        logger.info("Setting digit on index {} to {}", digitIndex, value);
+        buffer[digitIndex] = value;
     }
 
     /**
@@ -103,12 +105,12 @@ public class SevenSegmentComponent extends HT16K33 {
      */
     private int resolveDigitIndex(int position) {
         // Ensure position is within bounds
-        final var maxPosition = DIGIT_INDICES.length - 1;
+        final var maxPosition = sevenSegmentDisplayIndexes.length - 1;
         if (position < 0 || position > maxPosition) {
             throw new IndexOutOfBoundsException("Digit position is outside of range 0-" + maxPosition);
         }
 
         // Lookup actual index based on position
-        return DIGIT_INDICES[position];
+        return sevenSegmentDisplayIndexes[position];
     }
 }
