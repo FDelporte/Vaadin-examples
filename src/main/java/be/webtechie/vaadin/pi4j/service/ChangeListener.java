@@ -5,6 +5,7 @@ public interface ChangeListener {
 
     enum ChangeType {
         BUZZER,
+        DHT11,
         LCD,
         MATRIX,
         SEGMENT,

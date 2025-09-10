@@ -52,10 +52,20 @@ $ scp target/pi4jdemo-1.0-SNAPSHOT.jar pi@192.168.0.222://home/pi/
 Build and upload in one command:
 
 ```shell
-./mvnw clean package -Pproduction && scp target/pi4jdemo-1.0-SNAPSHOT.jar frank@crowpi2.local://home/frank/vaadin-examples/ 
+./mvnw clean package -Pproduction && scp target/pi4jdemo-1.0-SNAPSHOT.jar frank@crowpi2.local://home/frank/
 ```
 
 ## Run on Raspberry Pi
+
+PWM and DHT11 need to be enabled on the Raspberry Pi. For example, on a Raspberry Pi 5:
+
+```shell
+$ sudo nano /boot/firmware/config.txt 
+# Add at the end of the file:
+dtoverlay=pwm-2chan,pin=18,func=2,pin2=12,func2=4
+dtoverlay=dht11,gpiopin=4
+
+```
 
 We can now start the application on our Raspberry Pi
 to interact with the GPIOs.

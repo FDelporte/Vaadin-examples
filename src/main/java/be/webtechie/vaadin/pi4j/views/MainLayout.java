@@ -1,6 +1,6 @@
 package be.webtechie.vaadin.pi4j.views;
 
-import be.webtechie.vaadin.pi4j.views.electronics.*;
+import be.webtechie.vaadin.pi4j.service.Pi4JService;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.html.Footer;
@@ -28,7 +28,7 @@ public class MainLayout extends AppLayout {
 
     private H1 viewTitle;
 
-    public MainLayout() {
+    public MainLayout(Pi4JService pi4JService) {
         setPrimarySection(Section.DRAWER);
         addDrawerContent();
         addHeaderContent();
@@ -59,6 +59,9 @@ public class MainLayout extends AppLayout {
 
         List<MenuEntry> menuEntries = MenuConfiguration.getMenuEntries();
         menuEntries.forEach(entry -> {
+            if (Pi4JService.CROW_PI_CONFIG.getCrowPiVersion() == 2 && entry.path().contains("matrix")) {
+                return;
+            }
             if (entry.icon() != null) {
                 nav.addItem(new SideNavItem(entry.title(), entry.path(), new SvgIcon(entry.icon())));
             } else {

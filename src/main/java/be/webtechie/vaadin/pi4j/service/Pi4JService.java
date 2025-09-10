@@ -2,6 +2,7 @@ package be.webtechie.vaadin.pi4j.service;
 
 import be.webtechie.vaadin.pi4j.service.buzzer.BuzzerComponent;
 import be.webtechie.vaadin.pi4j.service.buzzer.Note;
+import be.webtechie.vaadin.pi4j.service.dht11.HumiTempComponent;
 import be.webtechie.vaadin.pi4j.service.lcd.LcdDisplayComponent;
 import be.webtechie.vaadin.pi4j.service.matrix.LedMatrixComponent;
 import be.webtechie.vaadin.pi4j.service.matrix.MatrixDirection;
@@ -27,26 +28,26 @@ import org.springframework.stereotype.Service;
 
 import java.awt.*;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 @Service
 public class Pi4JService {
 
-    private static final CrowPiConfig crowPiConfig = CrowPiConfig.CROWPI_2_RPI_5;
+    public static final CrowPiConfig CROW_PI_CONFIG = CrowPiConfig.CROWPI_2_RPI_5;
     private static final long TOUCH_DEBOUNCE = 10000;
     static Executor executor = Executors.newSingleThreadExecutor();
     private final Context pi4j;
     private final Queue<ChangeListener> listeners;
     private final Logger logger = LoggerFactory.getLogger(Pi4JService.class);
+    private final ScheduledExecutorService scheduler;
     private DigitalOutput led;
-    private LcdDisplayComponent lcdDisplay;
-    private LedMatrixComponent ledMatrix;
+    private LcdDisplayComponent lcdDisplayComponent;
+    private LedMatrixComponent ledMatrixComponent;
     private RgbLedMatrixComponent rgbLedMatrixComponent;
-    private SevenSegmentComponent sevenSegment;
-    private BuzzerComponent buzzer;
+    private SevenSegmentComponent sevenSegmentComponent;
+    private BuzzerComponent buzzerComponent;
+    private HumiTempComponent humiTempComponent;
 
     public Pi4JService() {
         // This application uses different communication types.
@@ -61,14 +62,17 @@ public class Pi4JService {
                 .build();
 
         listeners = new ConcurrentLinkedQueue<>();
+        scheduler = Executors.newSingleThreadScheduledExecutor();
+        scheduler.scheduleAtFixedRate(new Poller(), 0, HumiTempComponent.DEFAULT_POLLING_DELAY_MS, TimeUnit.MILLISECONDS);
 
         initLed();
         initTouch();
         initLcdDisplay();
         initSevenSegment();
         initBuzzer();
-
-        if (crowPiConfig.getHasRGBMatrix()) {
+        initDHT11();
+        
+        if (CROW_PI_CONFIG.getHasRGBMatrix()) {
             initRgbLedMatrix();
         } else {
             initLedMatrix();
@@ -80,11 +84,11 @@ public class Pi4JService {
             var ledConfig = DigitalOutput.newConfigBuilder(pi4j)
                     .id("led")
                     .name("LED")
-                    .address(crowPiConfig.getPinLed())
+                    .address(CROW_PI_CONFIG.getPinLed())
                     .shutdown(DigitalState.LOW)
                     .initial(DigitalState.LOW);
             led = pi4j.create(ledConfig);
-            logger.info("The LED has been initialized on pin {}", crowPiConfig.getPinLed());
+            logger.info("The LED has been initialized on pin {}", CROW_PI_CONFIG.getPinLed());
         } catch (Exception ex) {
             logger.error("Error while initializing the LED: {}", ex.getMessage());
         }
@@ -93,9 +97,9 @@ public class Pi4JService {
     private void initTouch() {
         try {
             var touchConfig = DigitalInput.newConfigBuilder(pi4j)
-                    .id("BCM" + crowPiConfig.getPinTouch())
+                    .id("BCM" + CROW_PI_CONFIG.getPinTouch())
                     .name("TouchSensor")
-                    .address(crowPiConfig.getPinTouch())
+                    .address(CROW_PI_CONFIG.getPinTouch())
                     .debounce(TOUCH_DEBOUNCE)
                     .pull(PullResistance.PULL_UP)
                     .build();
@@ -104,7 +108,7 @@ public class Pi4JService {
                 logger.info("Touch state changed to {}", e.state());
                 broadcast(ChangeListener.ChangeType.TOUCH, String.valueOf(e.state().value()));
             });
-            logger.info("The touch sensor has been initialized on pin {}", crowPiConfig.getPinTouch());
+            logger.info("The touch sensor has been initialized on pin {}", CROW_PI_CONFIG.getPinTouch());
         } catch (Exception ex) {
             logger.error("Error while initializing the touch sensor: {}", ex.getMessage());
         }
@@ -112,10 +116,10 @@ public class Pi4JService {
 
     private void initLcdDisplay() {
         try {
-            lcdDisplay = new LcdDisplayComponent(pi4j);
-            lcdDisplay.initialize();
-            lcdDisplay.writeLine("Hello", 1);
-            lcdDisplay.writeLine("   World!", 2);
+            lcdDisplayComponent = new LcdDisplayComponent(pi4j);
+            lcdDisplayComponent.initialize();
+            lcdDisplayComponent.writeLine("Hello", 1);
+            lcdDisplayComponent.writeLine("   World!", 2);
             logger.info("The LCD display has been initialized");
         } catch (Exception ex) {
             logger.error("Error while initializing the lcd display: {}", ex.getMessage());
@@ -127,10 +131,10 @@ public class Pi4JService {
      */
     private void initLedMatrix() {
         try {
-            ledMatrix = new LedMatrixComponent(pi4j);
-            ledMatrix.setEnabled(true);
-            ledMatrix.setBrightness(7);
-            ledMatrix.clear();
+            ledMatrixComponent = new LedMatrixComponent(pi4j);
+            ledMatrixComponent.setEnabled(true);
+            ledMatrixComponent.setBrightness(7);
+            ledMatrixComponent.clear();
             logger.info("The LED matrix has been initialized");
         } catch (Exception ex) {
             logger.error("Error while initializing the LED matrix: {}", ex.getMessage());
@@ -151,13 +155,13 @@ public class Pi4JService {
 
     private void initSevenSegment() {
         try {
-            sevenSegment = new SevenSegmentComponent(pi4j, crowPiConfig.getSevenSegmentDisplayIndexes());
-            sevenSegment.setEnabled(true);
+            sevenSegmentComponent = new SevenSegmentComponent(pi4j, CROW_PI_CONFIG.getSevenSegmentDisplayIndexes());
+            sevenSegmentComponent.setEnabled(true);
             // Activate full brightness and disable blinking
             // These are the defaults and just here for demonstration purposes
-            sevenSegment.setBlinkRate(0);
-            sevenSegment.setBrightness(15);
-            sevenSegment.clear();
+            sevenSegmentComponent.setBlinkRate(0);
+            sevenSegmentComponent.setBrightness(15);
+            sevenSegmentComponent.clear();
             logger.info("The segment display has been initialized");
         } catch (Exception ex) {
             logger.error("Error while initializing the seven segment component: {}", ex.getMessage());
@@ -166,10 +170,19 @@ public class Pi4JService {
 
     private void initBuzzer() {
         try {
-            buzzer = new BuzzerComponent(pi4j, crowPiConfig.getChannelPwmBuzzer());
+            buzzerComponent = new BuzzerComponent(pi4j, CROW_PI_CONFIG.getChannelPwmBuzzer());
             logger.info("The buzzer has been initialized");
         } catch (Exception ex) {
             logger.error("Error while initializing the seven segment component: {}", ex.getMessage());
+        }
+    }
+
+    private void initDHT11() {
+        try {
+            humiTempComponent = new HumiTempComponent();
+            logger.info("The humidity and temperature component has been initialized");
+        } catch (Exception ex) {
+            logger.error("Error while initializing the humidity and temperature component component: {}", ex.getMessage());
         }
     }
 
@@ -263,12 +276,12 @@ public class Pi4JService {
     public void clearLedMatrix() {
         logger.info("Clearing LED matrix");
         try {
-            if (crowPiConfig.getHasRGBMatrix()) {
+            if (CROW_PI_CONFIG.getHasRGBMatrix()) {
                 rgbLedMatrixComponent.clear();
                 rgbLedMatrixComponent.refresh();
             } else {
-                ledMatrix.clear();
-                ledMatrix.refresh();
+                ledMatrixComponent.clear();
+                ledMatrixComponent.refresh();
             }
         } catch (Exception ex) {
             logger.error("Can't clear LED matrix: {}", ex.getMessage());
@@ -278,10 +291,10 @@ public class Pi4JService {
     public void setLedMatrix(MatrixSymbol symbol) {
         logger.info("LED matrix print: {}", symbol.name());
         try {
-            if (crowPiConfig.getHasRGBMatrix()) {
+            if (CROW_PI_CONFIG.getHasRGBMatrix()) {
                 rgbLedMatrixComponent.print(symbol, Color.BLUE);
             } else {
-                ledMatrix.print(symbol);
+                ledMatrixComponent.print(symbol);
             }
         } catch (Exception ex) {
             logger.error("Can't set LED matrix: {}", ex.getMessage());
@@ -293,10 +306,10 @@ public class Pi4JService {
     public void moveLedMatrix(MatrixDirection direction) {
         logger.info("LED matrix rotate: {}", direction.name());
         try {
-            if (crowPiConfig.getHasRGBMatrix()) {
+            if (CROW_PI_CONFIG.getHasRGBMatrix()) {
                 rgbLedMatrixComponent.rotate(direction);
             } else {
-                ledMatrix.rotate(direction);
+                ledMatrixComponent.rotate(direction);
             }
         } catch (Exception ex) {
             logger.error("Can't move LED matrix: {}", ex.getMessage());
@@ -310,8 +323,8 @@ public class Pi4JService {
     public void setSevenSegment(int position, SevenSegmentSymbol symbol) {
         logger.info("Setting digit {} on position {} of seven segment display", symbol.name(), position);
         try {
-            sevenSegment.setSymbol(position, symbol);
-            sevenSegment.refresh();
+            sevenSegmentComponent.setSymbol(position, symbol);
+            sevenSegmentComponent.refresh();
         } catch (Exception ex) {
             logger.error("Can't set seven segment: {}", ex.getMessage());
         }
@@ -327,8 +340,8 @@ public class Pi4JService {
     public void clearSevenSegment() {
         logger.info("Clearing seven segment display");
         try {
-            sevenSegment.clear();
-            sevenSegment.refresh();
+            sevenSegmentComponent.clear();
+            sevenSegmentComponent.refresh();
         } catch (Exception ex) {
             logger.error("Can't clear seven segment: {}", ex.getMessage());
         }
@@ -340,7 +353,7 @@ public class Pi4JService {
     public void clearLcdDisplay() {
         logger.info("Clearing LCD display");
         try {
-            lcdDisplay.clearDisplay();
+            lcdDisplayComponent.clearDisplay();
         } catch (Exception ex) {
             logger.error("Can't clear seven segment: {}", ex.getMessage());
         }
@@ -352,7 +365,7 @@ public class Pi4JService {
     public void setLcdDisplay(int row, String text) {
         logger.info("Setting LCD display line {} to '{}'", row, text);
         try {
-            lcdDisplay.writeLine(text, row);
+            lcdDisplayComponent.writeLine(text, row);
         } catch (Exception ex) {
             logger.error("Can't set text on LCD display: {}", ex.getMessage());
         }
@@ -365,7 +378,7 @@ public class Pi4JService {
     public void playNote(Note note) {
         logger.info("Playing note {}", note);
         try {
-            buzzer.playTone(note.getFrequency(), 150);
+            buzzerComponent.playTone(note.getFrequency(), 150);
         } catch (Exception ex) {
             logger.error("Can't play note: {}", ex.getMessage());
         }
@@ -380,9 +393,20 @@ public class Pi4JService {
     public synchronized void broadcast(ChangeListener.ChangeType type, String message) {
         logger.debug("Broadcast {} to {}", type.name(), message);
         for (ChangeListener listener : listeners) {
-            executor.execute(() -> {
-                listener.onMessage(type, message);
-            });
+            executor.execute(() -> listener.onMessage(type, message));
+        }
+    }
+
+    /**
+     * Poller class which implements {@link Runnable} to be used with {@link ScheduledExecutorService} for repeated execution.
+     */
+    private final class Poller implements Runnable {
+        @Override
+        public void run() {
+            if (humiTempComponent != null) {
+                var measurement = humiTempComponent.getMeasurement();
+                broadcast(ChangeListener.ChangeType.DHT11, measurement.toString());
+            }
         }
     }
 }

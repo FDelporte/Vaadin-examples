@@ -3,10 +3,10 @@
          xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <!-- Project from https://start.vaadin.com/project/469c5e72-e2dd-4981-9ff0-e515069c672a -->
+
     <groupId>be.webtechie</groupId>
     <artifactId>pi4jdemo</artifactId>
-    <name>Vaadin demo with Pi4J</name>
+    <name>Pi4J Vaadin Examples</name>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
