@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 @Service
 public class Pi4JService {
 
-    public static final CrowPiConfig CROW_PI_CONFIG = CrowPiConfig.CROWPI_2_RPI_5;
+    public static final DemoSetupConfig DEMO_SETUP_CONFIG = DemoSetupConfig.CROWPI_2_RPI_5;
     private static final long TOUCH_DEBOUNCE = 10000;
     static Executor executor = Executors.newSingleThreadExecutor();
     private final Context pi4j;
@@ -73,7 +73,7 @@ public class Pi4JService {
         initBuzzer();
         initDHT11();
 
-        if (CROW_PI_CONFIG.getHasRGBMatrix()) {
+        if (DEMO_SETUP_CONFIG.getHasRGBMatrix()) {
             initRgbLedMatrix();
         } else {
             initLedMatrix();
@@ -85,11 +85,11 @@ public class Pi4JService {
             var ledConfig = DigitalOutput.newConfigBuilder(pi4j)
                     .id("led")
                     .name("LED")
-                    .address(CROW_PI_CONFIG.getPinLed())
+                    .address(DEMO_SETUP_CONFIG.getPinLed())
                     .shutdown(DigitalState.LOW)
                     .initial(DigitalState.LOW);
             led = pi4j.create(ledConfig);
-            logger.info("The LED has been initialized on pin {}", CROW_PI_CONFIG.getPinLed());
+            logger.info("The LED has been initialized on pin {}", DEMO_SETUP_CONFIG.getPinLed());
         } catch (Exception ex) {
             logger.error("Error while initializing the LED: {}", ex.getMessage());
         }
@@ -98,9 +98,9 @@ public class Pi4JService {
     private void initTouch() {
         try {
             var touchConfig = DigitalInput.newConfigBuilder(pi4j)
-                    .id("BCM" + CROW_PI_CONFIG.getPinTouch())
+                    .id("BCM" + DEMO_SETUP_CONFIG.getPinTouch())
                     .name("TouchSensor")
-                    .address(CROW_PI_CONFIG.getPinTouch())
+                    .address(DEMO_SETUP_CONFIG.getPinTouch())
                     .debounce(TOUCH_DEBOUNCE)
                     .pull(PullResistance.PULL_UP)
                     .build();
@@ -109,7 +109,7 @@ public class Pi4JService {
                 logger.info("Touch state changed to {}", e.state());
                 broadcast(ChangeListener.ChangeType.TOUCH, e.state());
             });
-            logger.info("The touch sensor has been initialized on pin {}", CROW_PI_CONFIG.getPinTouch());
+            logger.info("The touch sensor has been initialized on pin {}", DEMO_SETUP_CONFIG.getPinTouch());
         } catch (Exception ex) {
             logger.error("Error while initializing the touch sensor: {}", ex.getMessage());
         }
@@ -156,7 +156,7 @@ public class Pi4JService {
 
     private void initSevenSegment() {
         try {
-            sevenSegmentComponent = new SevenSegmentComponent(pi4j, CROW_PI_CONFIG.getSevenSegmentDisplayIndexes());
+            sevenSegmentComponent = new SevenSegmentComponent(pi4j, DEMO_SETUP_CONFIG.getSevenSegmentDisplayIndexes());
             sevenSegmentComponent.setEnabled(true);
             // Activate full brightness and disable blinking
             // These are the defaults and just here for demonstration purposes
@@ -171,7 +171,7 @@ public class Pi4JService {
 
     private void initBuzzer() {
         try {
-            buzzerComponent = new BuzzerComponent(pi4j, CROW_PI_CONFIG.getChannelPwmBuzzer());
+            buzzerComponent = new BuzzerComponent(pi4j, DEMO_SETUP_CONFIG.getChannelPwmBuzzer());
             logger.info("The buzzer has been initialized");
         } catch (Exception ex) {
             logger.error("Error while initializing the seven segment component: {}", ex.getMessage());
@@ -277,7 +277,7 @@ public class Pi4JService {
     public void clearLedMatrix() {
         logger.info("Clearing LED matrix");
         try {
-            if (CROW_PI_CONFIG.getHasRGBMatrix()) {
+            if (DEMO_SETUP_CONFIG.getHasRGBMatrix()) {
                 rgbLedMatrixComponent.clear();
                 rgbLedMatrixComponent.refresh();
             } else {
@@ -292,7 +292,7 @@ public class Pi4JService {
     public void setLedMatrix(MatrixSymbol symbol) {
         logger.info("LED matrix print: {}", symbol.name());
         try {
-            if (CROW_PI_CONFIG.getHasRGBMatrix()) {
+            if (DEMO_SETUP_CONFIG.getHasRGBMatrix()) {
                 rgbLedMatrixComponent.print(symbol, Color.BLUE);
             } else {
                 ledMatrixComponent.print(symbol);
@@ -307,7 +307,7 @@ public class Pi4JService {
     public void moveLedMatrix(MatrixDirection direction) {
         logger.info("LED matrix rotate: {}", direction.name());
         try {
-            if (CROW_PI_CONFIG.getHasRGBMatrix()) {
+            if (DEMO_SETUP_CONFIG.getHasRGBMatrix()) {
                 rgbLedMatrixComponent.rotate(direction);
             } else {
                 ledMatrixComponent.rotate(direction);

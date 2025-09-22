@@ -59,7 +59,7 @@ public class MainLayout extends AppLayout {
 
         List<MenuEntry> menuEntries = MenuConfiguration.getMenuEntries();
         menuEntries.forEach(entry -> {
-            if (Pi4JService.CROW_PI_CONFIG.getCrowPiVersion() == 2 && entry.path().contains("matrix")) {
+            if (Pi4JService.DEMO_SETUP_CONFIG.getCrowPiVersion() == 2 && entry.path().contains("matrix")) {
                 return;
             }
             if (entry.icon() != null) {
