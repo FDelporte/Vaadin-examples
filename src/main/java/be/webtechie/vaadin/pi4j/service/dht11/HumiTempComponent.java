@@ -37,7 +37,7 @@ public class HumiTempComponent {
      */
     private final String humiPath;
     private final String tempPath;
-    public List<Measurement> measurements = new ArrayList<>();
+    public List<HumiTempMeasurement> humiTempMeasurements = new ArrayList<>();
 
     /**
      * Creates a new humidity and temperature sensor component with default path and polling interval
@@ -71,7 +71,7 @@ public class HumiTempComponent {
      * Poller class which implements {@link Runnable} to be used with {@link ScheduledExecutorService} for repeated execution.
      * This poller consecutively starts reads the values in the humidity and temperature files
      */
-    public Measurement getMeasurement() {
+    public HumiTempMeasurement getMeasurement() {
         double humidity = 0;
         double temperature = 0;
 
@@ -86,8 +86,8 @@ public class HumiTempComponent {
         } catch (IOException ignored) {
         }
 
-        var measurement = new Measurement(temperature, humidity);
-        measurements.add(measurement);
+        var measurement = new HumiTempMeasurement(temperature, humidity);
+        humiTempMeasurements.add(measurement);
         logger.info("New measurement: {}", measurement);
         return measurement;
     }
@@ -115,9 +115,16 @@ public class HumiTempComponent {
         return Double.parseDouble(line) / 1000;
     }
 
-    public record Measurement(LocalDateTime timestamp, double temperature, double humidity) {
-        public Measurement(double temperature, double humidity) {
+    public record HumiTempMeasurement(LocalDateTime timestamp, double temperature, double humidity) {
+        public HumiTempMeasurement(double temperature, double humidity) {
             this(LocalDateTime.now(), temperature, humidity);
+        }
+
+        public static HumiTempMeasurement random() {
+            return new HumiTempMeasurement(
+                    Math.random() * 65 - 20,  // Temperature: -20 to +45°C
+                    Math.random() * 100       // Humidity: 0 to 100%
+            );
         }
     }
 }

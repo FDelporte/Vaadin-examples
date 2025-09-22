@@ -1,7 +1,7 @@
 package be.webtechie.vaadin.pi4j.service;
 
 import be.webtechie.vaadin.pi4j.service.buzzer.BuzzerComponent;
-import be.webtechie.vaadin.pi4j.service.buzzer.Note;
+import be.webtechie.vaadin.pi4j.service.buzzer.PlayNote;
 import be.webtechie.vaadin.pi4j.service.dht11.HumiTempComponent;
 import be.webtechie.vaadin.pi4j.service.lcd.LcdDisplayComponent;
 import be.webtechie.vaadin.pi4j.service.matrix.LedMatrixComponent;
@@ -11,6 +11,7 @@ import be.webtechie.vaadin.pi4j.service.rgbmatrix.RgbLedMatrixComponent;
 import be.webtechie.vaadin.pi4j.service.segment.SevenSegmentComponent;
 import be.webtechie.vaadin.pi4j.service.segment.SevenSegmentSymbol;
 import com.pi4j.Pi4J;
+import com.pi4j.boardinfo.definition.BoardModel;
 import com.pi4j.boardinfo.model.BoardInfo;
 import com.pi4j.context.Context;
 import com.pi4j.io.gpio.digital.DigitalInput;
@@ -71,7 +72,7 @@ public class Pi4JService {
         initSevenSegment();
         initBuzzer();
         initDHT11();
-        
+
         if (CROW_PI_CONFIG.getHasRGBMatrix()) {
             initRgbLedMatrix();
         } else {
@@ -106,7 +107,7 @@ public class Pi4JService {
             var touch = pi4j.create(touchConfig);
             touch.addListener(e -> {
                 logger.info("Touch state changed to {}", e.state());
-                broadcast(ChangeListener.ChangeType.TOUCH, String.valueOf(e.state().value()));
+                broadcast(ChangeListener.ChangeType.TOUCH, e.state());
             });
             logger.info("The touch sensor has been initialized on pin {}", CROW_PI_CONFIG.getPinTouch());
         } catch (Exception ex) {
@@ -375,22 +376,20 @@ public class Pi4JService {
     /**
      * Play a note on the buzzer.
      */
-    public void playNote(Note note) {
-        logger.info("Playing note {}", note);
+    public void playNote(PlayNote playNote) {
+        logger.info("Playing note {}", playNote.note());
         try {
-            buzzerComponent.playTone(note.getFrequency(), 150);
+            buzzerComponent.playTone(playNote.note().getFrequency(), playNote.duration());
         } catch (Exception ex) {
             logger.error("Can't play note: {}", ex.getMessage());
         }
-        broadcast(ChangeListener.ChangeType.BUZZER, "Played note " + note.name()
-                + " - Frequency: " + note.getFrequency()
-                + " - HEX: " + note.getHexValue());
+        broadcast(ChangeListener.ChangeType.BUZZER, playNote);
     }
 
     /**
      * Broadcast a change to one of the components to all the listeners.
      **/
-    public synchronized void broadcast(ChangeListener.ChangeType type, String message) {
+    public synchronized <T> void broadcast(ChangeListener.ChangeType type, T message) {
         logger.debug("Broadcast {} to {}", type.name(), message);
         for (ChangeListener listener : listeners) {
             executor.execute(() -> listener.onMessage(type, message));
@@ -403,9 +402,15 @@ public class Pi4JService {
     private final class Poller implements Runnable {
         @Override
         public void run() {
+            if (pi4j.boardInfo().getBoardModel() == BoardModel.UNKNOWN) {
+                // Generate random measurement
+                broadcast(ChangeListener.ChangeType.DHT11, HumiTempComponent.HumiTempMeasurement.random());
+                return;
+            }
             if (humiTempComponent != null) {
-                var measurement = humiTempComponent.getMeasurement();
-                broadcast(ChangeListener.ChangeType.DHT11, measurement.toString());
+                broadcast(ChangeListener.ChangeType.DHT11, humiTempComponent.getMeasurement());
+            } else {
+                logger.error("No humidity and temperature component found");
             }
         }
     }

@@ -63,11 +63,11 @@ public class LcdDisplayView extends VerticalLayout implements ChangeListener {
     }
 
     @Override
-    public void onMessage(ChangeListener.ChangeType type, String message) {
+    public <T> void onMessage(ChangeListener.ChangeType type, T message) {
         if (!type.equals(ChangeType.LCD)) {
             return;
         }
         logger.debug("Message received: {}", message);
-        logs.addLine(message);
+        logs.addLine((String) message);
     }
 }

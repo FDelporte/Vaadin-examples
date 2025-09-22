@@ -3,6 +3,7 @@ package be.webtechie.vaadin.pi4j.views.electronics;
 import be.webtechie.vaadin.pi4j.service.ChangeListener;
 import be.webtechie.vaadin.pi4j.service.Pi4JService;
 import be.webtechie.vaadin.pi4j.service.buzzer.Note;
+import be.webtechie.vaadin.pi4j.service.buzzer.PlayNote;
 import be.webtechie.vaadin.pi4j.views.component.LogGrid;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.DetachEvent;
@@ -39,7 +40,7 @@ public class BuzzerView extends VerticalLayout implements ChangeListener {
             var noteButton = new Button(note.name());
             noteButton.setWidth(50, Unit.PIXELS);
             noteButton.getStyle().set("margin-right", "10px");
-            noteButton.addClickListener(e -> pi4JService.playNote(note));
+            noteButton.addClickListener(e -> pi4JService.playNote(new PlayNote(note, 150)));
             buttonHolder.add(noteButton);
         }
 
@@ -58,12 +59,13 @@ public class BuzzerView extends VerticalLayout implements ChangeListener {
     }
 
     @Override
-    public void onMessage(ChangeType type, String message) {
-        if (!type.equals(ChangeType.BUZZER)) {
+    public <T> void onMessage(ChangeType type, T message) {
+        if (!type.equals(ChangeType.BUZZER) && !(message instanceof PlayNote)) {
             return;
         }
-        logger.debug("Message received: {}", message);
-        logs.addLine(message);
+        var playNote = (PlayNote) message;
+        logger.debug("PlayNote message received: {}, duration {}", playNote.note(), playNote.duration());
+        logs.addLine("Note " + playNote.note() + ", frequency " + playNote.note().getFrequency() + ", duration " + playNote.duration());
     }
 }
 

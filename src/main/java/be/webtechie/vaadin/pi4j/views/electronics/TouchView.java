@@ -46,11 +46,11 @@ public class TouchView extends HorizontalLayout implements ChangeListener {
     }
 
     @Override
-    public void onMessage(ChangeListener.ChangeType type, String message) {
-        if (!type.equals(ChangeType.TOUCH)) {
+    public <T> void onMessage(ChangeListener.ChangeType type, T message) {
+        if (!type.equals(ChangeType.TOUCH) && !(message instanceof DigitalState)) {
             return;
         }
-        var state = DigitalState.parse(message);
+        var state = (DigitalState) message;
         var isPressed = state.equals(DigitalState.HIGH);
         logger.debug("Touch event in listener: {} - Is on: {}", state, isPressed);
         ui.accessSynchronously(() -> {

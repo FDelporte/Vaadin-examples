@@ -2,10 +2,14 @@ package be.webtechie.vaadin.pi4j.views.electronics;
 
 import be.webtechie.vaadin.pi4j.service.ChangeListener;
 import be.webtechie.vaadin.pi4j.service.Pi4JService;
+import be.webtechie.vaadin.pi4j.service.dht11.HumiTempComponent;
 import be.webtechie.vaadin.pi4j.views.component.LogGrid;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.DetachEvent;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -16,16 +20,25 @@ import org.vaadin.lineawesome.LineAwesomeIconUrl;
 @PageTitle("Temperature and Humidity")
 @Route("temperature-humidity")
 @Menu(order = 1, icon = LineAwesomeIconUrl.THERMOMETER_EMPTY_SOLID)
-public class TempHumidityView extends HorizontalLayout implements ChangeListener {
+public class TempHumidityView extends VerticalLayout implements ChangeListener {
 
+    private static final Logger logger = LoggerFactory.getLogger(TempHumidityView.class);
     private final Pi4JService pi4JService;
+    private final Span humidity;
+    private final Span temperature;
     private final LogGrid logs;
-    private static Logger logger = LoggerFactory.getLogger(TempHumidityView.class);
+    private final UI ui;
 
     public TempHumidityView(Pi4JService pi4JService) {
         this.pi4JService = pi4JService;
+        this.ui = UI.getCurrent();
 
         setMargin(true);
+
+        humidity = new Span();
+        add(new HorizontalLayout(new Span("Humidity:"), humidity));
+        temperature = new Span();
+        add(new HorizontalLayout(new Span("Temperature:"), temperature));
 
         logs = new LogGrid();
         add(logs);
@@ -42,11 +55,16 @@ public class TempHumidityView extends HorizontalLayout implements ChangeListener
     }
 
     @Override
-    public void onMessage(ChangeType type, String message) {
-        if (!type.equals(ChangeType.DHT11)) {
+    public <T> void onMessage(ChangeType type, T message) {
+        if (!type.equals(ChangeType.DHT11) && !(message instanceof HumiTempComponent.HumiTempMeasurement)) {
             return;
         }
-        logger.debug("Message received: {}", message);
-        logs.addLine(message);
+        var measurement = (HumiTempComponent.HumiTempMeasurement) message;
+        logger.debug("Message received: {}", measurement);
+        logs.addLine("Temperature: " + measurement.temperature() + ", humidity: " + measurement.humidity());
+        ui.access(() -> {
+            temperature.setText(String.valueOf(measurement.temperature()));
+            humidity.setText(String.valueOf(measurement.humidity()));
+        });
     }
 }
