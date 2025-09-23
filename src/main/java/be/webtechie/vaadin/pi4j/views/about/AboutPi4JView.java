@@ -4,6 +4,7 @@ import be.webtechie.vaadin.pi4j.service.Pi4JService;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -39,6 +40,6 @@ public class AboutPi4JView extends VerticalLayout {
                 new Paragraph("Registry: " + pi4JService.getRegistry())
         );
         setSizeFull();
-        getStyle().set("text-align", "left");
+        getStyle().setTextAlign(Style.TextAlign.LEFT);
     }
 }

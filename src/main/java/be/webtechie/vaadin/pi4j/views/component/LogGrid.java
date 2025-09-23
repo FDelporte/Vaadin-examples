@@ -28,7 +28,10 @@ public class LogGrid extends Grid<LogGrid.LogLine> {
         this.addColumn(LogLine::message).setHeader("Message")
                 .setFlexGrow(3);
         this.setItems(this.lines);
-        this.getStyle().set("width", "calc(100% - 40px)");
+
+        this.getStyle().setWidth("calc(100% - 40px)");
+
+
     }
 
     public void addLine(String message) {

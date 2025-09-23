@@ -7,12 +7,11 @@ import be.webtechie.vaadin.pi4j.views.component.LogGrid;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import in.virit.EnvironmentMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
@@ -24,10 +23,9 @@ public class TempHumidityView extends VerticalLayout implements ChangeListener {
 
     private static final Logger logger = LoggerFactory.getLogger(TempHumidityView.class);
     private final Pi4JService pi4JService;
-    private final Span humidity;
-    private final Span temperature;
     private final LogGrid logs;
     private final UI ui;
+    private final EnvironmentMonitor environmentMonitor;
 
     public TempHumidityView(Pi4JService pi4JService) {
         this.pi4JService = pi4JService;
@@ -35,10 +33,9 @@ public class TempHumidityView extends VerticalLayout implements ChangeListener {
 
         setMargin(true);
 
-        humidity = new Span();
-        add(new HorizontalLayout(new Span("Humidity:"), humidity));
-        temperature = new Span();
-        add(new HorizontalLayout(new Span("Temperature:"), temperature));
+        environmentMonitor = new EnvironmentMonitor();
+
+        add(environmentMonitor);
 
         logs = new LogGrid();
         add(logs);
@@ -63,8 +60,7 @@ public class TempHumidityView extends VerticalLayout implements ChangeListener {
         logger.debug("Message received: {}", measurement);
         logs.addLine("Temperature: " + measurement.temperature() + ", humidity: " + measurement.humidity());
         ui.access(() -> {
-            temperature.setText(String.valueOf(measurement.temperature()));
-            humidity.setText(String.valueOf(measurement.humidity()));
+            environmentMonitor.setEnvironmentValues((measurement.temperature()), measurement.humidity());
         });
     }
 }

@@ -53,10 +53,14 @@ public class TouchView extends HorizontalLayout implements ChangeListener {
         var state = (DigitalState) message;
         var isPressed = state.equals(DigitalState.HIGH);
         logger.debug("Touch event in listener: {} - Is on: {}", state, isPressed);
-        ui.accessSynchronously(() -> {
+        ui.access(() -> {
             lbl.setText(isPressed ? "Touch sensor is pressed" : "Touch sensor is released");
-            lbl.getStyle().set("color", isPressed ? "#009900" : "#990000");
-            lbl.getStyle().set("background-color", isPressed ? "#FFFFFF" : "#999999");
+            lbl.getStyle().setColor(isPressed ? "#009900" : "#990000");
+            lbl.getStyle().setBackgroundColor(isPressed ? "#FFFFFF" : "#999999");
+            if (isPressed) {
+                // https://vaadin.com/blog/which-notifications-are-best-for-your-java-app-web-vaadin-or-push
+                //showNotification()
+            }
         });
     }
 }

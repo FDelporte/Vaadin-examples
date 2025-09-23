@@ -13,13 +13,13 @@
     <properties>
         <java.version>24</java.version>
         <pi4j.version>3.0.2</pi4j.version>
-        <vaadin.version>24.8.6</vaadin.version>
+        <vaadin.version>24.9.0</vaadin.version>
     </properties>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.4</version>
+        <version>3.5.5</version>
     </parent>
 
     <repositories>
@@ -48,11 +48,23 @@
         <!-- Vaadin -->
         <dependency>
             <groupId>com.vaadin</groupId>
-            <artifactId>vaadin-core</artifactId>
+            <artifactId>vaadin-spring-boot-starter</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.vaadin</groupId>
+                    <artifactId>hilla</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
-            <groupId>com.vaadin</groupId>
-            <artifactId>vaadin-spring-boot-starter</artifactId>
+            <groupId>in.virit</groupId>
+            <artifactId>viritin</artifactId>
+            <version>2.19.4</version>
+        </dependency>
+        <dependency>
+            <groupId>in.virit</groupId>
+            <artifactId>gauge</artifactId>
+            <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.parttio</groupId>

@@ -39,7 +39,7 @@ public class BuzzerView extends VerticalLayout implements ChangeListener {
         for (Note note : Note.values()) {
             var noteButton = new Button(note.name());
             noteButton.setWidth(50, Unit.PIXELS);
-            noteButton.getStyle().set("margin-right", "10px");
+            noteButton.getStyle().setMarginRight("10px");
             noteButton.addClickListener(e -> pi4JService.playNote(new PlayNote(note, 150)));
             buttonHolder.add(noteButton);
         }

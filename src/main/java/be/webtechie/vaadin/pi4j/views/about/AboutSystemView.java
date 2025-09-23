@@ -2,6 +2,7 @@ package be.webtechie.vaadin.pi4j.views.about;
 
 import be.webtechie.vaadin.pi4j.service.Pi4JService;
 import be.webtechie.vaadin.pi4j.service.SystemInformationService;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Paragraph;
@@ -30,7 +31,7 @@ public class AboutSystemView extends VerticalLayout {
     private final Paragraph memory = new Paragraph();
     private final Paragraph cpu = new Paragraph();
     private final Paragraph players = new Paragraph();
-
+    private final UI ui;
 
     public AboutSystemView(SystemInformationService sis, Pi4JService pi4JService, ScheduledExecutorService es) {
         this.sis = sis;
@@ -42,17 +43,13 @@ public class AboutSystemView extends VerticalLayout {
         add(memory, cpu, players);
 
         Paragraph latencyReport = new Paragraph();
-        Button testLatency = new Button("Ping server (test server-round-trip latency)");
-        testLatency.setId("latencyTestButton");
-        // store the click time on the client side before hitting the server
-        testLatency.getElement().executeJs("var el = this; this.addEventListener('click', function(){el.start = new Date().getTime();});");
-        testLatency.addClickListener(e -> {
-            // Ask the browser to execute this JS that reads the click time and reports how much it took to get back
-            latencyReport.getElement().executeJs("var start = document.getElementById('latencyTestButton').start; this.innerHTML='Server roundtrip and client side overhead took: ' + (new Date().getTime() - start) +'ms';");
-        });
+        Button testLatency = new LatencyButton();
         add(testLatency, latencyReport);
 
         doUpdateDetails();
+
+        ui = UI.getCurrent();
+
     }
 
     public static String formatSize(long v) {
@@ -80,9 +77,21 @@ public class AboutSystemView extends VerticalLayout {
     }
 
     private void updateDetails() {
-        getUI().ifPresentOrElse(
-                ui -> ui.access(() -> doUpdateDetails()),
-                () -> scheduledFuture.cancel(true)
-        );
+        ui.access(() -> doUpdateDetails());
+    }
+
+    private class LatencyButton extends Button {
+        public LatencyButton() {
+            super("Ping server (test server-round-trip latency)");
+            getElement().executeJs("var el = this; this.addEventListener('click', function(){el.start = new Date().getTime();});");
+            addClickListener(e -> {
+                getElement().executeJs("return this.start;").then(Double.class, start -> {
+                    long tsStart = start.longValue();
+                    long current = System.currentTimeMillis();
+                    var latency = current - tsStart;
+                    add(new Paragraph("Server round-trip latency: " + latency + " ms"));
+                });
+            });
+        }
     }
 }
