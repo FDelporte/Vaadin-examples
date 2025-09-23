@@ -12,10 +12,7 @@ public class MainLayout extends org.vaadin.firitin.appframework.MainLayout {
 
     @Override
     protected String getDrawerHeader() {
-        return "Pi4J }>";
+        return "Pi4J Vaadin Demo";
     }
 
-    public void doMagic() {
-
-    }
 }
