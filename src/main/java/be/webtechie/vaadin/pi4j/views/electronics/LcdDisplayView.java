@@ -6,6 +6,7 @@ import be.webtechie.vaadin.pi4j.views.component.LogGrid;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Menu;
@@ -32,24 +33,8 @@ public class LcdDisplayView extends VerticalLayout implements ChangeListener {
         var clear = new Button("Clear");
         clear.addClickListener(e -> pi4JService.clearLcdDisplay());
 
-        TextField row1 = new TextField();
-        row1.setLabel("Row 1");
-        row1.setClearButtonVisible(true);
-        row1.setMaxLength(16);
-
-        var setRow1 = new Button("Set row 1");
-        setRow1.addClickListener(e -> pi4JService.setLcdDisplay(1, row1.getValue()));
-
-        TextField row2 = new TextField();
-        row2.setLabel("Row 2");
-        row2.setClearButtonVisible(true);
-        row2.setMaxLength(16);
-
-        var setRow2 = new Button("Set row 2");
-        setRow2.addClickListener(e -> pi4JService.setLcdDisplay(2, row2.getValue()));
-
         logs = new LogGrid();
-        add(clear, row1, setRow1, row2, setRow2, logs);
+        add(clear, new TextRowControl(1), new TextRowControl(2), logs);
     }
 
     @Override
@@ -69,5 +54,21 @@ public class LcdDisplayView extends VerticalLayout implements ChangeListener {
         }
         logger.debug("Message received: {}", message);
         logs.addLine((String) message);
+    }
+
+    private class TextRowControl extends HorizontalLayout {
+        public TextRowControl(int counter) {
+            var textInput = new TextField();
+            textInput.setLabel("Row " + counter);
+            textInput.setClearButtonVisible(true);
+            textInput.setMaxLength(16);
+            this.add(textInput);
+
+            var sendButton = new Button("Update display");
+            sendButton.addClickListener(e -> pi4JService.setLcdDisplay(counter, textInput.getValue()));
+            this.add(sendButton);
+
+            this.setAlignItems(Alignment.BASELINE);
+        }
     }
 }
