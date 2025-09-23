@@ -20,7 +20,7 @@ import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
 @PageTitle("Buzzer")
 @Route("buzzer")
-@Menu(order = 1, icon = LineAwesomeIconUrl.VOLUME_UP_SOLID)
+@Menu(order = 12, icon = LineAwesomeIconUrl.VOLUME_UP_SOLID)
 public class BuzzerView extends VerticalLayout implements ChangeListener {
     private final Logger logger = LoggerFactory.getLogger(BuzzerView.class);
 

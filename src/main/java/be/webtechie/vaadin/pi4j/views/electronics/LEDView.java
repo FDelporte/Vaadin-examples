@@ -11,7 +11,7 @@ import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
 @PageTitle("LED")
 @Route("led")
-@Menu(order = 1, icon = LineAwesomeIconUrl.LIGHTBULB_SOLID)
+@Menu(order = 10, icon = LineAwesomeIconUrl.LIGHTBULB_SOLID)
 public class LEDView extends HorizontalLayout {
 
     public LEDView(@Autowired Pi4JService pi4JService) {

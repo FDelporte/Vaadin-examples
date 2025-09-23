@@ -17,7 +17,7 @@ import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
 @PageTitle("Touch")
 @Route("touch")
-@Menu(order = 1, icon = LineAwesomeIconUrl.POWER_OFF_SOLID)
+@Menu(order = 11, icon = LineAwesomeIconUrl.POWER_OFF_SOLID)
 public class TouchView extends HorizontalLayout implements ChangeListener {
 
     private final Pi4JService pi4JService;

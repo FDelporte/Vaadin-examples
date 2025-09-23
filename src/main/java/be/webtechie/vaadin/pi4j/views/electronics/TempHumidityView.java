@@ -18,7 +18,7 @@ import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
 @PageTitle("Temperature and Humidity")
 @Route("temperature-humidity")
-@Menu(order = 1, icon = LineAwesomeIconUrl.THERMOMETER_EMPTY_SOLID)
+@Menu(order = 16, icon = LineAwesomeIconUrl.THERMOMETER_EMPTY_SOLID)
 public class TempHumidityView extends VerticalLayout implements ChangeListener {
 
     private static final Logger logger = LoggerFactory.getLogger(TempHumidityView.class);

@@ -21,7 +21,7 @@ import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
 @PageTitle("8x8 LED Matrix")
 @Route("matrix")
-@Menu(order = 1, icon = LineAwesomeIconUrl.TABLE_SOLID)
+@Menu(order = 14, icon = LineAwesomeIconUrl.TABLE_SOLID)
 public class MatrixView extends VerticalLayout implements ChangeListener {
     private final Logger logger = LoggerFactory.getLogger(MatrixView.class);
 
