@@ -23,7 +23,8 @@ import java.util.concurrent.ScheduledExecutorService;
 @PWA(name = "Pi4J Vaadin Demo", shortName = "Pi4J Demo")
 public class Application implements AppShellConfigurator {
 
-    static void main(String[] args) {
+    // public is needed here, otherwise Spring can't find the main method!
+    public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
     }
 

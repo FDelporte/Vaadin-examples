@@ -11,7 +11,7 @@
     <packaging>jar</packaging>
 
     <properties>
-        <java.version>24</java.version>
+        <java.version>25</java.version>
         <pi4j.version>3.0.2</pi4j.version>
         <vaadin.version>24.9.0</vaadin.version>
     </properties>
