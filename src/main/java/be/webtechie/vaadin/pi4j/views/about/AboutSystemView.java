@@ -16,6 +16,7 @@ import java.lang.management.MemoryUsage;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 /**
  * Based on
@@ -43,7 +44,7 @@ public class AboutSystemView extends VerticalLayout {
         add(memory, cpu, players);
 
         Paragraph latencyReport = new Paragraph();
-        Button testLatency = new LatencyButton();
+        Button testLatency = new LatencyTestButton(latency -> latencyReport.setText(String.format("%,.0f ms", latency)));
         add(testLatency, latencyReport);
 
         doUpdateDetails();
@@ -80,17 +81,12 @@ public class AboutSystemView extends VerticalLayout {
         ui.access(() -> doUpdateDetails());
     }
 
-    private class LatencyButton extends Button {
-        public LatencyButton() {
+    public static class LatencyTestButton extends Button {
+        public LatencyTestButton(Consumer<Double> latencyHandler) {
             super("Ping server (test server-round-trip latency)");
             getElement().executeJs("var el = this; this.addEventListener('click', function(){el.start = new Date().getTime();});");
             addClickListener(e -> {
-                getElement().executeJs("return this.start;").then(Double.class, start -> {
-                    long tsStart = start.longValue();
-                    long current = System.currentTimeMillis();
-                    var latency = current - tsStart;
-                    add(new Paragraph("Server round-trip latency: " + latency + " ms"));
-                });
+                getElement().executeJs("return new Date().getTime() - this.start;").then(Double.class, latencyHandler::accept);
             });
         }
     }
