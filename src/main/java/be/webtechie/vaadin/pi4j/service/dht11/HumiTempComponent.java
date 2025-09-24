@@ -88,7 +88,7 @@ public class HumiTempComponent {
 
         var measurement = new HumiTempMeasurement(temperature, humidity);
         humiTempMeasurements.add(measurement);
-        logger.info("New measurement: {}", measurement);
+        logger.debug("New measurement: {}", measurement);
         return measurement;
     }
 
