@@ -18,6 +18,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
+import java.util.Arrays;
+
 @PageTitle("Buzzer")
 @Route("buzzer")
 @Menu(order = 12, icon = LineAwesomeIconUrl.VOLUME_UP_SOLID)
@@ -36,13 +38,7 @@ public class BuzzerView extends VerticalLayout implements ChangeListener {
         buttonHolder.setFlexWrap(FlexLayout.FlexWrap.WRAP);
         add(buttonHolder);
 
-        for (Note note : Note.values()) {
-            var noteButton = new Button(note.name());
-            noteButton.setWidth(50, Unit.PIXELS);
-            noteButton.getStyle().setMarginRight("10px");
-            noteButton.addClickListener(e -> pi4JService.playNote(new PlayNote(note, 150)));
-            buttonHolder.add(noteButton);
-        }
+        Arrays.stream(Note.values()).forEach(note -> buttonHolder.add(new NoteButton(note)));
 
         logs = new LogGrid();
         add(logs);
@@ -66,6 +62,15 @@ public class BuzzerView extends VerticalLayout implements ChangeListener {
         var playNote = (PlayNote) message;
         logger.debug("PlayNote message received: {}, duration {}", playNote.note(), playNote.duration());
         logs.addLine("Note " + playNote.note() + ", frequency " + playNote.note().getFrequency() + ", duration " + playNote.duration());
+    }
+
+    private class NoteButton extends Button {
+        public NoteButton(Note note) {
+            this.setText(note.name());
+            this.setWidth(50, Unit.PIXELS);
+            this.getStyle().setMarginRight("10px");
+            this.addClickListener(e -> pi4JService.playNote(new PlayNote(note, 150)));
+        }
     }
 }
 

@@ -45,16 +45,12 @@ public class MatrixView extends VerticalLayout implements ChangeListener {
             }
         });
 
-        var rotateUp = new Button("Move", VaadinIcon.ARROW_UP.create());
-        rotateUp.addClickListener(e -> pi4JService.moveLedMatrix(MatrixDirection.UP));
-        var rotateDown = new Button("Move", VaadinIcon.ARROW_DOWN.create());
-        rotateDown.addClickListener(e -> pi4JService.moveLedMatrix(MatrixDirection.DOWN));
-        var rotateLeft = new Button("Move", VaadinIcon.ARROW_LEFT.create());
-        rotateLeft.addClickListener(e -> pi4JService.moveLedMatrix(MatrixDirection.LEFT));
-        var rotateRight = new Button("Move", VaadinIcon.ARROW_RIGHT.create());
-        rotateRight.addClickListener(e -> pi4JService.moveLedMatrix(MatrixDirection.RIGHT));
-
-        var rotateHolder = new HorizontalLayout(rotateUp, rotateDown, rotateLeft, rotateRight);
+        var rotateHolder = new HorizontalLayout(
+                new MoveButton(VaadinIcon.ARROW_UP, MatrixDirection.UP),
+                new MoveButton(VaadinIcon.ARROW_DOWN, MatrixDirection.DOWN),
+                new MoveButton(VaadinIcon.ARROW_LEFT, MatrixDirection.LEFT),
+                new MoveButton(VaadinIcon.ARROW_RIGHT, MatrixDirection.RIGHT)
+        );
 
         logs = new LogGrid();
         add(clear, symbols, rotateHolder, logs);
@@ -77,5 +73,13 @@ public class MatrixView extends VerticalLayout implements ChangeListener {
         }
         logger.debug("Message received: {}", message);
         logs.addLine((String) message);
+    }
+
+    private class MoveButton extends Button {
+        public MoveButton(VaadinIcon icon, MatrixDirection direction) {
+            this.setText("Move");
+            this.setIcon(icon.create());
+            this.addClickListener(e -> pi4JService.moveLedMatrix(direction));
+        }
     }
 }

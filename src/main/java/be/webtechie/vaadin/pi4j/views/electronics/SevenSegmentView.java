@@ -39,19 +39,7 @@ public class SevenSegmentView extends VerticalLayout implements ChangeListener {
         var symbolHolder = new HorizontalLayout();
         add(symbolHolder);
         for (var i = 0; i < 4; i++) {
-            var symbol = new ComboBox<SevenSegmentSymbol>();
-            symbol.setItems(SevenSegmentSymbol.values());
-            symbol.setItemLabelGenerator(SevenSegmentSymbol::getLabel);
-            symbol.setWidth(75, Unit.PIXELS);
-            int finalI = i;
-            symbol.addValueChangeListener(e -> {
-                if (symbol.getValue() == null) {
-                    pi4JService.setSevenSegment(finalI, SevenSegmentSymbol.EMPTY);
-                } else {
-                    pi4JService.setSevenSegment(finalI, symbol.getValue());
-                }
-            });
-            symbolHolder.add(symbol);
+            symbolHolder.add(new SymbolSelection(i));
         }
 
         logs = new LogGrid();
@@ -75,5 +63,20 @@ public class SevenSegmentView extends VerticalLayout implements ChangeListener {
         }
         logger.debug("Message received: {}", message);
         logs.addLine((String) message);
+    }
+
+    private class SymbolSelection extends ComboBox<SevenSegmentSymbol> {
+        public SymbolSelection(int i) {
+            this.setItems(SevenSegmentSymbol.values());
+            this.setItemLabelGenerator(SevenSegmentSymbol::getLabel);
+            this.setWidth(75, Unit.PIXELS);
+            this.addValueChangeListener(e -> {
+                if (this.getValue() == null) {
+                    pi4JService.setSevenSegment(i, SevenSegmentSymbol.EMPTY);
+                } else {
+                    pi4JService.setSevenSegment(i, this.getValue());
+                }
+            });
+        }
     }
 }
