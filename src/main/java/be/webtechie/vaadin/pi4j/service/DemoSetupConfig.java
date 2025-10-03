@@ -8,7 +8,7 @@ package be.webtechie.vaadin.pi4j.service;
 public enum DemoSetupConfig {
     CROWPI_1_RPI_4(1, 22, 17, 0, false,
             new int[]{0, 2, 6, 8}),
-    CROWPI_2_RPI_5(2, 21, 17, 2, true,
+    CROWPI_2_RPI_5(2, 23, 17, 2, true,
             new int[]{0, 2, 4, 6}),
     CROWPI_3_RPI_5(3, 21, 17, 2, true,
             new int[]{0, 2, 4, 6});
