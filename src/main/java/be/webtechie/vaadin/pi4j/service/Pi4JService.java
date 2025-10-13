@@ -3,7 +3,6 @@ package be.webtechie.vaadin.pi4j.service;
 import be.webtechie.vaadin.pi4j.service.buzzer.BuzzerComponent;
 import be.webtechie.vaadin.pi4j.service.buzzer.PlayNote;
 import be.webtechie.vaadin.pi4j.service.dht11.HumiTempComponent;
-import be.webtechie.vaadin.pi4j.service.lcd.LcdDisplayComponent;
 import be.webtechie.vaadin.pi4j.service.matrix.LedMatrixComponent;
 import be.webtechie.vaadin.pi4j.service.matrix.MatrixDirection;
 import be.webtechie.vaadin.pi4j.service.matrix.MatrixSymbol;
@@ -14,10 +13,12 @@ import com.pi4j.Pi4J;
 import com.pi4j.boardinfo.definition.BoardModel;
 import com.pi4j.boardinfo.model.BoardInfo;
 import com.pi4j.context.Context;
+import com.pi4j.drivers.display.character.hd44780.Hd44780Driver;
 import com.pi4j.io.gpio.digital.DigitalInput;
 import com.pi4j.io.gpio.digital.DigitalOutput;
 import com.pi4j.io.gpio.digital.DigitalState;
 import com.pi4j.io.gpio.digital.PullResistance;
+import com.pi4j.io.i2c.I2C;
 import com.pi4j.plugin.gpiod.provider.gpio.digital.GpioDDigitalInputProviderImpl;
 import com.pi4j.plugin.gpiod.provider.gpio.digital.GpioDDigitalOutputProviderImpl;
 import com.pi4j.plugin.linuxfs.provider.i2c.LinuxFsI2CProviderImpl;
@@ -43,7 +44,7 @@ public class Pi4JService {
     private final Logger logger = LoggerFactory.getLogger(Pi4JService.class);
     private final ScheduledExecutorService scheduler;
     private DigitalOutput led;
-    private LcdDisplayComponent lcdDisplayComponent;
+    private Hd44780Driver lcdDisplay;
     private LedMatrixComponent ledMatrixComponent;
     private RgbLedMatrixComponent rgbLedMatrixComponent;
     private SevenSegmentComponent sevenSegmentComponent;
@@ -117,10 +118,14 @@ public class Pi4JService {
 
     private void initLcdDisplay() {
         try {
-            lcdDisplayComponent = new LcdDisplayComponent(pi4j);
-            lcdDisplayComponent.initialize();
-            lcdDisplayComponent.writeLine("Hello", 1);
-            lcdDisplayComponent.writeLine("   World!", 2);
+            var i2c = pi4j.create(I2C.newConfigBuilder(pi4j)
+                    .bus(0x1)
+                    .device(0x21)
+                    .build());
+
+            lcdDisplay = Hd44780Driver.withMcp23008Connection(i2c, 16, 2);
+            lcdDisplay.writeLine("Hello", 1);
+            lcdDisplay.writeLine("   World!", 2);
             logger.info("The LCD display has been initialized");
         } catch (Exception ex) {
             logger.error("Error while initializing the lcd display: {}", ex.getMessage());
@@ -354,7 +359,7 @@ public class Pi4JService {
     public void clearLcdDisplay() {
         logger.info("Clearing LCD display");
         try {
-            lcdDisplayComponent.clearDisplay();
+            lcdDisplay.clearDisplay();
         } catch (Exception ex) {
             logger.error("Can't clear seven segment: {}", ex.getMessage());
         }
@@ -366,7 +371,7 @@ public class Pi4JService {
     public void setLcdDisplay(int row, String text) {
         logger.info("Setting LCD display line {} to '{}'", row, text);
         try {
-            lcdDisplayComponent.writeLine(text, row);
+            lcdDisplay.writeLine(text, row);
         } catch (Exception ex) {
             logger.error("Can't set text on LCD display: {}", ex.getMessage());
         }
