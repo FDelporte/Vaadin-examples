@@ -18,11 +18,6 @@ import com.pi4j.io.gpio.digital.DigitalInput;
 import com.pi4j.io.gpio.digital.DigitalOutput;
 import com.pi4j.io.gpio.digital.DigitalState;
 import com.pi4j.io.gpio.digital.PullResistance;
-import com.pi4j.plugin.gpiod.provider.gpio.digital.GpioDDigitalInputProviderImpl;
-import com.pi4j.plugin.gpiod.provider.gpio.digital.GpioDDigitalOutputProviderImpl;
-import com.pi4j.plugin.linuxfs.provider.i2c.LinuxFsI2CProviderImpl;
-import com.pi4j.plugin.linuxfs.provider.pwm.LinuxFsPwmProviderImpl;
-import com.pi4j.plugin.linuxfs.provider.spi.LinuxFsSpiProviderImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -54,13 +49,7 @@ public class Pi4JService {
         // This application uses different communication types.
         // As not all Pi4J plugins provide all communication types, we need to explicitly define them.
         // There is also extra configuration needed for the PWM on Raspberry Pi 5.
-        pi4j = Pi4J.newContextBuilder()
-                .add(new GpioDDigitalInputProviderImpl())
-                .add(new GpioDDigitalOutputProviderImpl())
-                .add(new LinuxFsI2CProviderImpl())
-                .add(new LinuxFsSpiProviderImpl())
-                .add(new LinuxFsPwmProviderImpl("/sys/class/pwm/", 0))
-                .build();
+        pi4j = Pi4J.newAutoContext();
 
         listeners = new ConcurrentLinkedQueue<>();
         scheduler = Executors.newSingleThreadScheduledExecutor();
