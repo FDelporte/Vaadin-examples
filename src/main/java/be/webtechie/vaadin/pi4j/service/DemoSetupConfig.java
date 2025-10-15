@@ -10,6 +10,7 @@ public enum DemoSetupConfig {
             new int[]{0, 2, 6, 8}),
     CROWPI_2_RPI_5(2, 23, 17, 2, true,
             new int[]{0, 2, 4, 6}),
+    // https://www.elecrow.com/wiki/crowpi_3.html#raspberry33v
     CROWPI_3_RPI_5(3, 21, 17, 2, true,
             new int[]{0, 2, 4, 6});
 
