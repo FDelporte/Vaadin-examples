@@ -9,6 +9,7 @@ public interface ChangeListener {
         LCD,
         MATRIX,
         SEGMENT,
+        SENSOR,
         TOUCH
     }
 }

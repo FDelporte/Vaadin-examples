@@ -1,13 +1,13 @@
-package be.webtechie.vaadin.pi4j.service.rgbmatrix;
+package be.webtechie.vaadin.pi4j.service.matrix;
 
 import be.webtechie.vaadin.pi4j.service.SleepHelper;
-import be.webtechie.vaadin.pi4j.service.matrix.MatrixDirection;
-import be.webtechie.vaadin.pi4j.service.matrix.MatrixScrollMode;
-import be.webtechie.vaadin.pi4j.service.matrix.MatrixSymbol;
 import com.pi4j.context.Context;
 import com.pi4j.io.pwm.Pwm;
 import com.pi4j.io.pwm.PwmConfig;
 import com.pi4j.io.pwm.PwmType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -19,7 +19,8 @@ import java.util.function.Consumer;
  * Implementation of the CrowPi2 RGB LED matrix using PWM/WS2812B with Pi4J V2
  * This targets the 8x8 RGB matrix connected to GPIO26 (PWM0/BCM12) on CrowPi2
  */
-public class RgbLedMatrixComponent {
+@Service
+public class RgbMatrixService {
 
     /**
      * Width and height of the LED matrix
@@ -27,22 +28,19 @@ public class RgbLedMatrixComponent {
     public static final int WIDTH = 8;
     public static final int HEIGHT = 8;
     public static final int TOTAL_LEDS = WIDTH * HEIGHT;
-
     /**
      * PWM frequency for WS2812B timing (800kHz)
      */
     protected static final int PWM_FREQUENCY = 800000;
-
     /**
      * Default delay between scroll operations in milliseconds
      */
     protected static final long DEFAULT_SCROLL_DELAY = 50;
-
     /**
      * Default direction for scroll operations
      */
     protected static final MatrixDirection DEFAULT_SCROLL_MATRIX_DIRECTION = MatrixDirection.LEFT;
-
+    private static final Logger logger = LoggerFactory.getLogger(RgbMatrixService.class);
     /**
      * RGB color buffer for the matrix (3 bytes per LED: R, G, B)
      */
@@ -56,7 +54,7 @@ public class RgbLedMatrixComponent {
     /**
      * Pi4J PWM instance for controlling WS2812B LEDs
      */
-    private final Pwm pwm;
+    private Pwm pwm;
 
     /**
      * Default brightness (0.0 to 1.0)
@@ -66,10 +64,9 @@ public class RgbLedMatrixComponent {
     /**
      * Creates a new RGB LED matrix component with a custom GPIO pin.
      *
-     * @param pi4j    Pi4J context
-     * @param gpioPin GPIO pin number
+     * @param pi4j Pi4J context
      */
-    public RgbLedMatrixComponent(Context pi4j, int gpioPin) {
+    public RgbMatrixService(Context pi4j) {
         this.colorBuffer = new Color[HEIGHT][WIDTH];
         this.monoBuffer = new boolean[HEIGHT][WIDTH];
 
@@ -82,14 +79,18 @@ public class RgbLedMatrixComponent {
         PwmConfig pwmConfig = Pwm.newConfigBuilder(pi4j)
                 .id("WS2812B-PWM")
                 .name("RGB Matrix PWM")
-                .address(gpioPin)
+                .address(12) // TO CHECK
                 .pwmType(PwmType.HARDWARE)
                 .frequency(PWM_FREQUENCY)
                 .initial(0)
                 .shutdown(0)
                 .build();
 
-        this.pwm = pi4j.create(pwmConfig);
+        try {
+            this.pwm = pi4j.create(pwmConfig);
+        } catch (Exception e) {
+            logger.error("Error creating PWM instance for WS2812B LED matrix: {}", e.getMessage());
+        }
     }
 
     /**

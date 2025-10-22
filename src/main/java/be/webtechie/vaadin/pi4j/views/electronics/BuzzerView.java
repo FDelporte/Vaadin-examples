@@ -1,7 +1,8 @@
 package be.webtechie.vaadin.pi4j.views.electronics;
 
+import be.webtechie.vaadin.pi4j.event.ComponentEventPublisher;
 import be.webtechie.vaadin.pi4j.service.ChangeListener;
-import be.webtechie.vaadin.pi4j.service.Pi4JService;
+import be.webtechie.vaadin.pi4j.service.buzzer.BuzzerService;
 import be.webtechie.vaadin.pi4j.service.buzzer.Note;
 import be.webtechie.vaadin.pi4j.service.buzzer.PlayNote;
 import be.webtechie.vaadin.pi4j.views.component.LogGrid;
@@ -26,11 +27,13 @@ import java.util.Arrays;
 public class BuzzerView extends VerticalLayout implements ChangeListener {
     private final Logger logger = LoggerFactory.getLogger(BuzzerView.class);
 
-    private final Pi4JService pi4JService;
+    private final ComponentEventPublisher publisher;
+    private final BuzzerService buzzerService;
     private final LogGrid logs;
 
-    public BuzzerView(Pi4JService pi4JService) {
-        this.pi4JService = pi4JService;
+    public BuzzerView(ComponentEventPublisher publisher, BuzzerService buzzerService) {
+        this.publisher = publisher;
+        this.buzzerService = buzzerService;
 
         setMargin(true);
 
@@ -46,12 +49,12 @@ public class BuzzerView extends VerticalLayout implements ChangeListener {
 
     @Override
     public void onAttach(AttachEvent attachEvent) {
-        pi4JService.addListener(this);
+        publisher.addListener(this);
     }
 
     @Override
     public void onDetach(DetachEvent detachEvent) {
-        pi4JService.removeListener(this);
+        publisher.removeListener(this);
     }
 
     @Override
@@ -69,7 +72,7 @@ public class BuzzerView extends VerticalLayout implements ChangeListener {
             this.setText(note.name());
             this.setWidth(50, Unit.PIXELS);
             this.getStyle().setMarginRight("10px");
-            this.addClickListener(e -> pi4JService.playNote(new PlayNote(note, 150)));
+            this.addClickListener(e -> buzzerService.playNote(new PlayNote(note, 150)));
         }
     }
 }

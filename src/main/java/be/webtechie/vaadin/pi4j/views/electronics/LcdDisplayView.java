@@ -1,7 +1,8 @@
 package be.webtechie.vaadin.pi4j.views.electronics;
 
+import be.webtechie.vaadin.pi4j.event.ComponentEventPublisher;
 import be.webtechie.vaadin.pi4j.service.ChangeListener;
-import be.webtechie.vaadin.pi4j.service.Pi4JService;
+import be.webtechie.vaadin.pi4j.service.lcd.LcdDisplayService;
 import be.webtechie.vaadin.pi4j.views.component.LogGrid;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.DetachEvent;
@@ -22,29 +23,31 @@ import org.vaadin.lineawesome.LineAwesomeIconUrl;
 public class LcdDisplayView extends VerticalLayout implements ChangeListener {
     private final Logger logger = LoggerFactory.getLogger(LcdDisplayView.class);
 
-    private final Pi4JService pi4JService;
+    private final ComponentEventPublisher publisher;
+    private final LcdDisplayService lcdDisplayService;
     private final LogGrid logs;
 
-    public LcdDisplayView(Pi4JService pi4JService) {
-        this.pi4JService = pi4JService;
+    public LcdDisplayView(ComponentEventPublisher publisher, LcdDisplayService lcdDisplayService) {
+        this.publisher = publisher;
+        this.lcdDisplayService = lcdDisplayService;
 
         setMargin(true);
 
         var clear = new Button("Clear");
-        clear.addClickListener(e -> pi4JService.clearLcdDisplay());
+        clear.addClickListener(e -> lcdDisplayService.clear());
 
         logs = new LogGrid();
-        add(clear, new TextRowControl(1), new TextRowControl(2), logs);
+        add(clear, new TextRowControl(0), new TextRowControl(1), logs);
     }
 
     @Override
     public void onAttach(AttachEvent attachEvent) {
-        pi4JService.addListener(this);
+        publisher.addListener(this);
     }
 
     @Override
     public void onDetach(DetachEvent detachEvent) {
-        pi4JService.removeListener(this);
+        publisher.removeListener(this);
     }
 
     @Override
@@ -59,13 +62,13 @@ public class LcdDisplayView extends VerticalLayout implements ChangeListener {
     private class TextRowControl extends HorizontalLayout {
         public TextRowControl(int counter) {
             var textInput = new TextField();
-            textInput.setLabel("Row " + counter);
+            textInput.setLabel("Row " + (counter + 1));
             textInput.setClearButtonVisible(true);
             textInput.setMaxLength(16);
             this.add(textInput);
 
             var sendButton = new Button("Update display");
-            sendButton.addClickListener(e -> pi4JService.setLcdDisplay(counter, textInput.getValue()));
+            sendButton.addClickListener(e -> lcdDisplayService.setText(counter, textInput.getValue()));
             this.add(sendButton);
 
             this.setAlignItems(Alignment.BASELINE);

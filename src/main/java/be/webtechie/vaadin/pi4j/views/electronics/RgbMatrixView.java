@@ -1,9 +1,10 @@
 package be.webtechie.vaadin.pi4j.views.electronics;
 
+import be.webtechie.vaadin.pi4j.event.ComponentEventPublisher;
 import be.webtechie.vaadin.pi4j.service.ChangeListener;
-import be.webtechie.vaadin.pi4j.service.Pi4JService;
 import be.webtechie.vaadin.pi4j.service.matrix.MatrixDirection;
 import be.webtechie.vaadin.pi4j.service.matrix.MatrixSymbol;
+import be.webtechie.vaadin.pi4j.service.matrix.RgbMatrixService;
 import be.webtechie.vaadin.pi4j.views.component.LogGrid;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.DetachEvent;
@@ -19,29 +20,31 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
-@PageTitle("8x8 LED Matrix")
-@Route("matrix")
-@Menu(order = 14, icon = LineAwesomeIconUrl.TABLE_SOLID)
-public class MatrixView extends VerticalLayout implements ChangeListener {
-    private final Logger logger = LoggerFactory.getLogger(MatrixView.class);
+@PageTitle("8x8 RGB LED Matrix")
+@Route("rgb-matrix")
+@Menu(order = 15, icon = LineAwesomeIconUrl.TABLE_SOLID)
+public class RgbMatrixView extends VerticalLayout implements ChangeListener {
+    private final Logger logger = LoggerFactory.getLogger(RgbMatrixView.class);
 
-    private final Pi4JService pi4JService;
+    private final ComponentEventPublisher publisher;
+    private final RgbMatrixService rgbMatrixService;
     private final LogGrid logs;
 
-    public MatrixView(Pi4JService pi4JService) {
-        this.pi4JService = pi4JService;
+    public RgbMatrixView(ComponentEventPublisher publisher, RgbMatrixService rgbMatrixService) {
+        this.publisher = publisher;
+        this.rgbMatrixService = rgbMatrixService;
 
         setMargin(true);
 
         var clear = new Button("Clear");
-        clear.addClickListener(e -> pi4JService.clearLedMatrix());
+        clear.addClickListener(e -> rgbMatrixService.clear());
 
         var symbols = new ComboBox<MatrixSymbol>();
         symbols.setItems(MatrixSymbol.values());
         symbols.setItemLabelGenerator(MatrixSymbol::name);
         symbols.addValueChangeListener(e -> {
             if (symbols.getValue() != null) {
-                pi4JService.setLedMatrix(symbols.getValue());
+                // TODO rgbMatrixService.setSymbol(symbols.getValue());
             }
         });
 
@@ -58,16 +61,16 @@ public class MatrixView extends VerticalLayout implements ChangeListener {
 
     @Override
     public void onAttach(AttachEvent attachEvent) {
-        pi4JService.addListener(this);
+        publisher.addListener(this);
     }
 
     @Override
     public void onDetach(DetachEvent detachEvent) {
-        pi4JService.removeListener(this);
+        publisher.removeListener(this);
     }
 
     @Override
-    public <T> void onMessage(ChangeListener.ChangeType type, T message) {
+    public <T> void onMessage(ChangeType type, T message) {
         if (!type.equals(ChangeType.MATRIX)) {
             return;
         }
@@ -79,7 +82,7 @@ public class MatrixView extends VerticalLayout implements ChangeListener {
         public MoveButton(VaadinIcon icon, MatrixDirection direction) {
             this.setText("Move");
             this.setIcon(icon.create());
-            this.addClickListener(e -> pi4JService.moveLedMatrix(direction));
+            // TODO this.addClickListener(e -> rgbMatrixService.move(direction));
         }
     }
 }
