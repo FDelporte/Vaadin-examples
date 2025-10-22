@@ -1,7 +1,6 @@
 package be.webtechie.vaadin.pi4j.service;
 
 import com.sun.management.OperatingSystemMXBean;
-import com.vaadin.flow.server.VaadinSession;
 import jakarta.annotation.PreDestroy;
 import org.springframework.stereotype.Service;
 
@@ -59,14 +58,6 @@ public class SystemInformationService {
         scheduledFuture.cancel(true);
     }
 
-    public void register() {
-        sessions.add(VaadinSession.getCurrent().getSession().getId());
-    }
-
-    public void deRegister() {
-        sessions.remove(VaadinSession.getCurrent().getSession().getId());
-    }
-
     public int getNumberOfSessions() {
         return sessions.size();
     }
@@ -77,10 +68,6 @@ public class SystemInformationService {
 
     public MemoryUsage getHeapMemoryUsage() {
         return heapMemoryUsage;
-    }
-
-    public MemoryUsage getStartHeapMemoryUsage() {
-        return startHeapMemoryUsage;
     }
 
     public int getLastSessionSizeGuestimate() {

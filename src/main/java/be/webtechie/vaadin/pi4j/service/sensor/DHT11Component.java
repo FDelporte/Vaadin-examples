@@ -1,4 +1,4 @@
-package be.webtechie.vaadin.pi4j.service.dht11;
+package be.webtechie.vaadin.pi4j.service.sensor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +21,7 @@ import java.util.concurrent.ScheduledExecutorService;
  * interacts with the Raspberry Pi using I²C, SPI or any other bus. This would offload the work and guarantee even more accurate results. As
  * the CrowPi does not have such a dedicated microcontroller though, using this driver was the best available approach.
  */
-public class HumiTempComponent {
+public class DHT11Component {
     /**
      * Polling interval of the file reading poller. Do not go to fast it might cause some issues.
      */
@@ -31,7 +31,7 @@ public class HumiTempComponent {
      */
     private final static String DEFAULT_HUMI_PATH = "/sys/devices/platform/dht11@4/iio:device0/in_humidityrelative_input";
     private final static String DEFAULT_TEMP_PATH = "/sys/devices/platform/dht11@4/iio:device0/in_temp_input";
-    private final Logger logger = LoggerFactory.getLogger(HumiTempComponent.class);
+    private final Logger logger = LoggerFactory.getLogger(DHT11Component.class);
     /**
      * Paths effectively used to read the values
      */
@@ -42,7 +42,7 @@ public class HumiTempComponent {
     /**
      * Creates a new humidity and temperature sensor component with default path and polling interval
      */
-    public HumiTempComponent() {
+    public DHT11Component() {
         this(DEFAULT_HUMI_PATH, DEFAULT_TEMP_PATH, DEFAULT_POLLING_DELAY_MS);
     }
 
@@ -51,7 +51,7 @@ public class HumiTempComponent {
      *
      * @param pollingDelayMs Delay in millis between reading measurement values
      */
-    public HumiTempComponent(int pollingDelayMs) {
+    public DHT11Component(int pollingDelayMs) {
         this(DEFAULT_HUMI_PATH, DEFAULT_TEMP_PATH, pollingDelayMs);
     }
 
@@ -62,7 +62,7 @@ public class HumiTempComponent {
      * @param tempPath       Path to the file containing temperature
      * @param pollingDelayMs Polling cycle of reading the measured values
      */
-    public HumiTempComponent(String humiPath, String tempPath, int pollingDelayMs) {
+    public DHT11Component(String humiPath, String tempPath, int pollingDelayMs) {
         this.humiPath = humiPath;
         this.tempPath = tempPath;
     }

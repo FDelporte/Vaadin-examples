@@ -1,7 +1,8 @@
 package be.webtechie.vaadin.pi4j.views.electronics;
 
+import be.webtechie.vaadin.pi4j.event.ComponentEventPublisher;
 import be.webtechie.vaadin.pi4j.service.ChangeListener;
-import be.webtechie.vaadin.pi4j.service.Pi4JService;
+import be.webtechie.vaadin.pi4j.service.segment.SevenSegmentService;
 import be.webtechie.vaadin.pi4j.service.segment.SevenSegmentSymbol;
 import be.webtechie.vaadin.pi4j.views.component.LogGrid;
 import com.vaadin.flow.component.AttachEvent;
@@ -24,16 +25,18 @@ import org.vaadin.lineawesome.LineAwesomeIconUrl;
 public class SevenSegmentView extends VerticalLayout implements ChangeListener {
     private final Logger logger = LoggerFactory.getLogger(SevenSegmentView.class);
 
-    private final Pi4JService pi4JService;
+    private final ComponentEventPublisher publisher;
+    private final SevenSegmentService sevenSegmentService;
     private final LogGrid logs;
 
-    public SevenSegmentView(Pi4JService pi4JService) {
-        this.pi4JService = pi4JService;
+    public SevenSegmentView(ComponentEventPublisher publisher, SevenSegmentService sevenSegmentService) {
+        this.publisher = publisher;
+        this.sevenSegmentService = sevenSegmentService;
 
         setMargin(true);
 
         var clear = new Button("Clear");
-        clear.addClickListener(e -> pi4JService.clearSevenSegment());
+        clear.addClickListener(e -> sevenSegmentService.clear());
         add(clear);
 
         var symbolHolder = new HorizontalLayout();
@@ -48,12 +51,12 @@ public class SevenSegmentView extends VerticalLayout implements ChangeListener {
 
     @Override
     public void onAttach(AttachEvent attachEvent) {
-        pi4JService.addListener(this);
+        publisher.addListener(this);
     }
 
     @Override
     public void onDetach(DetachEvent detachEvent) {
-        pi4JService.removeListener(this);
+        publisher.removeListener(this);
     }
 
     @Override
@@ -72,9 +75,9 @@ public class SevenSegmentView extends VerticalLayout implements ChangeListener {
             this.setWidth(75, Unit.PIXELS);
             this.addValueChangeListener(e -> {
                 if (this.getValue() == null) {
-                    pi4JService.setSevenSegment(i, SevenSegmentSymbol.EMPTY);
+                    sevenSegmentService.setSymbol(i, SevenSegmentSymbol.EMPTY);
                 } else {
-                    pi4JService.setSevenSegment(i, this.getValue());
+                    sevenSegmentService.setSymbol(i, this.getValue());
                 }
             });
         }
