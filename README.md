@@ -15,8 +15,12 @@ connect the electronic components directly to the GPIO pins. Change the pin numb
 
 Following versions of this code are available in branches:
 
-* [main](https://github.com/FDelporte/Vaadin-examples/tree/main): Dependencies got upgraded to latest versions in
-  September 2025 of Spring Boot, Vaadin, and Pi4J + required code changes to be compatible with those new versions.
+* [main](https://github.com/FDelporte/Vaadin-examples/tree/main):
+    * Dependencies got upgraded to latest versions in September 2025 of Spring Boot, Vaadin
+    * Many code changes to be compatible with those new versions.
+    * Uses Pi4J V4.0.0-SNAPSHOT.
+    * Uses Pi4J Drivers V0.0.1-SNAPSHOT.
+    * Separate services per type of device to make it easier to understand and reuse in other applications.
 * [vaadin-23-spring-2.6](https://github.com/FDelporte/Vaadin-examples/tree/vaadin-23-spring-2.6): Initial example with
   LED output and button input, based on Vaadin 23 and Spring Boot 2.6. It is described in detail
   in [this Foojay.io blog post](https://foojay.io/today/blink-a-led-on-raspberry-pi-with-vaadin/).
