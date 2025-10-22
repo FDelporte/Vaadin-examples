@@ -2,6 +2,7 @@ package be.webtechie.vaadin.pi4j.views.electronics;
 
 import be.webtechie.vaadin.pi4j.service.ChangeListener;
 import be.webtechie.vaadin.pi4j.service.Pi4JService;
+import be.webtechie.vaadin.pi4j.service.dht11.HumiTempComponent;
 import be.webtechie.vaadin.pi4j.views.component.LogGrid;
 import com.pi4j.drivers.sensor.environment.bmx280.Bmx280Driver;
 import com.vaadin.flow.component.AttachEvent;
@@ -53,14 +54,21 @@ public class TempHumidityView extends VerticalLayout implements ChangeListener {
 
     @Override
     public <T> void onMessage(ChangeType type, T message) {
-        if (!type.equals(ChangeType.SENSOR) && !(message instanceof Bmx280Driver.Measurement)) {
-            return;
+        if (type.equals(ChangeType.SENSOR)) {
+            var measurement = (Bmx280Driver.Measurement) message;
+            logger.debug("Message received: {}", measurement);
+            logs.addLine("Temperature: " + measurement.getTemperature() + ", humidity: " + measurement.getHumidity());
+            ui.access(() -> {
+                environmentMonitor.setEnvironmentValues((measurement.getTemperature()), measurement.getHumidity());
+            });
         }
-        var measurement = (Bmx280Driver.Measurement) message;
-        logger.debug("Message received: {}", measurement);
-        logs.addLine("Temperature: " + measurement.getTemperature() + ", humidity: " + measurement.getHumidity());
-        ui.access(() -> {
-            environmentMonitor.setEnvironmentValues((measurement.getTemperature()), measurement.getHumidity());
-        });
+        if (type.equals(ChangeType.DHT11)) {
+            var measurement = (HumiTempComponent.HumiTempMeasurement) message;
+            logger.debug("Message received: {}", measurement);
+            logs.addLine("Temperature: " + measurement.temperature() + ", humidity: " + measurement.humidity());
+            ui.access(() -> {
+                environmentMonitor.setEnvironmentValues((measurement.temperature()), measurement.humidity());
+            });
+        }
     }
 }

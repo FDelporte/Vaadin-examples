@@ -2,6 +2,7 @@ package be.webtechie.vaadin.pi4j.service;
 
 import be.webtechie.vaadin.pi4j.service.buzzer.BuzzerComponent;
 import be.webtechie.vaadin.pi4j.service.buzzer.PlayNote;
+import be.webtechie.vaadin.pi4j.service.dht11.HumiTempComponent;
 import be.webtechie.vaadin.pi4j.service.matrix.LedMatrixComponent;
 import be.webtechie.vaadin.pi4j.service.matrix.MatrixDirection;
 import be.webtechie.vaadin.pi4j.service.matrix.MatrixSymbol;
@@ -45,6 +46,7 @@ public class Pi4JService {
     private SevenSegmentComponent sevenSegmentComponent;
     private BuzzerComponent buzzerComponent;
     private Bmx280Driver sensorHumidityTemperature;
+    private HumiTempComponent humiTempComponent;
 
     public Pi4JService() {
         // This application uses different communication types.
@@ -61,6 +63,7 @@ public class Pi4JService {
         initLcdDisplay();
         initSevenSegment();
         initBuzzer();
+        initDHT11();
         initSensor();
 
         if (DEMO_SETUP_CONFIG.getHasRGBMatrix()) {
@@ -169,6 +172,15 @@ public class Pi4JService {
             logger.info("The buzzer has been initialized");
         } catch (Exception ex) {
             logger.error("Error while initializing the seven segment component: {}", ex.getMessage());
+        }
+    }
+
+    private void initDHT11() {
+        try {
+            humiTempComponent = new HumiTempComponent();
+            logger.info("The humidity and temperature component has been initialized");
+        } catch (Exception ex) {
+            logger.error("Error while initializing the humidity and temperature component component: {}", ex.getMessage());
         }
     }
 
@@ -412,6 +424,11 @@ public class Pi4JService {
             }
             if (sensorHumidityTemperature != null) {
                 broadcast(ChangeListener.ChangeType.SENSOR, sensorHumidityTemperature.readMeasurement());
+            } else {
+                logger.error("No humidity and temperature component found");
+            }
+            if (humiTempComponent != null) {
+                broadcast(ChangeListener.ChangeType.DHT11, humiTempComponent.getMeasurement());
             } else {
                 logger.error("No humidity and temperature component found");
             }
