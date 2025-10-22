@@ -12,7 +12,8 @@
 
     <properties>
         <java.version>25</java.version>
-        <pi4j.version>4.0.0-SNAPSHOT</pi4j.version>
+        <pi4j.core.version>4.0.0-SNAPSHOT</pi4j.core.version>
+        <pi4j.drivers.version>0.0.1-SNAPSHOT</pi4j.drivers.version>
         <vaadin.version>24.9.0</vaadin.version>
     </properties>
 
@@ -94,12 +95,18 @@
         <dependency>
             <groupId>com.pi4j</groupId>
             <artifactId>pi4j-core</artifactId>
-            <version>${pi4j.version}</version>
+            <version>${pi4j.core.version}</version>
         </dependency>
         <dependency>
             <groupId>com.pi4j</groupId>
             <artifactId>pi4j-plugin-ffm</artifactId>
-            <version>${pi4j.version}</version>
+            <version>${pi4j.core.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.pi4j</groupId>
+            <artifactId>pi4j-drivers</artifactId>
+            <version>${pi4j.drivers.version}</version>
         </dependency>
 
         <!-- Test -->
