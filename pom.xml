@@ -113,6 +113,28 @@
             <groupId>com.pi4j</groupId>
             <artifactId>pi4j-drivers</artifactId>
             <version>${pi4j.drivers.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.pi4j</groupId>
+                    <artifactId>pi4j-plugin-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.pi4j</groupId>
+                    <artifactId>pi4j-plugin-raspberrypi</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.pi4j</groupId>
+                    <artifactId>pi4j-plugin-gpiod</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.pi4j</groupId>
+                    <artifactId>pi4j-plugin-linuxfs</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.pi4j</groupId>
+                    <artifactId>pi4j-plugin-ffm</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- Test -->

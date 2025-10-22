@@ -28,7 +28,6 @@ public class SevenSegmentComponent extends HT16K33 {
     /**
      * Internal buffer index for the colon of the seven-segment display
      */
-    private static final int COLON_INDEX = 4;
     private final int[] sevenSegmentDisplayIndexes;
     private final Logger logger = LoggerFactory.getLogger(SevenSegmentComponent.class);
 
@@ -52,8 +51,7 @@ public class SevenSegmentComponent extends HT16K33 {
         super(pi4j.create(buildI2CConfig(pi4j, bus, device)));
         this.sevenSegmentDisplayIndexes = sevenSegmentDisplayIndexes;
     }
-
-
+    
     /**
      * Builds a new I2C instance for the seven-segment display
      *
