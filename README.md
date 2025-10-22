@@ -53,7 +53,7 @@ $ scp target/pi4jdemo-1.0-SNAPSHOT.jar pi@192.168.0.222://home/pi/
 Build and upload in one command:
 
 ```shell
-./mvnw clean package -Pproduction && scp target/pi4jdemo-1.0-SNAPSHOT.jar frank@crowpi2.local://home/frank/
+./mvnw clean package -Pproduction && scp target/pi4jdemo-1.0-SNAPSHOT.jar frank@crowpi3.local://home/frank/
 ```
 
 ## Run on Raspberry Pi

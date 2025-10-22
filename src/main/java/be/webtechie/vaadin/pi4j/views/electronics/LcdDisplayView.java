@@ -34,7 +34,7 @@ public class LcdDisplayView extends VerticalLayout implements ChangeListener {
         clear.addClickListener(e -> pi4JService.clearLcdDisplay());
 
         logs = new LogGrid();
-        add(clear, new TextRowControl(1), new TextRowControl(2), logs);
+        add(clear, new TextRowControl(0), new TextRowControl(1), logs);
     }
 
     @Override
@@ -59,7 +59,7 @@ public class LcdDisplayView extends VerticalLayout implements ChangeListener {
     private class TextRowControl extends HorizontalLayout {
         public TextRowControl(int counter) {
             var textInput = new TextField();
-            textInput.setLabel("Row " + counter);
+            textInput.setLabel("Row " + (counter + 1));
             textInput.setClearButtonVisible(true);
             textInput.setMaxLength(16);
             this.add(textInput);

@@ -2,7 +2,6 @@ package be.webtechie.vaadin.pi4j.service;
 
 import be.webtechie.vaadin.pi4j.service.buzzer.BuzzerComponent;
 import be.webtechie.vaadin.pi4j.service.buzzer.PlayNote;
-import be.webtechie.vaadin.pi4j.service.dht11.HumiTempComponent;
 import be.webtechie.vaadin.pi4j.service.matrix.LedMatrixComponent;
 import be.webtechie.vaadin.pi4j.service.matrix.MatrixDirection;
 import be.webtechie.vaadin.pi4j.service.matrix.MatrixSymbol;
@@ -14,16 +13,12 @@ import com.pi4j.boardinfo.definition.BoardModel;
 import com.pi4j.boardinfo.model.BoardInfo;
 import com.pi4j.context.Context;
 import com.pi4j.drivers.display.character.hd44780.Hd44780Driver;
+import com.pi4j.drivers.sensor.environment.bmx280.Bmx280Driver;
 import com.pi4j.io.gpio.digital.DigitalInput;
 import com.pi4j.io.gpio.digital.DigitalOutput;
 import com.pi4j.io.gpio.digital.DigitalState;
 import com.pi4j.io.gpio.digital.PullResistance;
 import com.pi4j.io.i2c.I2C;
-import com.pi4j.plugin.gpiod.provider.gpio.digital.GpioDDigitalInputProviderImpl;
-import com.pi4j.plugin.gpiod.provider.gpio.digital.GpioDDigitalOutputProviderImpl;
-import com.pi4j.plugin.linuxfs.provider.i2c.LinuxFsI2CProviderImpl;
-import com.pi4j.plugin.linuxfs.provider.pwm.LinuxFsPwmProviderImpl;
-import com.pi4j.plugin.linuxfs.provider.spi.LinuxFsSpiProviderImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -49,7 +44,7 @@ public class Pi4JService {
     private RgbLedMatrixComponent rgbLedMatrixComponent;
     private SevenSegmentComponent sevenSegmentComponent;
     private BuzzerComponent buzzerComponent;
-    private HumiTempComponent humiTempComponent;
+    private Bmx280Driver sensorHumidityTemperature;
 
     public Pi4JService() {
         // This application uses different communication types.
@@ -59,14 +54,14 @@ public class Pi4JService {
 
         listeners = new ConcurrentLinkedQueue<>();
         scheduler = Executors.newSingleThreadScheduledExecutor();
-        scheduler.scheduleAtFixedRate(new Poller(), 0, HumiTempComponent.DEFAULT_POLLING_DELAY_MS, TimeUnit.MILLISECONDS);
+        scheduler.scheduleAtFixedRate(new Poller(), 0, 1, TimeUnit.SECONDS);
 
         initLed();
         initTouch();
         initLcdDisplay();
         initSevenSegment();
         initBuzzer();
-        initDHT11();
+        initSensor();
 
         if (DEMO_SETUP_CONFIG.getHasRGBMatrix()) {
             initRgbLedMatrix();
@@ -113,13 +108,13 @@ public class Pi4JService {
     private void initLcdDisplay() {
         try {
             var i2c = pi4j.create(I2C.newConfigBuilder(pi4j)
-                    .bus(0x1)
-                    .device(0x21)
+                    .bus(DEMO_SETUP_CONFIG.getI2cBus())
+                    .device(DEMO_SETUP_CONFIG.getI2cDeviceLcd())
                     .build());
 
             lcdDisplay = Hd44780Driver.withMcp23008Connection(i2c, 16, 2);
-            lcdDisplay.writeLine("Hello", 1);
-            lcdDisplay.writeLine("   World!", 2);
+            lcdDisplay.writeAt(0, 0, "Hello");
+            lcdDisplay.writeAt(0, 1, "   World!");
             logger.info("The LCD display has been initialized");
         } catch (Exception ex) {
             logger.error("Error while initializing the lcd display: {}", ex.getMessage());
@@ -177,9 +172,13 @@ public class Pi4JService {
         }
     }
 
-    private void initDHT11() {
+    private void initSensor() {
         try {
-            humiTempComponent = new HumiTempComponent();
+
+            var i2c = pi4j.create(I2C.newConfigBuilder(pi4j)
+                    .bus(DEMO_SETUP_CONFIG.getI2cBus())
+                    .device(DEMO_SETUP_CONFIG.getI2cDeviceSensor()));
+            sensorHumidityTemperature = new Bmx280Driver(i2c);
             logger.info("The humidity and temperature component has been initialized");
         } catch (Exception ex) {
             logger.error("Error while initializing the humidity and temperature component component: {}", ex.getMessage());
@@ -365,7 +364,11 @@ public class Pi4JService {
     public void setLcdDisplay(int row, String text) {
         logger.info("Setting LCD display line {} to '{}'", row, text);
         try {
-            lcdDisplay.writeLine(text, row);
+            String paddedText = String.format("%-16s", text);
+            if (paddedText.length() > 16) {
+                paddedText = paddedText.substring(0, 16);
+            }
+            lcdDisplay.writeAt(0, row, paddedText);
         } catch (Exception ex) {
             logger.error("Can't set text on LCD display: {}", ex.getMessage());
         }
@@ -403,11 +406,12 @@ public class Pi4JService {
         public void run() {
             if (pi4j.boardInfo().getBoardModel() == BoardModel.UNKNOWN) {
                 // Generate random measurement
-                broadcast(ChangeListener.ChangeType.DHT11, HumiTempComponent.HumiTempMeasurement.random());
-                return;
+                var temperature = Math.random() * 65 - 20;  // Temperature: -20 to +45°C
+                var humidity = Math.random() * 100;         // Humidity: 0 to 100%
+                //broadcast(ChangeListener.ChangeType.SENSOR, new Bmx280Driver.Measurement(temperature, humidity, 0F));
             }
-            if (humiTempComponent != null) {
-                broadcast(ChangeListener.ChangeType.DHT11, humiTempComponent.getMeasurement());
+            if (sensorHumidityTemperature != null) {
+                broadcast(ChangeListener.ChangeType.SENSOR, sensorHumidityTemperature.readMeasurement());
             } else {
                 logger.error("No humidity and temperature component found");
             }
