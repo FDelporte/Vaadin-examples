@@ -69,7 +69,6 @@ $ sudo nano /boot/firmware/config.txt
 # Add at the end of the file:
 dtoverlay=pwm-2chan,pin=18,func=2,pin2=12,func2=4
 dtoverlay=dht11,gpiopin=4
-
 ```
 
 We can now start the application on your Raspberry Pi to interact with the GPIOs. Make sure to specify the version of

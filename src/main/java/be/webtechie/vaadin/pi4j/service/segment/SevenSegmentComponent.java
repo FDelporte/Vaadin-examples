@@ -3,6 +3,7 @@ package be.webtechie.vaadin.pi4j.service.segment;
 import com.pi4j.context.Context;
 import com.pi4j.io.i2c.I2C;
 import com.pi4j.io.i2c.I2CConfig;
+import com.pi4j.plugin.ffm.common.HexFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +20,7 @@ public class SevenSegmentComponent extends HT16K33 {
     /**
      * Default I2C device address for the seven-segment display on the CrowPi
      */
-    protected static final int DEFAULT_DEVICE = 0x70;
+    protected static final byte DEFAULT_DEVICE = 0x70;
     /**
      * Mapping of characters to their respective byte representation.
      * Each byte is a bitset where each bit specifies if a specific segment should be enabled (1) or disabled (0).
@@ -47,11 +48,11 @@ public class SevenSegmentComponent extends HT16K33 {
      * @param bus    Bus address
      * @param device Device address
      */
-    public SevenSegmentComponent(Context pi4j, int bus, int device, int[] sevenSegmentDisplayIndexes) {
+    public SevenSegmentComponent(Context pi4j, int bus, byte device, int[] sevenSegmentDisplayIndexes) {
         super(pi4j.create(buildI2CConfig(pi4j, bus, device)));
         this.sevenSegmentDisplayIndexes = sevenSegmentDisplayIndexes;
     }
-    
+
     /**
      * Builds a new I2C instance for the seven-segment display
      *
@@ -60,12 +61,12 @@ public class SevenSegmentComponent extends HT16K33 {
      * @param device Device address
      * @return I2C instance
      */
-    private static I2CConfig buildI2CConfig(Context pi4j, int bus, int device) {
+    private static I2CConfig buildI2CConfig(Context pi4j, int bus, byte device) {
         return I2C.newConfigBuilder(pi4j)
-                .id("I2C-" + device + "@" + bus)
+                .id("I2C-SEGMENT-" + bus + "-" + HexFormatter.format(device))
                 .name("Segment Display")
                 .bus(bus)
-                .device(device)
+                .device((int) device)
                 .build();
     }
 

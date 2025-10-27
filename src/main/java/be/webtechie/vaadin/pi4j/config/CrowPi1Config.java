@@ -23,7 +23,7 @@ public class CrowPi1Config implements CrowPiConfig {
     }
 
     @Override
-    public int getI2cDeviceLcd() {
+    public byte getI2cDeviceLcd() {
         return 0x27;
     }
 

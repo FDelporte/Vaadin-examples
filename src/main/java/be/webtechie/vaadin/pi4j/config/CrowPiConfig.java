@@ -8,7 +8,7 @@ public interface CrowPiConfig {
 
     int getI2cBus();
 
-    int getI2cDeviceLcd();
+    byte getI2cDeviceLcd();
 
     int getChannelPwmBuzzer();
 

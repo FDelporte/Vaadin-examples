@@ -6,6 +6,7 @@ import be.webtechie.vaadin.pi4j.service.ChangeListener;
 import com.pi4j.context.Context;
 import com.pi4j.drivers.display.character.hd44780.Hd44780Driver;
 import com.pi4j.io.i2c.I2C;
+import com.pi4j.plugin.ffm.common.HexFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -21,14 +22,15 @@ public class LcdDisplayService {
         this.eventPublisher = eventPublisher;
 
         try {
-            var i2cBus = config.getI2cBus();
-            var i2cDevice = config.getI2cDeviceLcd();
+            var bus = config.getI2cBus();
+            var device = config.getI2cDeviceLcd();
 
-            logger.info("Initializing LCD display on bus {} and device {}", i2cBus, i2cDevice);
+            logger.info("Initializing LCD display on bus {} and device {}", bus, device);
 
             var i2c = pi4j.create(I2C.newConfigBuilder(pi4j)
-                    .bus(i2cBus)
-                    .device(i2cDevice)
+                    .id("I2C-LCD-" + bus + "-" + HexFormatter.format(device))
+                    .bus(bus)
+                    .device((int) device)
                     .build());
 
             this.lcdDisplay = Hd44780Driver.withMcp23008Connection(i2c, 16, 2);

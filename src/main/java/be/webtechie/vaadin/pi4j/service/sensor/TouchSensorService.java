@@ -18,7 +18,7 @@ public class TouchSensorService {
 
     public TouchSensorService(Context pi4j, CrowPiConfig config, ComponentEventPublisher eventPublisher) {
         var touchConfig = DigitalInput.newConfigBuilder(pi4j)
-                .id("BCM" + config.getPinTouch())
+                .id("TOUCH-BCM" + config.getPinTouch())
                 .name("TouchSensor")
                 .address(config.getPinTouch())
                 .debounce(TOUCH_DEBOUNCE)
