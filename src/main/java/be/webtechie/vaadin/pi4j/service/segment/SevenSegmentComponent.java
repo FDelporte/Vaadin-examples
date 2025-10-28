@@ -3,6 +3,7 @@ package be.webtechie.vaadin.pi4j.service.segment;
 import com.pi4j.context.Context;
 import com.pi4j.io.i2c.I2C;
 import com.pi4j.io.i2c.I2CConfig;
+import com.pi4j.io.i2c.I2CImplementation;
 import com.pi4j.plugin.ffm.common.HexFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,6 +68,7 @@ public class SevenSegmentComponent extends HT16K33 {
                 .name("Segment Display")
                 .bus(bus)
                 .device((int) device)
+                .i2cImplementation(I2CImplementation.DIRECT)
                 .build();
     }
 
