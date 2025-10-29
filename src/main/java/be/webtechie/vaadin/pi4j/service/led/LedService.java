@@ -16,7 +16,7 @@ public class LedService {
 
     public LedService(Context pi4j, CrowPiConfig config) {
         var ledConfig = DigitalOutput.newConfigBuilder(pi4j)
-                .id("LED-BCM" + config.getPinTouch())
+                .id("GPIO-LED-BCM" + config.getPinLed())
                 .name("LED")
                 .address(config.getPinLed())
                 .shutdown(DigitalState.LOW)

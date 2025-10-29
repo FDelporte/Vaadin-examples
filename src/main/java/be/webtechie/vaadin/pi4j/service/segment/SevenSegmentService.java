@@ -23,6 +23,10 @@ public class SevenSegmentService {
         this.component.setBlinkRate(0);
         this.component.setBrightness(15);
         this.component.clear();
+        setSymbol(0, SevenSegmentSymbol.NUMBER_0);
+        setSymbol(1, SevenSegmentSymbol.NUMBER_0);
+        setSymbol(2, SevenSegmentSymbol.NUMBER_0);
+        setSymbol(3, SevenSegmentSymbol.NUMBER_0);
         logger.info("Seven segment display initialized");
     }
 
