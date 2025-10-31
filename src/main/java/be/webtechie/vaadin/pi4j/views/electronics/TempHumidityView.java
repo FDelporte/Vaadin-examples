@@ -2,7 +2,7 @@ package be.webtechie.vaadin.pi4j.views.electronics;
 
 import be.webtechie.vaadin.pi4j.event.ComponentEventPublisher;
 import be.webtechie.vaadin.pi4j.service.ChangeListener;
-import be.webtechie.vaadin.pi4j.service.sensor.DHT11Component;
+import be.webtechie.vaadin.pi4j.service.sensor.HumidityTemperatureMeasurement;
 import be.webtechie.vaadin.pi4j.views.component.LogGrid;
 import com.pi4j.drivers.sensor.environment.bmx280.Bmx280Driver;
 import com.vaadin.flow.component.AttachEvent;
@@ -60,7 +60,7 @@ public class TempHumidityView extends VerticalLayout implements ChangeListener {
             ui.access(() -> environmentMonitor.setEnvironmentValues((measurement.getTemperature()), measurement.getHumidity()));
         }
         if (type.equals(ChangeType.DHT11)) {
-            var measurement = (DHT11Component.HumiTempMeasurement) message;
+            var measurement = (HumidityTemperatureMeasurement) message;
             logger.debug("Message received: {}", measurement);
             logs.addLine("Temperature: " + measurement.temperature() + ", humidity: " + measurement.humidity());
             ui.access(() -> environmentMonitor.setEnvironmentValues((measurement.temperature()), measurement.humidity()));

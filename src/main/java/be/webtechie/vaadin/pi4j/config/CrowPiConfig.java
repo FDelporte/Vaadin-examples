@@ -16,9 +16,5 @@ public interface CrowPiConfig {
 
     boolean hasRGBMatrix();
 
-    boolean hasDHT11Sensor();
-
-    boolean hasBMX280Sensor();
-
     Integer getI2cDeviceSensor();
 }

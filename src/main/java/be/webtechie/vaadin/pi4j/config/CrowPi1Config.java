@@ -1,11 +1,19 @@
 package be.webtechie.vaadin.pi4j.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @ConditionalOnProperty(name = "crowpi.version", havingValue = "1")
 public class CrowPi1Config implements CrowPiConfig {
+
+    private static final Logger logger = LoggerFactory.getLogger(CrowPi1Config.class);
+
+    public CrowPi1Config() {
+        logger.info("CrowPi 1 configured");
+    }
 
     @Override
     public int getPinLed() {
@@ -39,16 +47,6 @@ public class CrowPi1Config implements CrowPiConfig {
 
     @Override
     public boolean hasRGBMatrix() {
-        return false;
-    }
-
-    @Override
-    public boolean hasDHT11Sensor() {
-        return true;
-    }
-
-    @Override
-    public boolean hasBMX280Sensor() {
         return false;
     }
 

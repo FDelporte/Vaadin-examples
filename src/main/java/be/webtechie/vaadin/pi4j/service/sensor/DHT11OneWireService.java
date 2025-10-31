@@ -1,10 +1,12 @@
 package be.webtechie.vaadin.pi4j.service.sensor;
 
+import be.webtechie.vaadin.pi4j.config.CrowPi1Config;
+import be.webtechie.vaadin.pi4j.config.CrowPi2Config;
 import be.webtechie.vaadin.pi4j.event.ComponentEventPublisher;
 import be.webtechie.vaadin.pi4j.service.ChangeListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.Executors;
@@ -12,17 +14,19 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 @Service
-@ConditionalOnExpression("${crowpi.config.hasDHT11Sensor:false}")
-public class DHT11Service {
+@ConditionalOnBean({CrowPi1Config.class, CrowPi2Config.class})
+public class DHT11OneWireService {
 
-    private static final Logger logger = LoggerFactory.getLogger(DHT11Service.class);
-    private final DHT11Component component;
+    private static final Logger logger = LoggerFactory.getLogger(DHT11OneWireService.class);
+    private final DHT11OneWireComponent component;
     private final ComponentEventPublisher eventPublisher;
     private final ScheduledExecutorService scheduler;
 
-    public DHT11Service(ComponentEventPublisher eventPublisher) {
+    public DHT11OneWireService(ComponentEventPublisher eventPublisher) {
+        logger.info("DHT11OneWireService constructor called - service is starting!");
+
         this.eventPublisher = eventPublisher;
-        this.component = new DHT11Component();
+        this.component = new DHT11OneWireComponent();
         logger.info("DHT11 humidity and temperature sensor initialized");
 
         // Start polling
@@ -37,9 +41,5 @@ public class DHT11Service {
         } catch (Exception e) {
             logger.error("Error reading DHT11 sensor: {}", e.getMessage());
         }
-    }
-
-    public Object getMeasurement() {
-        return component.getMeasurement();
     }
 }
