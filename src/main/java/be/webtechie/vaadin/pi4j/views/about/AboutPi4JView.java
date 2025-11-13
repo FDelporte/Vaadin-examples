@@ -1,7 +1,10 @@
 package be.webtechie.vaadin.pi4j.views.about;
 
 import be.webtechie.vaadin.pi4j.service.Pi4JService;
-import com.vaadin.flow.component.html.*;
+import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.ListItem;
+import com.vaadin.flow.component.html.UnorderedList;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.Menu;
@@ -23,17 +26,9 @@ public class AboutPi4JView extends VerticalLayout {
         setSpacing(false);
         add(
                 new H2("Detected board"),
-                new Paragraph("Board model: " + pi4JService.getBoardInfo().getBoardModel().getLabel()
-                        + ", " + pi4JService.getBoardInfo().getBoardModel().getNumberOfCpu()
-                        + "x" + pi4JService.getBoardInfo().getBoardModel().getCpu()),
-                new Paragraph("OS: " + pi4JService.getBoardInfo().getOperatingSystem().getName()
-                        + ", " + pi4JService.getBoardInfo().getOperatingSystem().getArchitecture()
-                        + ", " + pi4JService.getBoardInfo().getOperatingSystem().getVersion()),
+                getBoardInfo(pi4JService),
                 new H2("Java"),
-                new Paragraph("Version: " + pi4JService.getBoardInfo().getJavaInfo().getVersion()
-                        + " (" + pi4JService.getBoardInfo().getJavaInfo().getRuntime() + ")"),
-                new Paragraph("Vendor: " + pi4JService.getBoardInfo().getJavaInfo().getVendor()
-                        + " (" + pi4JService.getBoardInfo().getJavaInfo().getVendorVersion() + ")"),
+                getJavaInfo(pi4JService),
                 new H2("Pi4J"),
                 new H3("Loaded platforms"),
                 asUnorderedList(pi4JService.getLoadedPlatforms()),
@@ -44,6 +39,26 @@ public class AboutPi4JView extends VerticalLayout {
         );
         setSizeFull();
         getStyle().setTextAlign(Style.TextAlign.LEFT);
+    }
+
+    private UnorderedList getJavaInfo(Pi4JService pi4JService) {
+        var listView = new UnorderedList();
+        listView.add(new ListItem("Version: " + pi4JService.getBoardInfo().getJavaInfo().getVersion()
+                + " (" + pi4JService.getBoardInfo().getJavaInfo().getRuntime() + ")"));
+        listView.add(new ListItem("Vendor: " + pi4JService.getBoardInfo().getJavaInfo().getVendor()
+                + " (" + pi4JService.getBoardInfo().getJavaInfo().getVendorVersion() + ")"));
+        return listView;
+    }
+
+    private UnorderedList getBoardInfo(Pi4JService pi4JService) {
+        var listView = new UnorderedList();
+        listView.add(new ListItem("Board model: " + pi4JService.getBoardInfo().getBoardModel().getLabel()
+                + ", " + pi4JService.getBoardInfo().getBoardModel().getNumberOfCpu()
+                + "x" + pi4JService.getBoardInfo().getBoardModel().getCpu()));
+        listView.add(new ListItem("OS: " + pi4JService.getBoardInfo().getOperatingSystem().getName()
+                + ", " + pi4JService.getBoardInfo().getOperatingSystem().getArchitecture()
+                + ", " + pi4JService.getBoardInfo().getOperatingSystem().getVersion()));
+        return listView;
     }
 
     private UnorderedList asUnorderedList(List<String> list) {

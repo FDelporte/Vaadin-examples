@@ -36,8 +36,13 @@ public class CrowPi1Config implements CrowPiConfig {
     }
 
     @Override
-    public int getChannelPwmBuzzer() {
-        return 0;
+    public byte getI2cDeviceHumidityTemperatureSensor() {
+        return 0x00;
+    }
+
+    @Override
+    public byte getI2cDeviceSevenSegmentDisplay() {
+        return 0x70;
     }
 
     @Override
@@ -51,7 +56,17 @@ public class CrowPi1Config implements CrowPiConfig {
     }
 
     @Override
-    public Integer getI2cDeviceSensor() {
-        return null;
+    public int getPwmBus() {
+        return 0;
+    }
+
+    @Override
+    public int getPwmChannelBuzzer() {
+        return 0;
+    }
+
+    @Override
+    public int getPwmChannelRgbMatrix() {
+        return 0;
     }
 }

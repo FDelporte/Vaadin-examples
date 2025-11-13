@@ -1,5 +1,6 @@
 package be.webtechie.vaadin.pi4j.service.matrix;
 
+import be.webtechie.vaadin.pi4j.config.CrowPiConfig;
 import be.webtechie.vaadin.pi4j.service.SleepHelper;
 import com.pi4j.context.Context;
 import com.pi4j.io.pwm.Pwm;
@@ -66,7 +67,7 @@ public class RgbMatrixService {
      *
      * @param pi4j Pi4J context
      */
-    public RgbMatrixService(Context pi4j) {
+    public RgbMatrixService(Context pi4j, CrowPiConfig config) {
         this.colorBuffer = new Color[HEIGHT][WIDTH];
         this.monoBuffer = new boolean[HEIGHT][WIDTH];
 
@@ -79,7 +80,8 @@ public class RgbMatrixService {
         PwmConfig pwmConfig = Pwm.newConfigBuilder(pi4j)
                 .id("WS2812B-PWM")
                 .name("RGB Matrix PWM")
-                .address(12) // TO CHECK
+                .bus(config.getPwmBus())
+                .channel(config.getPwmChannelRgbMatrix()) // TO CHECK
                 .pwmType(PwmType.HARDWARE)
                 .frequency(PWM_FREQUENCY)
                 .initial(0)

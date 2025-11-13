@@ -14,14 +14,7 @@ import java.util.List;
  * Implementation of the CrowPi seven-segment display using I2C with Pi4J
  */
 public class SevenSegmentComponent extends HT16K33 {
-    /**
-     * Default I2C bus address for the seven-segment display on the CrowPi
-     */
-    protected static final int DEFAULT_BUS = 0x1;
-    /**
-     * Default I2C device address for the seven-segment display on the CrowPi
-     */
-    protected static final byte DEFAULT_DEVICE = 0x70;
+
     /**
      * Mapping of characters to their respective byte representation.
      * Each byte is a bitset where each bit specifies if a specific segment should be enabled (1) or disabled (0).
@@ -32,15 +25,6 @@ public class SevenSegmentComponent extends HT16K33 {
      */
     private final int[] sevenSegmentDisplayIndexes;
     private final Logger logger = LoggerFactory.getLogger(SevenSegmentComponent.class);
-
-    /**
-     * Creates a new seven-segment display component with the default bus and device address.
-     *
-     * @param pi4j Pi4J context
-     */
-    public SevenSegmentComponent(Context pi4j, int[] sevenSegmentDisplayIndexes) {
-        this(pi4j, DEFAULT_BUS, DEFAULT_DEVICE, sevenSegmentDisplayIndexes);
-    }
 
     /**
      * Creates a new seven-segment display component with a custom bus and device address.

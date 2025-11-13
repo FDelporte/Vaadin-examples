@@ -10,11 +10,17 @@ public interface CrowPiConfig {
 
     byte getI2cDeviceLcd();
 
-    int getChannelPwmBuzzer();
+    byte getI2cDeviceHumidityTemperatureSensor();
+
+    byte getI2cDeviceSevenSegmentDisplay();
 
     int[] getSevenSegmentDisplayIndexes();
 
     boolean hasRGBMatrix();
 
-    Integer getI2cDeviceSensor();
+    int getPwmBus();
+
+    int getPwmChannelBuzzer();
+
+    int getPwmChannelRgbMatrix();
 }

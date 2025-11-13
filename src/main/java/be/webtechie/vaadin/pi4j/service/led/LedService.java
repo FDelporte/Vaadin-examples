@@ -18,7 +18,7 @@ public class LedService {
         var ledConfig = DigitalOutput.newConfigBuilder(pi4j)
                 .id("GPIO-LED-BCM" + config.getPinLed())
                 .name("LED")
-                .address(config.getPinLed())
+                .bcm(config.getPinLed())
                 .shutdown(DigitalState.LOW)
                 .initial(DigitalState.LOW);
         this.led = pi4j.create(ledConfig);

@@ -76,7 +76,7 @@ public class LedMatrixComponent extends MAX7219 {
         return Spi.newConfigBuilder(pi4j)
                 .id("SPI" + channel)
                 .name("LED Matrix")
-                .address(channel)
+                .bus(channel)
                 .baud(baud)
                 .build();
     }

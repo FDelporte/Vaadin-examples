@@ -24,7 +24,7 @@ public class RedMatrixService {
         this.isRgbMatrix = config.hasRGBMatrix();
 
         if (isRgbMatrix) {
-            this.rgbMatrixService = new RgbMatrixService(pi4j);
+            this.rgbMatrixService = new RgbMatrixService(pi4j, config);
             this.ledMatrixComponent = null;
             logger.info("RGB LED matrix initialized");
         } else {

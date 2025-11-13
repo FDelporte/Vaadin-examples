@@ -13,24 +13,32 @@ import org.springframework.stereotype.Service;
 public class SevenSegmentService {
 
     private static final Logger logger = LoggerFactory.getLogger(SevenSegmentService.class);
-    private final SevenSegmentComponent component;
     private final ComponentEventPublisher eventPublisher;
+    private SevenSegmentComponent component;
 
     public SevenSegmentService(Context pi4j, CrowPiConfig config, ComponentEventPublisher eventPublisher) {
         this.eventPublisher = eventPublisher;
-        this.component = new SevenSegmentComponent(pi4j, config.getSevenSegmentDisplayIndexes());
-        this.component.setEnabled(true);
-        this.component.setBlinkRate(0);
-        this.component.setBrightness(15);
-        this.component.clear();
-        setSymbol(0, SevenSegmentSymbol.NUMBER_0);
-        setSymbol(1, SevenSegmentSymbol.NUMBER_0);
-        setSymbol(2, SevenSegmentSymbol.NUMBER_0);
-        setSymbol(3, SevenSegmentSymbol.NUMBER_0);
-        logger.info("Seven segment display initialized");
+        try {
+            this.component = new SevenSegmentComponent(pi4j, config.getI2cBus(), config.getI2cDeviceSevenSegmentDisplay(), config.getSevenSegmentDisplayIndexes());
+            this.component.setEnabled(true);
+            this.component.setBlinkRate(0);
+            this.component.setBrightness(15);
+            this.component.clear();
+            setSymbol(0, SevenSegmentSymbol.NUMBER_0);
+            setSymbol(1, SevenSegmentSymbol.NUMBER_0);
+            setSymbol(2, SevenSegmentSymbol.NUMBER_0);
+            setSymbol(3, SevenSegmentSymbol.NUMBER_0);
+            logger.info("Seven segment display initialized");
+        } catch (Exception e) {
+            logger.error("Error initializing seven segment display: {}", e.getMessage());
+        }
     }
 
     public void setSymbol(int position, SevenSegmentSymbol symbol) {
+        if (component == null) {
+            logger.error("Seven segment display not initialized");
+            return;
+        }
         logger.info("Setting digit {} on position {} of seven segment display", symbol.name(), position);
         component.setSymbol(position, symbol);
         component.refresh();
@@ -40,6 +48,10 @@ public class SevenSegmentService {
     }
 
     public void clear() {
+        if (component == null) {
+            logger.error("Seven segment display not initialized");
+            return;
+        }
         component.clear();
         component.refresh();
     }

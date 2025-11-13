@@ -20,7 +20,7 @@ public class TouchSensorService {
         var touchConfig = DigitalInput.newConfigBuilder(pi4j)
                 .id("GPIO-TOUCH-BCM" + config.getPinTouch())
                 .name("TouchSensor")
-                .address(config.getPinTouch())
+                .bcm(config.getPinTouch())
                 .debounce(TOUCH_DEBOUNCE)
                 .pull(PullResistance.PULL_UP)
                 .build();
