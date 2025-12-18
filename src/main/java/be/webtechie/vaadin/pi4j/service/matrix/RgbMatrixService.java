@@ -80,7 +80,7 @@ public class RgbMatrixService {
         PwmConfig pwmConfig = Pwm.newConfigBuilder(pi4j)
                 .id("WS2812B-PWM")
                 .name("RGB Matrix PWM")
-                .bus(config.getPwmBus())
+                .chip(config.getPwmChip())
                 .channel(config.getPwmChannelRgbMatrix()) // TO CHECK
                 .pwmType(PwmType.HARDWARE)
                 .frequency(PWM_FREQUENCY)

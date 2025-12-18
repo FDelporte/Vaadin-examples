@@ -1,9 +1,5 @@
 package be.webtechie.vaadin.pi4j.service.buzzer;
 
-import org.apache.commons.codec.binary.Hex;
-
-import java.math.BigInteger;
-
 /**
  * Mapping of well-known piano keys 1 - 100 to their appropriate frequency in Hz
  * Values based on https://en.wikipedia.org/wiki/Piano_key_frequencies#List
@@ -113,6 +109,6 @@ public enum Note {
     }
 
     public String getHexValue() {
-        return ("#" + Hex.encodeHexString(BigInteger.valueOf(frequency).toByteArray())).toUpperCase();
+        return ("#" + Integer.toHexString(frequency)).toUpperCase();
     }
 }

@@ -24,7 +24,7 @@ public class BuzzerService {
         try {
             var pwmConfig = Pwm.newConfigBuilder(pi4j)
                     .pwmType(PwmType.HARDWARE)
-                    .bus(config.getPwmBus())
+                    .chip(config.getPwmChip())
                     .channel(config.getPwmChannelBuzzer())
                     .initial(0)
                     .shutdown(0)

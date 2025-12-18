@@ -44,7 +44,7 @@ public class LcdDisplayService {
     }
 
     public void clear() {
-        lcdDisplay.clearDisplay();
+        lcdDisplay.clear();
     }
 
     public void setText(int row, String text) {

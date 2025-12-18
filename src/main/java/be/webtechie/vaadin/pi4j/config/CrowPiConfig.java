@@ -18,7 +18,7 @@ public interface CrowPiConfig {
 
     boolean hasRGBMatrix();
 
-    int getPwmBus();
+    int getPwmChip();
 
     int getPwmChannelBuzzer();
 

@@ -56,7 +56,7 @@ public class CrowPi2Config implements CrowPiConfig {
     }
 
     @Override
-    public int getPwmBus() {
+    public int getPwmChip() {
         return 0;
     }
 
