@@ -29,3 +29,4 @@ error-screenshots/
 webpack.generated.js
 /docker-compose.yml
 /docker-compose.ymlsudo
+src/main/frontend/generated

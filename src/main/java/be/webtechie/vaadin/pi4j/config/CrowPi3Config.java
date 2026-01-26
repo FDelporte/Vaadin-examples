@@ -3,10 +3,11 @@ package be.webtechie.vaadin.pi4j.config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConditionalOnBean(CrowPi3Config.class)
+@ConditionalOnProperty(name = "crowpi.version", havingValue = "3")
 public class CrowPi3Config implements CrowPiConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(CrowPi3Config.class);
