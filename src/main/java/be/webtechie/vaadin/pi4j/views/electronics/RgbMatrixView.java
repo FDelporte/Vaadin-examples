@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
 @PageTitle("8x8 RGB LED Matrix")
-@Route("rgb-matrix")
+//@Route("rgb-matrix") // Conditionally registered in RedMatrixService
 @Menu(order = 15, icon = LineAwesomeIconUrl.TABLE_SOLID)
 public class RgbMatrixView extends VerticalLayout implements ChangeListener {
     private final Logger logger = LoggerFactory.getLogger(RgbMatrixView.class);
