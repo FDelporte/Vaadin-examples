@@ -4,6 +4,7 @@ public interface ChangeListener {
     <T> void onMessage(ChangeType type, T message);
 
     enum ChangeType {
+        BMP280,
         BUZZER,
         DHT11,
         KEY,

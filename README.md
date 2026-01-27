@@ -17,7 +17,7 @@ configured version.
 ### Pioneer600
 The Pioneer600 is a Raspberry Pi expansion board with a different set of components.
 
-**Features:** LED (GPIO 26), Key/Button (GPIO 20), OLED display (SSD1306 via SPI)
+**Features:** LED (GPIO 26), Key/Button (GPIO 20), OLED display (SSD1306 via SPI), BMP280 barometric sensor (I2C)
 
 ## Configuration
 

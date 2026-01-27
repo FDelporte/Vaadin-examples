@@ -136,4 +136,21 @@ public interface BoardConfig {
     default boolean hasDht11() {
         return true;
     }
+
+    // BMP280 configuration (barometric pressure sensor via I2C)
+    /**
+     * Returns the I2C address for the BMP280 barometric pressure sensor.
+     * Default implementation returns 0x00 (not available).
+     */
+    default byte getI2cDeviceBmp280() {
+        return 0x00;
+    }
+
+    /**
+     * Returns true if the board has a BMP280 barometric pressure sensor.
+     * Default implementation returns false.
+     */
+    default boolean hasBmp280() {
+        return false;
+    }
 }

@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Configuration;
  * - LED (GPIO 26)
  * - KEY/Button (GPIO 20)
  * - OLED display (SSD1306 via SPI, DC=16, RST=19)
+ * - BMP280 barometric pressure sensor (I2C address 0x76)
  *
  * Features NOT available on Pioneer600:
  * - Touch sensor, LCD display, seven segment display
@@ -150,5 +151,16 @@ public class Pioneer600Config implements BoardConfig {
     @Override
     public boolean hasDht11() {
         return false;
+    }
+
+    // BMP280 barometric pressure sensor (I2C)
+    @Override
+    public byte getI2cDeviceBmp280() {
+        return 0x76;
+    }
+
+    @Override
+    public boolean hasBmp280() {
+        return true;
     }
 }
