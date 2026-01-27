@@ -7,6 +7,7 @@ public interface ChangeListener {
         BMP280,
         BUZZER,
         DHT11,
+        IR,
         JOYSTICK,
         KEY,
         LCD,

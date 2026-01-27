@@ -178,4 +178,20 @@ public interface BoardConfig {
     default boolean hasPcf8574Buzzer() {
         return false;
     }
+
+    /**
+     * Returns true if the board has an IR (infrared) receiver.
+     * Default implementation returns false.
+     */
+    default boolean hasIrReceiver() {
+        return false;
+    }
+
+    /**
+     * Returns the GPIO pin for the IR receiver.
+     * Default implementation returns 18 (common for Pioneer600).
+     */
+    default int getIrReceiverPin() {
+        return 18;
+    }
 }

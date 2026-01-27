@@ -180,4 +180,14 @@ public class Pioneer600Config implements BoardConfig {
     public boolean hasPcf8574Buzzer() {
         return true;
     }
+
+    @Override
+    public boolean hasIrReceiver() {
+        return true;
+    }
+
+    @Override
+    public int getIrReceiverPin() {
+        return 18;
+    }
 }
