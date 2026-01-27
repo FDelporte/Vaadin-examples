@@ -22,7 +22,7 @@ import org.vaadin.lineawesome.LineAwesomeIconUrl;
 import java.util.Arrays;
 
 @PageTitle("Buzzer")
-@Route("buzzer")
+// @Route("buzzer") - Conditionally registered by BuzzerService
 @Menu(order = 12, icon = LineAwesomeIconUrl.VOLUME_UP_SOLID)
 public class BuzzerView extends VerticalLayout implements ChangeListener {
     private final Logger logger = LoggerFactory.getLogger(BuzzerView.class);

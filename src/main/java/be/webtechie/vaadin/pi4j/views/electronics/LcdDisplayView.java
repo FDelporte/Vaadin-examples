@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
 @PageTitle("LCD Display")
-@Route("lcddisplay")
+// @Route("lcddisplay") - Conditionally registered by LcdDisplayService
 @Menu(order = 13, icon = LineAwesomeIconUrl.TABLE_SOLID)
 public class LcdDisplayView extends VerticalLayout implements ChangeListener {
     private final Logger logger = LoggerFactory.getLogger(LcdDisplayView.class);

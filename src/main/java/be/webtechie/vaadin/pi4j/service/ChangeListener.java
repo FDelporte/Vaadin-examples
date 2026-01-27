@@ -6,8 +6,10 @@ public interface ChangeListener {
     enum ChangeType {
         BUZZER,
         DHT11,
+        KEY,
         LCD,
         MATRIX,
+        OLED,
         SEGMENT,
         SENSOR,
         TOUCH

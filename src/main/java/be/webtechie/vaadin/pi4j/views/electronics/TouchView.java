@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
 @PageTitle("Touch")
-@Route("touch")
+// @Route("touch") - Conditionally registered by TouchSensorService
 @Menu(order = 11, icon = LineAwesomeIconUrl.POWER_OFF_SOLID)
 public class TouchView extends HorizontalLayout implements ChangeListener {
 

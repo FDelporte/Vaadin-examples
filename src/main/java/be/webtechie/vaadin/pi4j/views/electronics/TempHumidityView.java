@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
 @PageTitle("Temperature and Humidity")
-@Route("temperature-humidity")
+// @Route("temperature-humidity") - Conditionally registered by DHT11 services
 @Menu(order = 16, icon = LineAwesomeIconUrl.THERMOMETER_EMPTY_SOLID)
 public class TempHumidityView extends VerticalLayout implements ChangeListener {
 

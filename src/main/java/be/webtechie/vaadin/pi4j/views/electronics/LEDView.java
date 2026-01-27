@@ -10,7 +10,7 @@ import com.vaadin.flow.router.Route;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
 @PageTitle("LED")
-@Route("led")
+// @Route("led") - Conditionally registered by LedService
 @Menu(order = 10, icon = LineAwesomeIconUrl.LIGHTBULB_SOLID)
 public class LEDView extends HorizontalLayout {
 

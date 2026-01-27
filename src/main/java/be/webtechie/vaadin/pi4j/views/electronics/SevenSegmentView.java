@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
 @PageTitle("Seven Segment Display")
-@Route("sevensegment")
+// @Route("sevensegment") - Conditionally registered by SevenSegmentService
 @Menu(order = 15, icon = LineAwesomeIconUrl.TABLE_SOLID)
 public class SevenSegmentView extends VerticalLayout implements ChangeListener {
     private final Logger logger = LoggerFactory.getLogger(SevenSegmentView.class);

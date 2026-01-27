@@ -2,13 +2,12 @@ package be.webtechie.vaadin.pi4j.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConditionalOnProperty(name = "crowpi.version", havingValue = "3")
-public class CrowPi3Config implements CrowPiConfig {
+@ConditionalOnProperty(name = "board.type", havingValue = "crowpi-3")
+public class CrowPi3Config implements BoardConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(CrowPi3Config.class);
 
@@ -69,5 +68,23 @@ public class CrowPi3Config implements CrowPiConfig {
     @Override
     public int getPwmChannelRgbMatrix() {
         return 0;
+    }
+
+    // CrowPi 3 has all standard CrowPi features plus RGB matrix
+    // Use default implementations for: hasLed, hasTouch, hasLcd, hasSevenSegment, hasBuzzer, hasDht11
+    // Override hasKey (no key on CrowPi)
+    @Override
+    public boolean hasKey() {
+        return false;
+    }
+
+    @Override
+    public boolean hasOled() {
+        return false;
+    }
+
+    @Override
+    public boolean hasRedMatrix() {
+        return false; // CrowPi 3 has RGB matrix instead of red matrix
     }
 }
