@@ -153,4 +153,29 @@ public interface BoardConfig {
     default boolean hasBmp280() {
         return false;
     }
+
+    // PCF8574 configuration (I/O expander for joystick)
+    /**
+     * Returns the I2C address for the PCF8574 I/O expander.
+     * Default implementation returns 0x00 (not available).
+     */
+    default byte getI2cDevicePcf8574() {
+        return 0x00;
+    }
+
+    /**
+     * Returns true if the board has a PCF8574-based joystick.
+     * Default implementation returns false.
+     */
+    default boolean hasJoystick() {
+        return false;
+    }
+
+    /**
+     * Returns true if the board has a simple buzzer controlled via PCF8574.
+     * Default implementation returns false.
+     */
+    default boolean hasPcf8574Buzzer() {
+        return false;
+    }
 }

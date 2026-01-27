@@ -13,6 +13,8 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 // Ensure components from dynamically registered views are included in production bundle
 @Uses(BarometerView.class)
 @Uses(BuzzerView.class)
+@Uses(JoystickView.class)
+@Uses(SimpleBuzzerView.class)
 @Uses(KeyPressView.class)
 @Uses(LcdDisplayView.class)
 @Uses(LEDView.class)

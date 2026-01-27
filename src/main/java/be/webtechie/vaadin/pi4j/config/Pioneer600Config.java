@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Configuration;
  * - KEY/Button (GPIO 20)
  * - OLED display (SSD1306 via SPI, DC=16, RST=19)
  * - BMP280 barometric pressure sensor (I2C address 0x76)
+ * - Joystick via PCF8574 I/O expander (I2C address 0x20)
  *
  * Features NOT available on Pioneer600:
  * - Touch sensor, LCD display, seven segment display
@@ -161,6 +162,22 @@ public class Pioneer600Config implements BoardConfig {
 
     @Override
     public boolean hasBmp280() {
+        return true;
+    }
+
+    // PCF8574 I/O expander for joystick (I2C)
+    @Override
+    public byte getI2cDevicePcf8574() {
+        return 0x20;
+    }
+
+    @Override
+    public boolean hasJoystick() {
+        return true;
+    }
+
+    @Override
+    public boolean hasPcf8574Buzzer() {
         return true;
     }
 }
