@@ -1,8 +1,7 @@
 package be.webtechie.vaadin.pi4j.service.sensor;
 
 import be.webtechie.vaadin.pi4j.config.BoardConfig;
-import be.webtechie.vaadin.pi4j.event.ComponentEventPublisher;
-import be.webtechie.vaadin.pi4j.service.ChangeListener;
+import be.webtechie.vaadin.pi4j.event.DhtMeasurementEvent;
 import be.webtechie.vaadin.pi4j.service.Pi4JService;
 import be.webtechie.vaadin.pi4j.views.electronics.TempHumidityView;
 import com.pi4j.context.Context;
@@ -11,6 +10,7 @@ import com.pi4j.io.i2c.I2CImplementation;
 import com.pi4j.plugin.ffm.common.HexFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.Executors;
@@ -26,11 +26,11 @@ public class DHT11I2CService {
 
     private static final Logger logger = LoggerFactory.getLogger(DHT11I2CService.class);
 
-    private final ComponentEventPublisher eventPublisher;
+    private final ApplicationEventPublisher eventPublisher;
     private final ScheduledExecutorService scheduler;
     private final I2C i2cSensor;
 
-    public DHT11I2CService(Context pi4j, BoardConfig config, ComponentEventPublisher eventPublisher, Pi4JService pi4JService) {
+    public DHT11I2CService(Context pi4j, BoardConfig config, ApplicationEventPublisher eventPublisher, Pi4JService pi4JService) {
         this.eventPublisher = eventPublisher;
 
         // Only initialize for boards that have DHT11 via I2C (CrowPi 3)
@@ -96,7 +96,7 @@ public class DHT11I2CService {
 
             logger.trace("Temperature: {}°C, Humidity: {}%", temperature, humidity);
 
-            eventPublisher.publish(ChangeListener.ChangeType.DHT11, new HumidityTemperatureMeasurement(temperature, humidity));
+            eventPublisher.publishEvent(new DhtMeasurementEvent(this, temperature, humidity));
         } catch (Exception e) {
             logger.error("Error reading DHT11 sensor: {}", e.getMessage());
         }

@@ -1,11 +1,9 @@
 package be.webtechie.vaadin.pi4j.views.electronics;
 
-import be.webtechie.vaadin.pi4j.event.ComponentEventPublisher;
-import be.webtechie.vaadin.pi4j.service.ChangeListener;
+import be.webtechie.vaadin.pi4j.event.DisplayEvent;
+import be.webtechie.vaadin.pi4j.event.ComponentEventBus;
 import be.webtechie.vaadin.pi4j.service.oled.OledService;
 import be.webtechie.vaadin.pi4j.views.component.LogGrid;
-import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -24,17 +22,17 @@ import org.vaadin.lineawesome.LineAwesomeIconUrl;
 @PageTitle("OLED Display")
 // @Route("oleddisplayview") - Conditionally registered in OledService
 @Menu(order = 13, icon = LineAwesomeIconUrl.DESKTOP_SOLID)
-public class OledDisplayView extends VerticalLayout implements ChangeListener {
+public class OledDisplayView extends VerticalLayout {
 
     private final Logger logger = LoggerFactory.getLogger(OledDisplayView.class);
 
-    private final ComponentEventPublisher publisher;
     private final OledService oledService;
     private final LogGrid logs;
 
-    public OledDisplayView(ComponentEventPublisher publisher, OledService oledService) {
-        this.publisher = publisher;
+    public OledDisplayView(ComponentEventBus eventBus, OledService oledService) {
         this.oledService = oledService;
+
+        eventBus.subscribe(this, DisplayEvent.class, this::onDisplayEvent);
 
         setMargin(true);
 
@@ -58,7 +56,7 @@ public class OledDisplayView extends VerticalLayout implements ChangeListener {
         // Contrast control
         TextField contrastField = new TextField();
         contrastField.setLabel("Contrast (0-255)");
-        contrastField.setValue("207"); // Default CF value
+        contrastField.setValue("207");
         contrastField.setPattern("[0-9]*");
 
         var setContrast = new Button("Set Contrast");
@@ -83,22 +81,11 @@ public class OledDisplayView extends VerticalLayout implements ChangeListener {
         add(clear, testDisplay, textField, displayText, contrastLayout, dimToggle, logs);
     }
 
-    @Override
-    public void onAttach(AttachEvent attachEvent) {
-        publisher.addListener(this);
-    }
-
-    @Override
-    public void onDetach(DetachEvent detachEvent) {
-        publisher.removeListener(this);
-    }
-
-    @Override
-    public <T> void onMessage(ChangeListener.ChangeType type, T message) {
-        if (!type.equals(ChangeType.OLED)) {
+    private void onDisplayEvent(DisplayEvent event) {
+        if (event.getDisplayType() != DisplayEvent.DisplayType.OLED) {
             return;
         }
-        logger.debug("OLED message received: {}", message);
-        logs.addLine((String) message);
+        logger.debug("OLED message received: {}", event.getMessage());
+        logs.addLine(event.getMessage());
     }
 }

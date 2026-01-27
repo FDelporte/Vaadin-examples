@@ -1,13 +1,13 @@
 package be.webtechie.vaadin.pi4j.service.oled;
 
 import be.webtechie.vaadin.pi4j.config.BoardConfig;
-import be.webtechie.vaadin.pi4j.event.ComponentEventPublisher;
-import be.webtechie.vaadin.pi4j.service.ChangeListener;
+import be.webtechie.vaadin.pi4j.event.DisplayEvent;
 import be.webtechie.vaadin.pi4j.service.Pi4JService;
 import be.webtechie.vaadin.pi4j.views.electronics.OledDisplayView;
 import com.pi4j.context.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.awt.*;
@@ -22,10 +22,10 @@ public class OledService {
     private static final Logger logger = LoggerFactory.getLogger(OledService.class);
 
     private final SSD1306 oledDisplay;
-    private final ComponentEventPublisher eventPublisher;
+    private final ApplicationEventPublisher eventPublisher;
     private boolean dimmed = false;
 
-    public OledService(Context pi4j, BoardConfig config, ComponentEventPublisher eventPublisher, Pi4JService pi4JService) {
+    public OledService(Context pi4j, BoardConfig config, ApplicationEventPublisher eventPublisher, Pi4JService pi4JService) {
         this.eventPublisher = eventPublisher;
 
         if (!config.hasOled() || config.getOledDcPin() < 0 || config.getOledRstPin() < 0) {
@@ -73,7 +73,7 @@ public class OledService {
         logger.info("Clearing OLED display");
         oledDisplay.clear();
         oledDisplay.display();
-        eventPublisher.publish(ChangeListener.ChangeType.OLED, "Display cleared");
+        eventPublisher.publishEvent(new DisplayEvent(this, DisplayEvent.DisplayType.OLED, "Display cleared"));
     }
 
     /**
@@ -105,7 +105,7 @@ public class OledService {
 
         oledDisplay.image(image);
         oledDisplay.display();
-        eventPublisher.publish(ChangeListener.ChangeType.OLED, "Text displayed: " + text);
+        eventPublisher.publishEvent(new DisplayEvent(this, DisplayEvent.DisplayType.OLED, "Text displayed: " + text));
     }
 
     /**
@@ -164,7 +164,7 @@ public class OledService {
 
         oledDisplay.image(image);
         oledDisplay.display();
-        eventPublisher.publish(ChangeListener.ChangeType.OLED, "Test display completed with shapes and text");
+        eventPublisher.publishEvent(new DisplayEvent(this, DisplayEvent.DisplayType.OLED, "Test display completed with shapes and text"));
     }
 
     /**
@@ -179,7 +179,7 @@ public class OledService {
         }
         logger.info("Setting OLED contrast to {}", contrast);
         oledDisplay.setContrast(contrast);
-        eventPublisher.publish(ChangeListener.ChangeType.OLED, "Contrast set to: " + contrast);
+        eventPublisher.publishEvent(new DisplayEvent(this, DisplayEvent.DisplayType.OLED, "Contrast set to: " + contrast));
     }
 
     /**
@@ -193,6 +193,6 @@ public class OledService {
         logger.info("Toggling OLED dim state");
         dimmed = !dimmed;
         oledDisplay.dim(dimmed);
-        eventPublisher.publish(ChangeListener.ChangeType.OLED, "Dim toggled to: " + (dimmed ? "ON" : "OFF"));
+        eventPublisher.publishEvent(new DisplayEvent(this, DisplayEvent.DisplayType.OLED, "Dim toggled to: " + (dimmed ? "ON" : "OFF")));
     }
 }

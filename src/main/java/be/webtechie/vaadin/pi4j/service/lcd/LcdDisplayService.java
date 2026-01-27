@@ -1,8 +1,7 @@
 package be.webtechie.vaadin.pi4j.service.lcd;
 
 import be.webtechie.vaadin.pi4j.config.BoardConfig;
-import be.webtechie.vaadin.pi4j.event.ComponentEventPublisher;
-import be.webtechie.vaadin.pi4j.service.ChangeListener;
+import be.webtechie.vaadin.pi4j.event.DisplayEvent;
 import be.webtechie.vaadin.pi4j.service.Pi4JService;
 import be.webtechie.vaadin.pi4j.views.electronics.LcdDisplayView;
 import com.pi4j.context.Context;
@@ -11,16 +10,17 @@ import com.pi4j.io.i2c.I2C;
 import com.pi4j.plugin.ffm.common.HexFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 @Service
 public class LcdDisplayService {
 
     private static final Logger logger = LoggerFactory.getLogger(LcdDisplayService.class);
-    private final ComponentEventPublisher eventPublisher;
+    private final ApplicationEventPublisher eventPublisher;
     private Hd44780Driver lcdDisplay;
 
-    public LcdDisplayService(Context pi4j, BoardConfig config, ComponentEventPublisher eventPublisher, Pi4JService pi4JService) {
+    public LcdDisplayService(Context pi4j, BoardConfig config, ApplicationEventPublisher eventPublisher, Pi4JService pi4JService) {
         this.eventPublisher = eventPublisher;
 
         if (!config.hasLcd() || config.getI2cDeviceLcd() == 0x00) {
@@ -75,6 +75,6 @@ public class LcdDisplayService {
             paddedText = paddedText.substring(0, 16);
         }
         lcdDisplay.writeAt(0, row, paddedText);
-        eventPublisher.publish(ChangeListener.ChangeType.LCD, "Set on row " + row + ": '" + text + "'");
+        eventPublisher.publishEvent(new DisplayEvent(this, DisplayEvent.DisplayType.LCD, "Set on row " + row + ": '" + text + "'"));
     }
 }

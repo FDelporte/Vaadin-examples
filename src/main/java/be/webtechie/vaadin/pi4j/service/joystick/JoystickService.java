@@ -1,14 +1,14 @@
 package be.webtechie.vaadin.pi4j.service.joystick;
 
 import be.webtechie.vaadin.pi4j.config.BoardConfig;
-import be.webtechie.vaadin.pi4j.event.ComponentEventPublisher;
-import be.webtechie.vaadin.pi4j.service.ChangeListener;
+import be.webtechie.vaadin.pi4j.event.JoystickEvent;
 import be.webtechie.vaadin.pi4j.service.Pi4JService;
 import be.webtechie.vaadin.pi4j.views.electronics.JoystickView;
 import be.webtechie.vaadin.pi4j.views.electronics.SimpleBuzzerView;
 import com.pi4j.context.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.Random;
@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Service for reading joystick input via PCF8574 I/O expander.
- * Publishes joystick direction changes via ComponentEventPublisher.
+ * Publishes joystick direction changes via Spring ApplicationEventPublisher.
  */
 @Service
 public class JoystickService {
@@ -27,14 +27,14 @@ public class JoystickService {
     private static final long POLLING_INTERVAL_MS = 100; // Poll every 100ms
 
     private final PCF8574 pcf8574;
-    private final ComponentEventPublisher eventPublisher;
+    private final ApplicationEventPublisher eventPublisher;
     private final ScheduledExecutorService scheduler;
     private final boolean mockMode;
     private final Random random = new Random();
 
     private JoystickDirection lastDirection = JoystickDirection.NONE;
 
-    public JoystickService(Context pi4j, BoardConfig config, ComponentEventPublisher eventPublisher, Pi4JService pi4JService) {
+    public JoystickService(Context pi4j, BoardConfig config, ApplicationEventPublisher eventPublisher, Pi4JService pi4JService) {
         this.eventPublisher = eventPublisher;
 
         if (!config.hasJoystick() || config.getI2cDevicePcf8574() == 0x00) {
@@ -140,7 +140,7 @@ public class JoystickService {
             if (direction != lastDirection) {
                 lastDirection = direction;
                 logger.debug("Joystick direction: {}", direction);
-                eventPublisher.publish(ChangeListener.ChangeType.JOYSTICK, direction);
+                eventPublisher.publishEvent(new JoystickEvent(this, direction));
             }
         } catch (Exception e) {
             logger.error("Error reading joystick: {}", e.getMessage());

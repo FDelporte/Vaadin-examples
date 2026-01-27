@@ -1,8 +1,7 @@
 package be.webtechie.vaadin.pi4j.service.sensor;
 
 import be.webtechie.vaadin.pi4j.config.BoardConfig;
-import be.webtechie.vaadin.pi4j.event.ComponentEventPublisher;
-import be.webtechie.vaadin.pi4j.service.ChangeListener;
+import be.webtechie.vaadin.pi4j.event.TouchStateEvent;
 import be.webtechie.vaadin.pi4j.service.Pi4JService;
 import be.webtechie.vaadin.pi4j.views.electronics.TouchView;
 import com.pi4j.context.Context;
@@ -10,6 +9,7 @@ import com.pi4j.io.gpio.digital.DigitalInput;
 import com.pi4j.io.gpio.digital.PullResistance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,7 +20,7 @@ public class TouchSensorService {
 
     private final DigitalInput touch;
 
-    public TouchSensorService(Context pi4j, BoardConfig config, ComponentEventPublisher eventPublisher, Pi4JService pi4JService) {
+    public TouchSensorService(Context pi4j, BoardConfig config, ApplicationEventPublisher eventPublisher, Pi4JService pi4JService) {
         if (!config.hasTouch() || config.getPinTouch() < 0) {
             logger.info("Touch sensor not available on this board");
             this.touch = null;
@@ -38,7 +38,7 @@ public class TouchSensorService {
         this.touch = pi4j.create(touchConfig);
         this.touch.addListener(e -> {
             logger.info("Touch state changed to {}", e.state());
-            eventPublisher.publish(ChangeListener.ChangeType.TOUCH, e.state());
+            eventPublisher.publishEvent(new TouchStateEvent(this, e.state()));
         });
 
         // Register the view for this feature

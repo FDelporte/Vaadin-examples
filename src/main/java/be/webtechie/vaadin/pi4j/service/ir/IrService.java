@@ -1,8 +1,9 @@
 package be.webtechie.vaadin.pi4j.service.ir;
 
 import be.webtechie.vaadin.pi4j.config.BoardConfig;
-import be.webtechie.vaadin.pi4j.event.ComponentEventPublisher;
-import be.webtechie.vaadin.pi4j.service.ChangeListener;
+import be.webtechie.vaadin.pi4j.event.IrCodeEvent;
+import be.webtechie.vaadin.pi4j.event.IrTriggerChangedEvent;
+import be.webtechie.vaadin.pi4j.event.KeyStateEvent;
 import be.webtechie.vaadin.pi4j.service.Pi4JService;
 import be.webtechie.vaadin.pi4j.service.joystick.JoystickService;
 import be.webtechie.vaadin.pi4j.service.oled.OledService;
@@ -13,7 +14,9 @@ import com.pi4j.io.gpio.digital.DigitalState;
 import com.pi4j.io.gpio.digital.PullResistance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -30,7 +33,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Displays last code on OLED and allows KEY press to assign buzzer trigger.
  */
 @Service
-public class IrService implements ChangeListener {
+public class IrService {
 
     private static final Logger logger = LoggerFactory.getLogger(IrService.class);
     private static final int IR_PIN = 18; // GPIO 18 (BCM)
@@ -38,19 +41,20 @@ public class IrService implements ChangeListener {
     // Timing constants in microseconds
     private static final int SAMPLE_PERIOD_US = 50; // Sample every 50 microseconds
 
-    private final ComponentEventPublisher eventPublisher;
+    private final ApplicationEventPublisher eventPublisher;
     private final JoystickService joystickService;
     private final OledService oledService;
     private final DigitalInput irInput;
     private final ExecutorService executor;
     private final AtomicBoolean running = new AtomicBoolean(true);
     private final boolean mockMode;
+    private final boolean available;
 
     // Buzzer trigger configuration
     private final AtomicInteger buzzerTriggerCode = new AtomicInteger(-1);
     private final AtomicInteger lastReceivedCode = new AtomicInteger(-1);
 
-    public IrService(Context pi4j, BoardConfig config, ComponentEventPublisher eventPublisher,
+    public IrService(Context pi4j, BoardConfig config, ApplicationEventPublisher eventPublisher,
                      Pi4JService pi4JService, JoystickService joystickService, @Lazy OledService oledService) {
         this.eventPublisher = eventPublisher;
         this.joystickService = joystickService;
@@ -61,6 +65,7 @@ public class IrService implements ChangeListener {
             this.irInput = null;
             this.executor = null;
             this.mockMode = false;
+            this.available = false;
             return;
         }
 
@@ -85,12 +90,10 @@ public class IrService implements ChangeListener {
 
         this.irInput = tempInput;
         this.mockMode = useMockMode;
+        this.available = true;
 
         // Register the view
         pi4JService.registerView(IrReceiverView.class);
-
-        // Register as listener to receive KEY press events
-        eventPublisher.addListener(this);
 
         // Start the IR reading thread
         this.executor = Executors.newSingleThreadExecutor();
@@ -100,24 +103,27 @@ public class IrService implements ChangeListener {
         updateOledDisplay(-1);
     }
 
-    @Override
-    public <T> void onMessage(ChangeType type, T message) {
-        // Listen for KEY press to assign buzzer trigger
-        if (type == ChangeType.KEY && message instanceof DigitalState state) {
-            if (state == DigitalState.LOW) { // Key pressed
-                int lastCode = lastReceivedCode.get();
-                if (lastCode >= 0) {
-                    setBuzzerTriggerCode(lastCode);
-                    logger.info("KEY pressed - assigned IR code 0x{} as buzzer trigger",
-                            Integer.toHexString(lastCode));
-                    updateOledDisplay(lastCode);
-                }
+    /**
+     * Listens for KEY press events to assign buzzer trigger.
+     */
+    @EventListener
+    public void onKeyStateEvent(KeyStateEvent event) {
+        if (!available) {
+            return;
+        }
+        if (event.isPressed()) {
+            int lastCode = lastReceivedCode.get();
+            if (lastCode >= 0) {
+                setBuzzerTriggerCode(lastCode);
+                logger.info("KEY pressed - assigned IR code 0x{} as buzzer trigger",
+                        Integer.toHexString(lastCode));
+                updateOledDisplay(lastCode);
             }
         }
     }
 
     public boolean isAvailable() {
-        return irInput != null || mockMode;
+        return available;
     }
 
     /**
@@ -128,7 +134,7 @@ public class IrService implements ChangeListener {
         buzzerTriggerCode.set(code);
         logger.info("Buzzer trigger code set to: 0x{}", Integer.toHexString(code & 0xFF));
         // Notify listeners of trigger change
-        eventPublisher.publish(ChangeListener.ChangeType.IR, new IrTriggerChanged(code));
+        eventPublisher.publishEvent(new IrTriggerChangedEvent(this, code));
     }
 
     /**
@@ -408,7 +414,7 @@ public class IrService implements ChangeListener {
         updateOledDisplay(code);
 
         IrCode irCode = new IrCode(code, LocalDateTime.now());
-        eventPublisher.publish(ChangeListener.ChangeType.IR, irCode);
+        eventPublisher.publishEvent(new IrCodeEvent(this, irCode));
 
         // Check if this code should trigger the buzzer
         int trigger = buzzerTriggerCode.get();

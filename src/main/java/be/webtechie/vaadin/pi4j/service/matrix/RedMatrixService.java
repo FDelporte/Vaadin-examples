@@ -1,14 +1,14 @@
 package be.webtechie.vaadin.pi4j.service.matrix;
 
 import be.webtechie.vaadin.pi4j.config.BoardConfig;
-import be.webtechie.vaadin.pi4j.event.ComponentEventPublisher;
-import be.webtechie.vaadin.pi4j.service.ChangeListener;
+import be.webtechie.vaadin.pi4j.event.DisplayEvent;
 import be.webtechie.vaadin.pi4j.service.Pi4JService;
 import be.webtechie.vaadin.pi4j.views.electronics.RedMatrixView;
 import be.webtechie.vaadin.pi4j.views.electronics.RgbMatrixView;
 import com.pi4j.context.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.awt.*;
@@ -20,9 +20,9 @@ public class RedMatrixService {
     private final boolean isRgbMatrix;
     private final LedMatrixComponent ledMatrixComponent;
     private final RgbMatrixService rgbMatrixService;
-    private final ComponentEventPublisher eventPublisher;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public RedMatrixService(Context pi4j, BoardConfig config, ComponentEventPublisher eventPublisher, Pi4JService pi4JService) {
+    public RedMatrixService(Context pi4j, BoardConfig config, ApplicationEventPublisher eventPublisher, Pi4JService pi4JService) {
         this.eventPublisher = eventPublisher;
 
         // Check if the board has any matrix support
@@ -81,8 +81,8 @@ public class RedMatrixService {
         } else {
             ledMatrixComponent.print(symbol);
         }
-        eventPublisher.publish(ChangeListener.ChangeType.MATRIX,
-                "Symbol: " + symbol.name() + " - HEX: " + symbol.getHexValue());
+        eventPublisher.publishEvent(new DisplayEvent(this, DisplayEvent.DisplayType.MATRIX,
+                "Symbol: " + symbol.name() + " - HEX: " + symbol.getHexValue()));
     }
 
     public void move(MatrixDirection direction) {
@@ -96,6 +96,6 @@ public class RedMatrixService {
         } else {
             ledMatrixComponent.rotate(direction);
         }
-        eventPublisher.publish(ChangeListener.ChangeType.MATRIX, "Move: " + direction.name());
+        eventPublisher.publishEvent(new DisplayEvent(this, DisplayEvent.DisplayType.MATRIX, "Move: " + direction.name()));
     }
 }

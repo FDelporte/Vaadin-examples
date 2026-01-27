@@ -1,13 +1,9 @@
 package be.webtechie.vaadin.pi4j.views.electronics;
 
-import be.webtechie.vaadin.pi4j.event.ComponentEventPublisher;
-import be.webtechie.vaadin.pi4j.service.ChangeListener;
-import be.webtechie.vaadin.pi4j.service.bmp280.BMP280;
+import be.webtechie.vaadin.pi4j.event.BMP280Event;
+import be.webtechie.vaadin.pi4j.event.ComponentEventBus;
 import be.webtechie.vaadin.pi4j.views.component.LogGrid;
 import be.webtechie.vaadin.pi4j.views.component.PressureGauge;
-import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.DetachEvent;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -25,24 +21,21 @@ import org.vaadin.lineawesome.LineAwesomeIconUrl;
 @PageTitle("Weather")
 // @Route("weatherview") - Conditionally registered by BMP280Service
 @Menu(order = 17, icon = LineAwesomeIconUrl.CLOUD_SUN_SOLID)
-public class WeatherView extends VerticalLayout implements ChangeListener {
+public class WeatherView extends VerticalLayout {
 
     private static final Logger logger = LoggerFactory.getLogger(WeatherView.class);
 
-    private final ComponentEventPublisher publisher;
     private final LogGrid logs;
-    private UI ui;
-
     private final TemperatureGauge temperatureGauge;
     private final PressureGauge pressureGauge;
 
-    public WeatherView(ComponentEventPublisher publisher) {
-        this.publisher = publisher;
+    public WeatherView(ComponentEventBus eventBus) {
+        eventBus.subscribe(this, BMP280Event.class, this::onBMP280Measurement);
 
         setMargin(true);
         setSpacing(true);
 
-        // Create gauges layout similar to EnvironmentMonitor
+        // Create gauges layout
         var gaugesLayout = new HorizontalLayout();
         gaugesLayout.setWidthFull();
         gaugesLayout.setJustifyContentMode(JustifyContentMode.AROUND);
@@ -76,32 +69,14 @@ public class WeatherView extends VerticalLayout implements ChangeListener {
         add(logs);
     }
 
-    @Override
-    public void onAttach(AttachEvent attachEvent) {
-        this.ui = attachEvent.getUI();
-        publisher.addListener(this);
-    }
-
-    @Override
-    public void onDetach(DetachEvent detachEvent) {
-        publisher.removeListener(this);
-    }
-
-    @Override
-    public <T> void onMessage(ChangeListener.ChangeType type, T message) {
-        if (!type.equals(ChangeType.BMP280) || !(message instanceof BMP280.Measurement)) {
-            return;
-        }
-
-        var measurement = (BMP280.Measurement) message;
+    private void onBMP280Measurement(BMP280Event event) {
+        var measurement = event.getMeasurement();
         logger.debug("BMP280 measurement received: {}", measurement);
 
-        ui.access(() -> {
-            temperatureGauge.setTemperature(measurement.temperature());
-            pressureGauge.setPressure(measurement.pressureHPa());
+        temperatureGauge.setTemperature(measurement.temperature());
+        pressureGauge.setPressure(measurement.pressureHPa());
 
-            logs.addLine(String.format("Temp: %.1f°C, Pressure: %.1f hPa",
-                    measurement.temperature(), measurement.pressureHPa()));
-        });
+        logs.addLine(String.format("Temp: %.1f°C, Pressure: %.1f hPa",
+                measurement.temperature(), measurement.pressureHPa()));
     }
 }

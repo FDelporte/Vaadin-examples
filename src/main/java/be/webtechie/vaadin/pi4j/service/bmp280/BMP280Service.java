@@ -1,13 +1,13 @@
 package be.webtechie.vaadin.pi4j.service.bmp280;
 
 import be.webtechie.vaadin.pi4j.config.BoardConfig;
-import be.webtechie.vaadin.pi4j.event.ComponentEventPublisher;
-import be.webtechie.vaadin.pi4j.service.ChangeListener;
+import be.webtechie.vaadin.pi4j.event.BMP280Event;
 import be.webtechie.vaadin.pi4j.service.Pi4JService;
 import be.webtechie.vaadin.pi4j.views.electronics.WeatherView;
 import com.pi4j.context.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.Random;
@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Service for reading BMP280 barometric pressure and temperature sensor.
- * Publishes readings via ComponentEventPublisher for UI updates.
+ * Publishes readings via Spring ApplicationEventPublisher for UI updates.
  */
 @Service
 public class BMP280Service {
@@ -26,12 +26,12 @@ public class BMP280Service {
     private static final long POLLING_INTERVAL_MS = 2000; // Poll every 2 seconds
 
     private final BMP280 sensor;
-    private final ComponentEventPublisher eventPublisher;
+    private final ApplicationEventPublisher eventPublisher;
     private final ScheduledExecutorService scheduler;
     private final boolean mockMode;
     private final Random random = new Random();
 
-    public BMP280Service(Context pi4j, BoardConfig config, ComponentEventPublisher eventPublisher, Pi4JService pi4JService) {
+    public BMP280Service(Context pi4j, BoardConfig config, ApplicationEventPublisher eventPublisher, Pi4JService pi4JService) {
         this.eventPublisher = eventPublisher;
 
         if (!config.hasBmp280() || config.getI2cDeviceBmp280() == 0x00) {
@@ -107,7 +107,7 @@ public class BMP280Service {
                 measurement = sensor.read();
                 logger.trace("BMP280: {}", measurement);
             }
-            eventPublisher.publish(ChangeListener.ChangeType.BMP280, measurement);
+            eventPublisher.publishEvent(new BMP280Event(this, measurement));
         } catch (Exception e) {
             logger.error("Error reading BMP280 sensor: {}", e.getMessage());
         }

@@ -1,12 +1,10 @@
 package be.webtechie.vaadin.pi4j.views.electronics;
 
-import be.webtechie.vaadin.pi4j.event.ComponentEventPublisher;
-import be.webtechie.vaadin.pi4j.service.ChangeListener;
+import be.webtechie.vaadin.pi4j.event.ComponentEventBus;
+import be.webtechie.vaadin.pi4j.event.IrCodeEvent;
+import be.webtechie.vaadin.pi4j.event.IrTriggerChangedEvent;
 import be.webtechie.vaadin.pi4j.service.ir.IrCode;
 import be.webtechie.vaadin.pi4j.service.ir.IrService;
-import be.webtechie.vaadin.pi4j.service.ir.IrTriggerChanged;
-import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -34,22 +32,22 @@ import java.util.List;
  */
 @PageTitle("IR Receiver")
 @Menu(order = 20, icon = LineAwesomeIconUrl.SATELLITE_DISH_SOLID)
-public class IrReceiverView extends VerticalLayout implements ChangeListener {
+public class IrReceiverView extends VerticalLayout {
 
     private static final Logger logger = LoggerFactory.getLogger(IrReceiverView.class);
     private static final int MAX_CODES = 50;
 
-    private final ComponentEventPublisher publisher;
     private final IrService irService;
     private final List<IrCode> receivedCodes = new ArrayList<>();
     private final Grid<IrCode> codeGrid;
     private final TextField buzzerCodeField;
     private final Span lastCodeDisplay;
-    private UI ui;
 
-    public IrReceiverView(ComponentEventPublisher publisher, IrService irService) {
-        this.publisher = publisher;
+    public IrReceiverView(ComponentEventBus eventBus, IrService irService) {
         this.irService = irService;
+
+        eventBus.subscribe(this, IrTriggerChangedEvent.class, this::onTriggerChanged);
+        eventBus.subscribe(this, IrCodeEvent.class, this::onIrCode);
 
         setMargin(true);
         setSpacing(true);
@@ -152,72 +150,44 @@ public class IrReceiverView extends VerticalLayout implements ChangeListener {
         if (value.startsWith("0x")) {
             return Integer.parseInt(value.substring(2), 16);
         } else if (value.matches("[0-9a-f]+") && value.length() <= 2) {
-            // Assume hex if it looks like hex
             return Integer.parseInt(value, 16);
         } else {
             return Integer.parseInt(value);
         }
     }
 
-    @Override
-    protected void onAttach(AttachEvent attachEvent) {
-        this.ui = attachEvent.getUI();
-        publisher.addListener(this);
+    private void onTriggerChanged(IrTriggerChangedEvent event) {
+        String newValue = event.getTriggerCodeHex();
+        if (!buzzerCodeField.getValue().equals(newValue)) {
+            buzzerCodeField.setValue(newValue);
+        }
     }
 
-    @Override
-    protected void onDetach(DetachEvent detachEvent) {
-        publisher.removeListener(this);
-    }
-
-    @Override
-    public <T> void onMessage(ChangeType type, T message) {
-        if (!type.equals(ChangeType.IR)) {
-            return;
-        }
-
-        // Handle trigger change (e.g., from KEY press)
-        if (message instanceof IrTriggerChanged triggerChanged) {
-            ui.access(() -> {
-                String newValue = triggerChanged.getTriggerCodeHex();
-                // Only update if different to avoid triggering value change listener
-                if (!buzzerCodeField.getValue().equals(newValue)) {
-                    buzzerCodeField.setValue(newValue);
-                }
-            });
-            return;
-        }
-
-        // Handle received IR code
-        if (!(message instanceof IrCode irCode)) {
-            return;
-        }
-
+    private void onIrCode(IrCodeEvent event) {
+        var irCode = event.getIrCode();
         logger.debug("IR code received in view: {}", irCode);
 
-        ui.access(() -> {
-            // Add to beginning of list
-            receivedCodes.add(0, irCode);
+        receivedCodes.add(0, irCode);
 
-            // Limit list size
-            while (receivedCodes.size() > MAX_CODES) {
-                receivedCodes.remove(receivedCodes.size() - 1);
-            }
+        while (receivedCodes.size() > MAX_CODES) {
+            receivedCodes.remove(receivedCodes.size() - 1);
+        }
 
-            // Update displays
-            lastCodeDisplay.setText(irCode.getCodeHex());
-            lastCodeDisplay.getStyle().setBackground(NamedColor.LIMEGREEN.toString());
+        lastCodeDisplay.setText(irCode.getCodeHex());
+        lastCodeDisplay.getStyle().setBackground(NamedColor.LIMEGREEN.toString());
 
-            codeGrid.getDataProvider().refreshAll();
-        });
+        codeGrid.getDataProvider().refreshAll();
 
-        // Reset color after delay (in background thread)
-        new Thread(() -> {
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException ignored) {
-            }
-            ui.access(() -> lastCodeDisplay.getStyle().setBackground(NamedColor.LIGHTGRAY.toString()));
-        }).start();
+        // Reset color after delay
+        var ui = getUI().orElse(null);
+        if (ui != null) {
+            new Thread(() -> {
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException ignored) {
+                }
+                ui.access(() -> lastCodeDisplay.getStyle().setBackground(NamedColor.LIGHTGRAY.toString()));
+            }).start();
+        }
     }
 }

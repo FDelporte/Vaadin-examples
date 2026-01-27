@@ -1,8 +1,7 @@
 package be.webtechie.vaadin.pi4j.service.key;
 
 import be.webtechie.vaadin.pi4j.config.BoardConfig;
-import be.webtechie.vaadin.pi4j.event.ComponentEventPublisher;
-import be.webtechie.vaadin.pi4j.service.ChangeListener;
+import be.webtechie.vaadin.pi4j.event.KeyStateEvent;
 import be.webtechie.vaadin.pi4j.service.Pi4JService;
 import be.webtechie.vaadin.pi4j.views.electronics.KeyPressView;
 import com.pi4j.context.Context;
@@ -10,6 +9,7 @@ import com.pi4j.io.gpio.digital.DigitalInput;
 import com.pi4j.io.gpio.digital.PullResistance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 /**
@@ -23,7 +23,7 @@ public class KeyService {
 
     private final DigitalInput key;
 
-    public KeyService(Context pi4j, BoardConfig config, ComponentEventPublisher eventPublisher, Pi4JService pi4JService) {
+    public KeyService(Context pi4j, BoardConfig config, ApplicationEventPublisher eventPublisher, Pi4JService pi4JService) {
         if (!config.hasKey() || config.getPinKey() < 0) {
             logger.info("Key sensor not available on this board");
             this.key = null;
@@ -41,7 +41,7 @@ public class KeyService {
         this.key = pi4j.create(keyConfig);
         this.key.addListener(e -> {
             logger.info("Key state changed to {}", e.state());
-            eventPublisher.publish(ChangeListener.ChangeType.KEY, e.state());
+            eventPublisher.publishEvent(new KeyStateEvent(this, e.state()));
         });
 
         // Register the view for this feature
