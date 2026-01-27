@@ -118,7 +118,7 @@ public class PCF8574 {
             byte[] buffer = new byte[1];
             int bytesRead = i2c.read(buffer, 0, 1);
             if (bytesRead != 1) {
-                logger.warn("I2C read returned {} bytes instead of 1", bytesRead);
+                throw new RuntimeException("I2C read returned " + bytesRead + " bytes instead of 1 - device not available");
             }
             return buffer[0] & 0xFF;
         } catch (Exception e) {

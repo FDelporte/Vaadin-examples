@@ -4,7 +4,7 @@ import be.webtechie.vaadin.pi4j.config.BoardConfig;
 import be.webtechie.vaadin.pi4j.event.ComponentEventPublisher;
 import be.webtechie.vaadin.pi4j.service.ChangeListener;
 import be.webtechie.vaadin.pi4j.service.Pi4JService;
-import be.webtechie.vaadin.pi4j.views.electronics.BarometerView;
+import be.webtechie.vaadin.pi4j.views.electronics.WeatherView;
 import com.pi4j.context.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,7 +68,7 @@ public class BMP280Service {
         this.mockMode = useMockMode;
 
         // Always register the view if board config says it has BMP280
-        pi4JService.registerView(BarometerView.class);
+        pi4JService.registerView(WeatherView.class);
 
         // Start polling (real or mock)
         this.scheduler = Executors.newSingleThreadScheduledExecutor();
