@@ -20,7 +20,6 @@ import java.util.concurrent.ScheduledExecutorService;
  */
 @SpringBootApplication
 @EnableAsync
-@Theme(value = "myapp")
 @Push
 @PWA(name = "Pi4J Vaadin Demo", shortName = "Pi4J Demo")
 public class Application implements AppShellConfigurator {
