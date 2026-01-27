@@ -1,5 +1,6 @@
 package be.webtechie.vaadin.pi4j.views.about;
 
+import be.webtechie.vaadin.pi4j.config.BoardConfig;
 import be.webtechie.vaadin.pi4j.service.Pi4JService;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
@@ -22,10 +23,12 @@ import java.util.List;
 @Menu(order = 0, icon = LineAwesomeIconUrl.JAVA)
 public class AboutPi4JView extends VerticalLayout {
 
-    public AboutPi4JView(@Autowired Pi4JService pi4JService) {
+    public AboutPi4JView(@Autowired Pi4JService pi4JService, @Autowired BoardConfig boardConfig) {
         setSpacing(false);
         add(
-                new H2("Detected board"),
+                new H2("Development Board"),
+                getDevelopmentBoardInfo(boardConfig),
+                new H2("Detected Raspberry Pi"),
                 getBoardInfo(pi4JService),
                 new H2("Java"),
                 getJavaInfo(pi4JService),
@@ -39,6 +42,33 @@ public class AboutPi4JView extends VerticalLayout {
         );
         setSizeFull();
         getStyle().setTextAlign(Style.TextAlign.LEFT);
+    }
+
+    private UnorderedList getDevelopmentBoardInfo(BoardConfig config) {
+        var listView = new UnorderedList();
+        listView.add(new ListItem("Configuration: " + config.getClass().getSimpleName()));
+        listView.add(new ListItem("Available features: " + getAvailableFeatures(config)));
+        return listView;
+    }
+
+    private String getAvailableFeatures(BoardConfig config) {
+        StringBuilder features = new StringBuilder();
+        if (config.hasLed()) features.append("LED, ");
+        if (config.hasKey()) features.append("Key, ");
+        if (config.hasTouch()) features.append("Touch, ");
+        if (config.hasLcd()) features.append("LCD, ");
+        if (config.hasSevenSegment()) features.append("7-Segment, ");
+        if (config.hasBuzzer()) features.append("Buzzer, ");
+        if (config.hasRedMatrix()) features.append("Red Matrix, ");
+        if (config.hasRGBMatrix()) features.append("RGB Matrix, ");
+        if (config.hasOled()) features.append("OLED, ");
+        if (config.hasDht11()) features.append("DHT11, ");
+
+        String result = features.toString();
+        if (result.endsWith(", ")) {
+            result = result.substring(0, result.length() - 2);
+        }
+        return result.isEmpty() ? "None" : result;
     }
 
     private UnorderedList getJavaInfo(Pi4JService pi4JService) {
