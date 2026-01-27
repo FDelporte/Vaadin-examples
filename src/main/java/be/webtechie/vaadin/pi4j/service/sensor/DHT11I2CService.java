@@ -1,52 +1,71 @@
 package be.webtechie.vaadin.pi4j.service.sensor;
 
-import be.webtechie.vaadin.pi4j.config.CrowPi3Config;
-import be.webtechie.vaadin.pi4j.event.ComponentEventPublisher;
-import be.webtechie.vaadin.pi4j.service.ChangeListener;
+import be.webtechie.vaadin.pi4j.config.BoardConfig;
+import be.webtechie.vaadin.pi4j.event.DhtMeasurementEvent;
+import be.webtechie.vaadin.pi4j.service.Pi4JService;
+import be.webtechie.vaadin.pi4j.views.electronics.TempHumidityView;
 import com.pi4j.context.Context;
 import com.pi4j.io.i2c.I2C;
 import com.pi4j.io.i2c.I2CImplementation;
 import com.pi4j.plugin.ffm.common.HexFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * DHT11 sensor service using I2C protocol.
+ * Used for CrowPi 3 which has I2C-based humidity sensor.
+ */
 @Service
-@ConditionalOnBean(CrowPi3Config.class)
 public class DHT11I2CService {
 
     private static final Logger logger = LoggerFactory.getLogger(DHT11I2CService.class);
 
-    private static final byte I2C_BUS = 0x01;
-    private static final byte I2C_ADDRESS = 0x38;
-
-    private final ComponentEventPublisher eventPublisher;
+    private final ApplicationEventPublisher eventPublisher;
     private final ScheduledExecutorService scheduler;
     private final I2C i2cSensor;
 
-    public DHT11I2CService(Context pi4j, ComponentEventPublisher eventPublisher) {
-        logger.info("DHT11I2CService constructor called - service is starting!");
-
+    public DHT11I2CService(Context pi4j, BoardConfig config, ApplicationEventPublisher eventPublisher, Pi4JService pi4JService) {
         this.eventPublisher = eventPublisher;
 
+        // Only initialize for boards that have DHT11 via I2C (CrowPi 3)
+        if (!config.hasDht11() || config.getI2cDeviceHumidityTemperatureSensor() == 0x00) {
+            logger.info("DHT11 I2C sensor not available on this board");
+            this.i2cSensor = null;
+            this.scheduler = null;
+            return;
+        }
+
+        logger.info("DHT11I2CService constructor called - service is starting!");
+
+        var i2cBus = config.getI2cBus();
+        var i2cAddress = config.getI2cDeviceHumidityTemperatureSensor();
+
         var i2cConfig = I2C.newConfigBuilder(pi4j)
-                .id("I2C-DHT11-" + I2C_BUS + "-" + HexFormatter.format(I2C_ADDRESS))
-                .bus((int) I2C_BUS)
-                .device((int) I2C_ADDRESS)
+                .id("I2C-DHT11-" + i2cBus + "-" + HexFormatter.format(i2cAddress))
+                .bus(i2cBus)
+                .device((int) i2cAddress)
                 .i2cImplementation(I2CImplementation.DIRECT)
                 .build();
         i2cSensor = pi4j.create(i2cConfig);
 
         logger.info("DHT11 humidity and temperature sensor on I2C initialized");
 
+        // Register the view for this feature
+        pi4JService.registerView(TempHumidityView.class);
+
         // Start polling
         this.scheduler = Executors.newSingleThreadScheduledExecutor();
         this.scheduler.scheduleAtFixedRate(this::pollSensor, 0, 1, TimeUnit.SECONDS);
+    }
+
+    public boolean isAvailable() {
+        return i2cSensor != null;
     }
 
     private void pollSensor() {
@@ -77,7 +96,7 @@ public class DHT11I2CService {
 
             logger.trace("Temperature: {}°C, Humidity: {}%", temperature, humidity);
 
-            eventPublisher.publish(ChangeListener.ChangeType.DHT11, new HumidityTemperatureMeasurement(temperature, humidity));
+            eventPublisher.publishEvent(new DhtMeasurementEvent(this, temperature, humidity));
         } catch (Exception e) {
             logger.error("Error reading DHT11 sensor: {}", e.getMessage());
         }

@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConditionalOnProperty(name = "crowpi.version", havingValue = "2")
-public class CrowPi2Config implements CrowPiConfig {
+@ConditionalOnProperty(name = "board.type", havingValue = "crowpi-2")
+public class CrowPi2Config implements BoardConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(CrowPi2Config.class);
 
@@ -68,5 +68,18 @@ public class CrowPi2Config implements CrowPiConfig {
     @Override
     public int getPwmChannelRgbMatrix() {
         return 1;
+    }
+
+    // CrowPi 2 has all standard CrowPi features
+    // Use default implementations for: hasLed, hasTouch, hasLcd, hasSevenSegment, hasBuzzer, hasRedMatrix, hasDht11
+    // Override hasKey (no key on CrowPi)
+    @Override
+    public boolean hasKey() {
+        return false;
+    }
+
+    @Override
+    public boolean hasOled() {
+        return false;
     }
 }

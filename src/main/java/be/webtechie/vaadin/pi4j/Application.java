@@ -7,6 +7,7 @@ import com.vaadin.flow.theme.Theme;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -18,7 +19,7 @@ import java.util.concurrent.ScheduledExecutorService;
  * and some desktop browsers.
  */
 @SpringBootApplication
-@Theme(value = "myapp")
+@EnableAsync
 @Push
 @PWA(name = "Pi4J Vaadin Demo", shortName = "Pi4J Demo")
 public class Application implements AppShellConfigurator {

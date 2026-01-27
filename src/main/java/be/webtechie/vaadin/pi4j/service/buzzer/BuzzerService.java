@@ -1,25 +1,32 @@
 package be.webtechie.vaadin.pi4j.service.buzzer;
 
-import be.webtechie.vaadin.pi4j.config.CrowPiConfig;
-import be.webtechie.vaadin.pi4j.event.ComponentEventPublisher;
-import be.webtechie.vaadin.pi4j.service.ChangeListener;
+import be.webtechie.vaadin.pi4j.config.BoardConfig;
+import be.webtechie.vaadin.pi4j.event.BuzzerEvent;
+import be.webtechie.vaadin.pi4j.service.Pi4JService;
 import be.webtechie.vaadin.pi4j.service.SleepHelper;
+import be.webtechie.vaadin.pi4j.views.electronics.BuzzerView;
 import com.pi4j.context.Context;
 import com.pi4j.io.pwm.Pwm;
 import com.pi4j.io.pwm.PwmType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 @Service
 public class BuzzerService {
 
     private static final Logger logger = LoggerFactory.getLogger(BuzzerService.class);
-    private final ComponentEventPublisher eventPublisher;
+    private final ApplicationEventPublisher eventPublisher;
     private Pwm pwm;
 
-    public BuzzerService(Context pi4j, CrowPiConfig config, ComponentEventPublisher eventPublisher) {
+    public BuzzerService(Context pi4j, BoardConfig config, ApplicationEventPublisher eventPublisher, Pi4JService pi4JService) {
         this.eventPublisher = eventPublisher;
+
+        if (!config.hasBuzzer()) {
+            logger.info("Buzzer not available on this board");
+            return;
+        }
 
         try {
             var pwmConfig = Pwm.newConfigBuilder(pi4j)
@@ -30,10 +37,18 @@ public class BuzzerService {
                     .shutdown(0)
                     .build();
             this.pwm = pi4j.create(pwmConfig);
+
+            // Register the view for this feature
+            pi4JService.registerView(BuzzerView.class);
+
             logger.info("Buzzer initialized");
         } catch (Exception e) {
             logger.error("Error initializing buzzer: {}", e.getMessage());
         }
+    }
+
+    public boolean isAvailable() {
+        return pwm != null;
     }
 
     public void playNote(PlayNote playNote) {
@@ -43,7 +58,7 @@ public class BuzzerService {
         }
         logger.info("Playing note {}", playNote.note());
         playTone(playNote.note().getFrequency(), playNote.duration());
-        eventPublisher.publish(ChangeListener.ChangeType.BUZZER, playNote);
+        eventPublisher.publishEvent(new BuzzerEvent(this, playNote));
     }
 
     /**
