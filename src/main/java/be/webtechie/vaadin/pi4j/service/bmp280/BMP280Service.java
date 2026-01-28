@@ -8,12 +8,12 @@ import com.pi4j.context.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Random;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Service for reading BMP280 barometric pressure and temperature sensor.
@@ -27,17 +27,15 @@ public class BMP280Service {
 
     private final BMP280 sensor;
     private final ApplicationEventPublisher eventPublisher;
-    private final ScheduledExecutorService scheduler;
     private final boolean mockMode;
     private final Random random = new Random();
 
-    public BMP280Service(Context pi4j, BoardConfig config, ApplicationEventPublisher eventPublisher, Pi4JService pi4JService) {
+    public BMP280Service(Context pi4j, BoardConfig config, ApplicationEventPublisher eventPublisher, Pi4JService pi4JService, TaskScheduler taskScheduler) {
         this.eventPublisher = eventPublisher;
 
         if (!config.hasBmp280() || config.getI2cDeviceBmp280() == 0x00) {
             logger.info("BMP280 sensor not available on this board");
             this.sensor = null;
-            this.scheduler = null;
             this.mockMode = false;
             return;
         }
@@ -71,15 +69,14 @@ public class BMP280Service {
         pi4JService.registerView(WeatherView.class);
 
         // Start polling (real or mock)
-        this.scheduler = Executors.newSingleThreadScheduledExecutor();
-        this.scheduler.scheduleAtFixedRate(this::pollSensor, 0, POLLING_INTERVAL_MS, TimeUnit.MILLISECONDS);
+        taskScheduler.scheduleAtFixedRate(this::pollSensor, Instant.now(), Duration.ofMillis(POLLING_INTERVAL_MS));
     }
 
     /**
      * Returns true if the BMP280 sensor is available and initialized.
      */
     public boolean isAvailable() {
-        return sensor != null && scheduler != null;
+        return sensor != null || mockMode;
     }
 
     /**

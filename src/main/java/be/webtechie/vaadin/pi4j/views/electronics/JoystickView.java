@@ -42,8 +42,9 @@ public class JoystickView extends HardwareDemoView {
     private final BuzzerButton centerButton;
     private final SnakeGame snakeGame;
 
-    public JoystickView(ComponentEventBus eventBus, JoystickService joystickService) {
+    public JoystickView(ComponentEventBus eventBus, JoystickService joystickService, SnakeGame snakeGame) {
         this.joystickService = joystickService;
+        this.snakeGame = snakeGame;
 
         eventBus.subscribe(this, KeyStateEvent.class, this::onKeyEvent);
         eventBus.subscribe(this, JoystickEvent.class, this::onJoystickEvent);
@@ -78,9 +79,6 @@ public class JoystickView extends HardwareDemoView {
         joystickLayout.setPadding(false);
         joystickLayout.setAlignItems(Alignment.CENTER);
         joystickLayout.setWidth("250px");
-
-        // Snake game controlled by joystick
-        snakeGame = new SnakeGame();
 
         var controlsRow = new HorizontalLayout(joystickLayout, snakeGame);
         controlsRow.setAlignItems(Alignment.CENTER);

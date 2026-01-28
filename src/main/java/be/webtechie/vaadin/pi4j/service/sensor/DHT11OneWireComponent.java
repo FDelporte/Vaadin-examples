@@ -8,7 +8,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * This example demonstrates the temperature and humidity component on the CrowPi.
@@ -67,8 +66,7 @@ public class DHT11OneWireComponent {
     }
 
     /**
-     * Poller class which implements {@link Runnable} to be used with {@link ScheduledExecutorService} for repeated execution.
-     * This poller consecutively starts reads the values in the humidity and temperature files
+     * Reads the current humidity and temperature values from the sensor files.
      */
     public HumidityTemperatureMeasurement getMeasurement() {
         double humidity = 0;

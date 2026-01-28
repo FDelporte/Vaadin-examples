@@ -2,16 +2,17 @@ package be.webtechie.vaadin.pi4j.service;
 
 import com.sun.management.OperatingSystemMXBean;
 import jakarta.annotation.PreDestroy;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryUsage;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Based on
@@ -30,12 +31,12 @@ public class SystemInformationService {
     int lastSessionSizeGuestimateUsers;
     ScheduledFuture<?> scheduledFuture;
 
-    public SystemInformationService(ScheduledExecutorService executorService) {
+    public SystemInformationService(TaskScheduler taskScheduler) {
         memoryMXBean = ManagementFactory.getMemoryMXBean();
         platformMXBean = ManagementFactory.getPlatformMXBean(
                 OperatingSystemMXBean.class);
         sessions = new ConcurrentLinkedQueue<>();
-        scheduledFuture = executorService.scheduleAtFixedRate(() -> {
+        scheduledFuture = taskScheduler.scheduleAtFixedRate(() -> {
             memoryMXBean.gc();
             heapMemoryUsage = heapMemoryUsage = memoryMXBean.getHeapMemoryUsage();
             if (startHeapMemoryUsage == null && sessions.size() > 5) {
@@ -50,7 +51,7 @@ public class SystemInformationService {
                 // b = (total2 -total1)/(y-x)
                 lastSessionSizeGuestimate = (int) ((heapMemoryUsage.getUsed() - startHeapMemoryUsage.getUsed()) / (sessions.size() - startHeapUsers));
             }
-        }, 4, 20, TimeUnit.SECONDS);
+        }, Instant.now().plusSeconds(4), Duration.ofSeconds(20));
     }
 
     @PreDestroy

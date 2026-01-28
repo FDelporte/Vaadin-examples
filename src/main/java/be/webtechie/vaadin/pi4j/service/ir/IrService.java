@@ -45,8 +45,9 @@ public class IrService {
     private final JoystickService joystickService;
     private final OledService oledService;
     private final DigitalInput irInput;
-    private final ExecutorService executor;
-    private final AtomicBoolean running = new AtomicBoolean(true);
+    private ExecutorService executor;
+    private final AtomicBoolean running = new AtomicBoolean(false);
+    private final AtomicInteger activeViewCount = new AtomicInteger(0);
     private final boolean mockMode;
     private final boolean available;
 
@@ -95,12 +96,50 @@ public class IrService {
         // Register the view
         pi4JService.registerView(IrReceiverView.class);
 
-        // Start the IR reading thread
-        this.executor = Executors.newSingleThreadExecutor();
-        this.executor.submit(this::irReadLoop);
+        // IR reading is started on-demand when view is opened (to save CPU)
+        logger.info("IR receiver ready - will start reading when view is opened");
+    }
 
-        // Show initial message on OLED
-        updateOledDisplay(-1);
+    /**
+     * Starts the IR reading loop. Called when a view needs IR input.
+     * Uses reference counting to support multiple views.
+     */
+    public synchronized void startReading() {
+        if (!available) {
+            return;
+        }
+        int count = activeViewCount.incrementAndGet();
+        logger.info("IR startReading called, active views: {}", count);
+
+        if (count == 1 && !running.get()) {
+            running.set(true);
+            executor = Executors.newSingleThreadExecutor();
+            executor.submit(this::irReadLoop);
+            updateOledDisplay(-1);
+            logger.info("IR reading loop started");
+        }
+    }
+
+    /**
+     * Stops the IR reading loop. Called when view no longer needs IR input.
+     * Uses reference counting to support multiple views.
+     */
+    public synchronized void stopReading() {
+        if (!available) {
+            return;
+        }
+        int count = activeViewCount.decrementAndGet();
+        logger.info("IR stopReading called, active views: {}", count);
+
+        if (count <= 0) {
+            activeViewCount.set(0);
+            running.set(false);
+            if (executor != null) {
+                executor.shutdownNow();
+                executor = null;
+            }
+            logger.info("IR reading loop stopped");
+        }
     }
 
     /**
@@ -203,7 +242,7 @@ public class IrService {
         int timeout = 0;
         int maxTimeout = 2000; // ~100ms max wait for signal
 
-        while (pulses.size() < maxPulses && timeout < maxTimeout) {
+        while (running.get() && pulses.size() < maxPulses && timeout < maxTimeout) {
             DigitalState state = irInput.state();
 
             if (state == currentState) {
@@ -392,11 +431,19 @@ public class IrService {
 
     /**
      * Busy-wait for specified nanoseconds.
+     * Checks running flag periodically to allow quick shutdown.
      */
     private void busyWait(long nanos) {
         long start = System.nanoTime();
+        int checkCounter = 0;
         while (System.nanoTime() - start < nanos) {
-            // Busy wait
+            // Check running flag periodically (not every iteration to maintain timing accuracy)
+            if (++checkCounter > 100) {
+                checkCounter = 0;
+                if (!running.get()) {
+                    return;
+                }
+            }
         }
     }
 

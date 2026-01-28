@@ -3,7 +3,11 @@ package be.webtechie.vaadin.pi4j.views.component;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.spring.annotation.SpringComponent;
 import in.virit.color.NamedColor;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.scheduling.TaskScheduler;
 import org.vaadin.firitin.components.VSvg;
 import org.vaadin.firitin.element.svg.AnimateElement;
 import org.vaadin.firitin.element.svg.DefsElement;
@@ -14,12 +18,10 @@ import org.vaadin.firitin.element.svg.SvgGraphicsElement.LineCap;
 import org.vaadin.firitin.element.svg.SvgGraphicsElement.LineJoin;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 import org.vaadin.firitin.element.svg.CircleElement;
 import org.vaadin.firitin.element.svg.GElement;
@@ -31,6 +33,8 @@ import org.vaadin.firitin.element.svg.PathBuilder;
  * The snake moves continuously and its direction can be changed externally.
  * This component can be reused with any directional input (joystick, keyboard, etc.).
  */
+@SpringComponent
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class SnakeGame extends VSvg {
 
     public enum Direction {
@@ -57,14 +61,15 @@ public class SnakeGame extends VSvg {
     private final LinkedList<AnimateElement> animationQueue = new LinkedList<>();
     private static final int MAX_QUEUED_ANIMATIONS = 5;
 
-    private ScheduledExecutorService executor;
+    private final TaskScheduler taskScheduler;
     private ScheduledFuture<?> gameLoop;
     private UI ui;
 
     private record Point(int x, int y) {}
 
-    public SnakeGame() {
+    public SnakeGame(TaskScheduler taskScheduler) {
         super(0, 0, GRID_SIZE * CELL_SIZE, GRID_SIZE * CELL_SIZE);
+        this.taskScheduler = taskScheduler;
         setWidth(GRID_SIZE * CELL_SIZE + "px");
         setHeight(GRID_SIZE * CELL_SIZE + "px");
     }
@@ -280,8 +285,8 @@ public class SnakeGame extends VSvg {
             return;
         }
 
-        // Start game on first joystick input
-        if (!gameStarted && ui != null) {
+        // Start game on first joystick input (only if SVG is initialized)
+        if (!gameStarted && ui != null && initialized) {
             gameStarted = true;
             currentDirection = direction;
             nextDirection = direction;
@@ -402,6 +407,7 @@ public class SnakeGame extends VSvg {
         snakeHeadShape.fill(NamedColor.LIMEGREEN);
     }
 
+    private boolean initStarted = false;
     private boolean initialized = false;
 
     @Override
@@ -410,10 +416,11 @@ public class SnakeGame extends VSvg {
         ui = attachEvent.getUI();
 
         // Defer SVG building until after the view is fully attached (fixes Safari timing issue)
-        if (!initialized) {
+        if (!initStarted) {
+            initStarted = true; // Prevent double scheduling
             getElement().executeJs("").then(v -> {
                 buildSvgElements();
-                initialized = true;
+                initialized = true; // Now ready for game to start
             });
         }
         // Game starts on first joystick input, not automatically
@@ -426,24 +433,20 @@ public class SnakeGame extends VSvg {
     }
 
     private void startGameLoop() {
-        if (executor == null || executor.isShutdown()) {
-            executor = Executors.newSingleThreadScheduledExecutor();
+        if (gameLoop != null) {
+            return; // Already running
         }
-        gameLoop = executor.scheduleAtFixedRate(() -> {
+        gameLoop = taskScheduler.scheduleAtFixedRate(() -> {
             if (ui != null) {
                 ui.access(this::move);
             }
-        }, MOVE_INTERVAL_MS, MOVE_INTERVAL_MS, TimeUnit.MILLISECONDS);
+        }, Instant.now().plusMillis(MOVE_INTERVAL_MS), Duration.ofMillis(MOVE_INTERVAL_MS));
     }
 
     private void stopGameLoop() {
         if (gameLoop != null) {
             gameLoop.cancel(false);
             gameLoop = null;
-        }
-        if (executor != null) {
-            executor.shutdown();
-            executor = null;
         }
     }
 

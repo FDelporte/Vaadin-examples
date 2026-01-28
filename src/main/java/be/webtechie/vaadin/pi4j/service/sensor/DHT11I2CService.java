@@ -11,11 +11,11 @@ import com.pi4j.plugin.ffm.common.HexFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.time.Duration;
+import java.time.Instant;
 
 /**
  * DHT11 sensor service using I2C protocol.
@@ -27,17 +27,15 @@ public class DHT11I2CService {
     private static final Logger logger = LoggerFactory.getLogger(DHT11I2CService.class);
 
     private final ApplicationEventPublisher eventPublisher;
-    private final ScheduledExecutorService scheduler;
     private final I2C i2cSensor;
 
-    public DHT11I2CService(Context pi4j, BoardConfig config, ApplicationEventPublisher eventPublisher, Pi4JService pi4JService) {
+    public DHT11I2CService(Context pi4j, BoardConfig config, ApplicationEventPublisher eventPublisher, Pi4JService pi4JService, TaskScheduler taskScheduler) {
         this.eventPublisher = eventPublisher;
 
         // Only initialize for boards that have DHT11 via I2C (CrowPi 3)
         if (!config.hasDht11() || config.getI2cDeviceHumidityTemperatureSensor() == 0x00) {
             logger.info("DHT11 I2C sensor not available on this board");
             this.i2cSensor = null;
-            this.scheduler = null;
             return;
         }
 
@@ -60,8 +58,7 @@ public class DHT11I2CService {
         pi4JService.registerView(TempHumidityView.class);
 
         // Start polling
-        this.scheduler = Executors.newSingleThreadScheduledExecutor();
-        this.scheduler.scheduleAtFixedRate(this::pollSensor, 0, 1, TimeUnit.SECONDS);
+        taskScheduler.scheduleAtFixedRate(this::pollSensor, Instant.now(), Duration.ofSeconds(1));
     }
 
     public boolean isAvailable() {

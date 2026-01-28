@@ -5,10 +5,12 @@ import be.webtechie.vaadin.pi4j.event.IrCodeEvent;
 import be.webtechie.vaadin.pi4j.event.IrTriggerChangedEvent;
 import be.webtechie.vaadin.pi4j.service.ir.IrCode;
 import be.webtechie.vaadin.pi4j.service.ir.IrService;
-import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Emphasis;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
@@ -50,6 +52,9 @@ public class IrReceiverView extends HardwareDemoView {
 
         add(new H3("IR Receiver (GPIO 18)"));
         add(new Paragraph("Point your IR remote at the receiver and press buttons to see the codes."));
+
+        add(new Emphasis("Note: IR decoding requires precise timing and uses a CPU-intensive busy loop. " +
+                "Reading is only active while this view is open."));
 
         // Last received code display
         lastCodeDisplay = new Span("--");
@@ -139,6 +144,20 @@ public class IrReceiverView extends HardwareDemoView {
         });
         testButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         add(testButton);
+    }
+
+    @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        super.onAttach(attachEvent);
+        // Start IR reading when view is opened (saves CPU when not in use)
+        irService.startReading();
+    }
+
+    @Override
+    protected void onDetach(DetachEvent detachEvent) {
+        // Stop IR reading when view is closed
+        irService.stopReading();
+        super.onDetach(detachEvent);
     }
 
     private int parseHexOrDecimal(String value) {

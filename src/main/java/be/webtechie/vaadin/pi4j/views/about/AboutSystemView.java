@@ -10,12 +10,13 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import org.springframework.scheduling.TaskScheduler;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
 import java.lang.management.MemoryUsage;
-import java.util.concurrent.ScheduledExecutorService;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 /**
@@ -34,11 +35,11 @@ public class AboutSystemView extends VerticalLayout {
     private final Paragraph players = new Paragraph();
     private final UI ui;
 
-    public AboutSystemView(SystemInformationService sis, Pi4JService pi4JService, ScheduledExecutorService es) {
+    public AboutSystemView(SystemInformationService sis, Pi4JService pi4JService, TaskScheduler taskScheduler) {
         this.sis = sis;
         setSpacing(false);
 
-        scheduledFuture = es.scheduleWithFixedDelay(this::updateDetails, 5, 5, TimeUnit.SECONDS);
+        scheduledFuture = taskScheduler.scheduleWithFixedDelay(this::updateDetails, Instant.now().plusSeconds(5), Duration.ofSeconds(5));
 
         add(new H3("Usage statistics"));
         add(memory, cpu, players);
