@@ -1,11 +1,13 @@
 package be.webtechie.vaadin.pi4j.views;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Layout;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
+import com.vaadin.flow.theme.lumo.Lumo;
 import org.vaadin.firitin.util.style.LumoProps;
 
 /**
@@ -13,6 +15,8 @@ import org.vaadin.firitin.util.style.LumoProps;
  */
 @Layout
 @AnonymousAllowed
+@StyleSheet(Lumo.STYLESHEET)
+@StyleSheet(Lumo.UTILITY_STYLESHEET)
 public class MainLayout extends org.vaadin.firitin.appframework.MainLayout {
 
     @Override
