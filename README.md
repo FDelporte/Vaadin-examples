@@ -82,6 +82,8 @@ Build and upload in one command:
 
 ## Run on Raspberry Pi
 
+### CrowPi Setup
+
 PWM and DHT11 need to be enabled on the Raspberry Pi. For example, on a Raspberry Pi 5:
 
 ```shell
@@ -91,7 +93,39 @@ dtoverlay=pwm-2chan,pin=18,func=2,pin2=12,func2=4
 dtoverlay=dht11,gpiopin=4
 ```
 
-We can now start the application on your Raspberry Pi to interact with the GPIOs. Specify the board type you are using:
+### Pioneer600 Setup
+
+The Pioneer600 requires SPI and I2C interfaces to be enabled for its components:
+
+| Component | Interface | Configuration |
+|-----------|-----------|---------------|
+| OLED Display (SSD1306) | SPI | Bus 0, RST=GPIO19, DC=GPIO16 |
+| BMP280 Sensor | I2C | Address 0x76 |
+| Joystick/Buzzer (PCF8574) | I2C | I/O Expander |
+| LED | GPIO | BCM 26 |
+| KEY/Button | GPIO | BCM 20 |
+| IR Receiver | GPIO | BCM 18 |
+
+Enable the required interfaces using `raspi-config`:
+
+```shell
+sudo raspi-config
+# Interface Options -> SPI -> Enable
+# Interface Options -> I2C -> Enable
+```
+
+Or add to `/boot/firmware/config.txt`:
+
+```
+dtparam=spi=on
+dtparam=i2c_arm=on
+```
+
+Reboot after making changes.
+
+### Starting the Application
+
+Specify the board type you are using:
 
 ```shell
 # For CrowPi
