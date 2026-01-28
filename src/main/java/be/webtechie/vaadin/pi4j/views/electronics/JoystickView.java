@@ -6,6 +6,7 @@ import be.webtechie.vaadin.pi4j.event.KeyStateEvent;
 import be.webtechie.vaadin.pi4j.service.joystick.JoystickDirection;
 import be.webtechie.vaadin.pi4j.service.joystick.JoystickService;
 import be.webtechie.vaadin.pi4j.views.component.LogGrid;
+import be.webtechie.vaadin.pi4j.views.component.SnakeGame;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Div;
@@ -39,6 +40,7 @@ public class JoystickView extends HardwareDemoView {
     private final DirectionIndicator leftIndicator;
     private final DirectionIndicator rightIndicator;
     private final BuzzerButton centerButton;
+    private final SnakeGame snakeGame;
 
     public JoystickView(ComponentEventBus eventBus, JoystickService joystickService) {
         this.joystickService = joystickService;
@@ -77,7 +79,15 @@ public class JoystickView extends HardwareDemoView {
         joystickLayout.setAlignItems(Alignment.CENTER);
         joystickLayout.setWidth("250px");
 
-        add(joystickLayout);
+        // Snake game controlled by joystick
+        snakeGame = new SnakeGame();
+
+        var controlsRow = new HorizontalLayout(joystickLayout, snakeGame);
+        controlsRow.setAlignItems(Alignment.CENTER);
+        controlsRow.setSpacing(true);
+        controlsRow.getStyle().setGap("2rem");
+
+        add(controlsRow);
 
         logs = new LogGrid();
         add(logs);
@@ -107,12 +117,24 @@ public class JoystickView extends HardwareDemoView {
         leftIndicator.setActive(false);
         rightIndicator.setActive(false);
 
-        // Activate the appropriate indicator
+        // Activate the appropriate indicator and control snake
         switch (direction) {
-            case UP -> upIndicator.setActive(true);
-            case DOWN -> downIndicator.setActive(true);
-            case LEFT -> leftIndicator.setActive(true);
-            case RIGHT -> rightIndicator.setActive(true);
+            case UP -> {
+                upIndicator.setActive(true);
+                snakeGame.setDirection(SnakeGame.Direction.UP);
+            }
+            case DOWN -> {
+                downIndicator.setActive(true);
+                snakeGame.setDirection(SnakeGame.Direction.DOWN);
+            }
+            case LEFT -> {
+                leftIndicator.setActive(true);
+                snakeGame.setDirection(SnakeGame.Direction.LEFT);
+            }
+            case RIGHT -> {
+                rightIndicator.setActive(true);
+                snakeGame.setDirection(SnakeGame.Direction.RIGHT);
+            }
             case NONE -> { /* nothing to highlight */ }
         }
 
