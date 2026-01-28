@@ -9,7 +9,6 @@ import be.webtechie.vaadin.pi4j.views.component.LogGrid;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import org.slf4j.Logger;
@@ -19,9 +18,8 @@ import org.vaadin.lineawesome.LineAwesomeIconUrl;
 import java.util.Arrays;
 
 @PageTitle("Buzzer")
-// @Route("buzzer") - Conditionally registered by BuzzerService
 @Menu(order = 12, icon = LineAwesomeIconUrl.VOLUME_UP_SOLID)
-public class BuzzerView extends VerticalLayout {
+public class BuzzerView extends HardwareDemoView {
     private final Logger logger = LoggerFactory.getLogger(BuzzerView.class);
 
     private final BuzzerService buzzerService;
@@ -31,8 +29,6 @@ public class BuzzerView extends VerticalLayout {
         this.buzzerService = buzzerService;
 
         eventBus.subscribe(this, BuzzerEvent.class, this::onBuzzerEvent);
-
-        setMargin(true);
 
         var buttonHolder = new FlexLayout();
         buttonHolder.setFlexWrap(FlexLayout.FlexWrap.WRAP);

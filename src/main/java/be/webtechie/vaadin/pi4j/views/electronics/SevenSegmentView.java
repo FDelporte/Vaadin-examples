@@ -9,7 +9,6 @@ import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import org.slf4j.Logger;
@@ -17,9 +16,8 @@ import org.slf4j.LoggerFactory;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
 @PageTitle("Seven Segment Display")
-// @Route("sevensegment") - Conditionally registered by SevenSegmentService
 @Menu(order = 15, icon = LineAwesomeIconUrl.TABLE_SOLID)
-public class SevenSegmentView extends VerticalLayout {
+public class SevenSegmentView extends HardwareDemoView {
     private final Logger logger = LoggerFactory.getLogger(SevenSegmentView.class);
 
     private final SevenSegmentService sevenSegmentService;
@@ -29,8 +27,6 @@ public class SevenSegmentView extends VerticalLayout {
         this.sevenSegmentService = sevenSegmentService;
 
         eventBus.subscribe(this, DisplayEvent.class, this::onDisplayEvent);
-
-        setMargin(true);
 
         var clear = new Button("Clear");
         clear.addClickListener(e -> sevenSegmentService.clear());

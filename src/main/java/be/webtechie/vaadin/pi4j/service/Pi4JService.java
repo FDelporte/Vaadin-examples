@@ -1,6 +1,5 @@
 package be.webtechie.vaadin.pi4j.service;
 
-import be.webtechie.vaadin.pi4j.views.MainLayout;
 import com.pi4j.boardinfo.model.BoardInfo;
 import com.pi4j.context.Context;
 import com.vaadin.flow.component.Component;
@@ -73,7 +72,7 @@ public class Pi4JService {
         logger.info("Registering {} views enabled based on features", enabledViews.size());
         enabledViews.forEach(view -> {
             logger.info("Registering view {}", view.getSimpleName());
-            RouteConfiguration.forApplicationScope().setRoute(view.getSimpleName().toLowerCase(), view, MainLayout.class);
+            RouteConfiguration.forApplicationScope().setAnnotatedRoute(view);
         });
     }
 }

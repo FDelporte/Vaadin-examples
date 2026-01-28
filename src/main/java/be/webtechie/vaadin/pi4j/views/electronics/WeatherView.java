@@ -19,9 +19,8 @@ import org.vaadin.lineawesome.LineAwesomeIconUrl;
  * This view is dynamically registered by BMP280Service when the board has BMP280 support.
  */
 @PageTitle("Weather")
-// @Route("weatherview") - Conditionally registered by BMP280Service
 @Menu(order = 17, icon = LineAwesomeIconUrl.CLOUD_SUN_SOLID)
-public class WeatherView extends VerticalLayout {
+public class WeatherView extends HardwareDemoView {
 
     private static final Logger logger = LoggerFactory.getLogger(WeatherView.class);
 
@@ -31,9 +30,6 @@ public class WeatherView extends VerticalLayout {
 
     public WeatherView(ComponentEventBus eventBus) {
         eventBus.subscribe(this, BMP280Event.class, this::onBMP280Measurement);
-
-        setMargin(true);
-        setSpacing(true);
 
         // Create gauges layout
         var gaugesLayout = new HorizontalLayout();

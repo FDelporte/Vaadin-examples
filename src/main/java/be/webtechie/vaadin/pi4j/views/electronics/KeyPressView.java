@@ -4,7 +4,6 @@ import be.webtechie.vaadin.pi4j.event.ComponentEventBus;
 import be.webtechie.vaadin.pi4j.event.KeyStateEvent;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Paragraph;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import org.slf4j.Logger;
@@ -16,18 +15,14 @@ import org.vaadin.lineawesome.LineAwesomeIconUrl;
  * This view is dynamically registered by KeyService when the board has key support.
  */
 @PageTitle("Key Press")
-// @Route("keypressview") - Conditionally registered in KeyService
 @Menu(order = 12, icon = LineAwesomeIconUrl.KEYBOARD_SOLID)
-public class KeyPressView extends VerticalLayout {
+public class KeyPressView extends HardwareDemoView {
 
     private final Logger logger = LoggerFactory.getLogger(KeyPressView.class);
     private final H2 statusLabel;
 
     public KeyPressView(ComponentEventBus eventBus) {
         eventBus.subscribe(this, KeyStateEvent.class, this::onKeyEvent);
-
-        setMargin(true);
-        setSpacing(true);
 
         statusLabel = new H2("Waiting for key press...");
         statusLabel.getStyle().setColor("#666666");

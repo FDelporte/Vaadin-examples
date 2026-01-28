@@ -14,7 +14,6 @@ import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
@@ -32,7 +31,7 @@ import java.util.List;
  */
 @PageTitle("IR Receiver")
 @Menu(order = 20, icon = LineAwesomeIconUrl.SATELLITE_DISH_SOLID)
-public class IrReceiverView extends VerticalLayout {
+public class IrReceiverView extends HardwareDemoView {
 
     private static final Logger logger = LoggerFactory.getLogger(IrReceiverView.class);
     private static final int MAX_CODES = 50;
@@ -48,9 +47,6 @@ public class IrReceiverView extends VerticalLayout {
 
         eventBus.subscribe(this, IrTriggerChangedEvent.class, this::onTriggerChanged);
         eventBus.subscribe(this, IrCodeEvent.class, this::onIrCode);
-
-        setMargin(true);
-        setSpacing(true);
 
         add(new H3("IR Receiver (GPIO 18)"));
         add(new Paragraph("Point your IR remote at the receiver and press buttons to see the codes."));

@@ -3,7 +3,6 @@ package be.webtechie.vaadin.pi4j.views.electronics;
 import be.webtechie.vaadin.pi4j.event.DhtMeasurementEvent;
 import be.webtechie.vaadin.pi4j.event.ComponentEventBus;
 import be.webtechie.vaadin.pi4j.views.component.LogGrid;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import in.virit.EnvironmentMonitor;
@@ -12,9 +11,8 @@ import org.slf4j.LoggerFactory;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
 @PageTitle("Temperature and Humidity")
-// @Route("temperature-humidity") - Conditionally registered by DHT11 services
 @Menu(order = 16, icon = LineAwesomeIconUrl.THERMOMETER_EMPTY_SOLID)
-public class TempHumidityView extends VerticalLayout {
+public class TempHumidityView extends HardwareDemoView {
 
     private static final Logger logger = LoggerFactory.getLogger(TempHumidityView.class);
     private final LogGrid logs;
@@ -22,8 +20,6 @@ public class TempHumidityView extends VerticalLayout {
 
     public TempHumidityView(ComponentEventBus eventBus) {
         eventBus.subscribe(this, DhtMeasurementEvent.class, this::onDhtMeasurement);
-
-        setMargin(true);
 
         environmentMonitor = new EnvironmentMonitor();
         add(environmentMonitor);

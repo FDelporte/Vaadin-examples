@@ -6,7 +6,6 @@ import be.webtechie.vaadin.pi4j.service.oled.OledService;
 import be.webtechie.vaadin.pi4j.views.component.LogGrid;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Menu;
@@ -20,9 +19,8 @@ import org.vaadin.lineawesome.LineAwesomeIconUrl;
  * This view is dynamically registered by OledService when the board has OLED support.
  */
 @PageTitle("OLED Display")
-// @Route("oleddisplayview") - Conditionally registered in OledService
 @Menu(order = 13, icon = LineAwesomeIconUrl.DESKTOP_SOLID)
-public class OledDisplayView extends VerticalLayout {
+public class OledDisplayView extends HardwareDemoView {
 
     private final Logger logger = LoggerFactory.getLogger(OledDisplayView.class);
 
@@ -33,8 +31,6 @@ public class OledDisplayView extends VerticalLayout {
         this.oledService = oledService;
 
         eventBus.subscribe(this, DisplayEvent.class, this::onDisplayEvent);
-
-        setMargin(true);
 
         // Clear display button
         var clear = new Button("Clear Display");

@@ -10,7 +10,6 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import org.slf4j.Logger;
@@ -18,9 +17,8 @@ import org.slf4j.LoggerFactory;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
 @PageTitle("8x8 Red LED Matrix")
-// @Route("red-matrix") // Conditionally registered in RedMatrixService
 @Menu(order = 14, icon = LineAwesomeIconUrl.TABLE_SOLID)
-public class RedMatrixView extends VerticalLayout {
+public class RedMatrixView extends HardwareDemoView {
     private final Logger logger = LoggerFactory.getLogger(RedMatrixView.class);
 
     private final RedMatrixService redMatrixService;
@@ -30,8 +28,6 @@ public class RedMatrixView extends VerticalLayout {
         this.redMatrixService = redMatrixService;
 
         eventBus.subscribe(this, DisplayEvent.class, this::onDisplayEvent);
-
-        setMargin(true);
 
         var clear = new Button("Clear");
         clear.addClickListener(e -> redMatrixService.clear());

@@ -8,7 +8,6 @@ import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
@@ -18,18 +17,14 @@ import org.vaadin.lineawesome.LineAwesomeIconUrl;
  * This view is dynamically registered by JoystickService when the board has buzzer support.
  */
 @PageTitle("Buzzer")
-// @Route("simplebuzzer") - Conditionally registered by JoystickService
 @Menu(order = 19, icon = LineAwesomeIconUrl.BELL_SOLID)
-public class SimpleBuzzerView extends VerticalLayout {
+public class SimpleBuzzerView extends HardwareDemoView {
 
     private final JoystickService joystickService;
     private final LogGrid logs;
 
     public SimpleBuzzerView(JoystickService joystickService) {
         this.joystickService = joystickService;
-
-        setMargin(true);
-        setSpacing(true);
 
         add(new H3("Buzzer (PCF8574)"));
         add(new Paragraph("Click the button to trigger the buzzer."));

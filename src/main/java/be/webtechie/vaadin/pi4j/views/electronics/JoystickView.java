@@ -26,9 +26,8 @@ import org.vaadin.lineawesome.LineAwesomeIconUrl;
  * This view is dynamically registered by JoystickService when the board has joystick support.
  */
 @PageTitle("Joystick")
-// @Route("joystickview") - Conditionally registered by JoystickService
 @Menu(order = 18, icon = LineAwesomeIconUrl.GAMEPAD_SOLID)
-public class JoystickView extends VerticalLayout {
+public class JoystickView extends HardwareDemoView {
 
     private static final Logger logger = LoggerFactory.getLogger(JoystickView.class);
 
@@ -46,9 +45,6 @@ public class JoystickView extends VerticalLayout {
 
         eventBus.subscribe(this, KeyStateEvent.class, this::onKeyEvent);
         eventBus.subscribe(this, JoystickEvent.class, this::onJoystickEvent);
-
-        setMargin(true);
-        setSpacing(true);
 
         add(new H3("Joystick (PCF8574)"));
 
