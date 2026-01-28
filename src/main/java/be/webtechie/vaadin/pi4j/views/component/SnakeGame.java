@@ -23,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.vaadin.firitin.element.svg.CircleElement;
 import org.vaadin.firitin.element.svg.GElement;
+import org.vaadin.firitin.element.svg.LineElement;
 import org.vaadin.firitin.element.svg.PathBuilder;
 
 /**
@@ -42,16 +43,19 @@ public class SnakeGame extends VSvg {
     private static final int MOVE_INTERVAL_MS = 400;
 
     private final LinkedList<Point> snake = new LinkedList<>();
-    private final PathElement snakeBody;
-    private final MarkerElement snakeHead;
-    private final PathElement snakeHeadShape;
-    private final RectElement background;
+    private PathElement snakeBody;
+    private MarkerElement snakeHead;
+    private PathElement snakeHeadShape;
+    private RectElement background;
     private AnimateElement warningAnimation;
 
     private Direction currentDirection = Direction.RIGHT;
     private Direction nextDirection = Direction.RIGHT;
     private boolean crashed = false;
+    private boolean gameStarted = false;
     private List<Point> previousPositions = List.of();
+    private final LinkedList<AnimateElement> animationQueue = new LinkedList<>();
+    private static final int MAX_QUEUED_ANIMATIONS = 5;
 
     private ScheduledExecutorService executor;
     private ScheduledFuture<?> gameLoop;
@@ -63,7 +67,12 @@ public class SnakeGame extends VSvg {
         super(0, 0, GRID_SIZE * CELL_SIZE, GRID_SIZE * CELL_SIZE);
         setWidth(GRID_SIZE * CELL_SIZE + "px");
         setHeight(GRID_SIZE * CELL_SIZE + "px");
+    }
 
+    /**
+     * Builds all SVG elements. Called from onAttach to fix Safari timing issues.
+     */
+    private void buildSvgElements() {
         // Draw background
         background = new RectElement();
         background.bounds(0, 0, GRID_SIZE * CELL_SIZE, GRID_SIZE * CELL_SIZE)
@@ -106,11 +115,46 @@ public class SnakeGame extends VSvg {
         var rightEye = new CircleElement().center(6, 7).r(1.5)
                 .fill(NamedColor.WHITE).stroke(NamedColor.DARKGREEN).strokeWidth(0.3);
 
-        // Pupils
+        // Pupils with rolling animation
         var leftPupil = new CircleElement().center(7, 3).r(0.7)
                 .fill(NamedColor.BLACK);
         var rightPupil = new CircleElement().center(7, 7).r(0.7)
                 .fill(NamedColor.BLACK);
+
+        // Animate pupils with subtle "drunken" effect (alcohol level 0.4)
+        // Left pupil - slight roll with minor vertical drift
+        var leftPupilRollX = new AnimateElement()
+                .attributeName("cx")
+                .values("7;6.2;6.6;7.3;7.1;7")
+                .keyTimes(0, 0.12, 0.28, 0.42, 0.6, 1)
+                .dur("5s")
+                .repeatIndefinitely();
+        leftPupil.appendChild(leftPupilRollX);
+
+        var leftPupilRollY = new AnimateElement()
+                .attributeName("cy")
+                .values("3;2.8;3.1;2.9;3;3")
+                .keyTimes(0, 0.15, 0.3, 0.45, 0.6, 1)
+                .dur("5s")
+                .repeatIndefinitely();
+        leftPupil.appendChild(leftPupilRollY);
+
+        // Right pupil - slightly different timing, subtle opposite drift
+        var rightPupilRollX = new AnimateElement()
+                .attributeName("cx")
+                .values("7;7.3;6.7;6.3;6.9;7")
+                .keyTimes(0, 0.1, 0.25, 0.4, 0.6, 1)
+                .dur("5s")
+                .repeatIndefinitely();
+        rightPupil.appendChild(rightPupilRollX);
+
+        var rightPupilRollY = new AnimateElement()
+                .attributeName("cy")
+                .values("7;7.2;6.9;7.1;7;7")
+                .keyTimes(0, 0.18, 0.32, 0.48, 0.6, 1)
+                .dur("5s")
+                .repeatIndefinitely();
+        rightPupil.appendChild(rightPupilRollY);
 
         // Group all head elements
         var headGroup = new GElement();
@@ -143,17 +187,17 @@ public class SnakeGame extends VSvg {
     private void drawGrid() {
         for (int i = 0; i <= GRID_SIZE; i++) {
             // Vertical lines
-            var vLine = new RectElement();
-            vLine.bounds(i * CELL_SIZE, 0, 1, GRID_SIZE * CELL_SIZE)
-                    .fill(NamedColor.DIMGRAY)
-                    .fillOpacity(0.3);
+            var vLine = new LineElement()
+                    .points(i * CELL_SIZE, 0, i * CELL_SIZE, GRID_SIZE * CELL_SIZE)
+                    .stroke(NamedColor.DIMGRAY)
+                    .strokeOpacity(0.3);
             getElement().appendChild(vLine);
 
             // Horizontal lines
-            var hLine = new RectElement();
-            hLine.bounds(0, i * CELL_SIZE, GRID_SIZE * CELL_SIZE, 1)
-                    .fill(NamedColor.DIMGRAY)
-                    .fillOpacity(0.3);
+            var hLine = new LineElement()
+                    .points(0, i * CELL_SIZE, GRID_SIZE * CELL_SIZE, i * CELL_SIZE)
+                    .stroke(NamedColor.DIMGRAY)
+                    .strokeOpacity(0.3);
             getElement().appendChild(hLine);
         }
     }
@@ -182,12 +226,19 @@ public class SnakeGame extends VSvg {
     }
 
     private void animateSnakeMovement() {
+        // Remove oldest animations when queue is full (keeps some to avoid Safari flashing)
+        while (animationQueue.size() >= MAX_QUEUED_ANIMATIONS) {
+            AnimateElement oldest = animationQueue.removeFirst();
+            oldest.removeFromParent();
+        }
+
         // Animate from previous positions to current positions
-        snakeBody.animateD(
+        AnimateElement animation = snakeBody.animateD(
                 from -> buildPath(from, previousPositions),
                 to -> buildPath(to, snake),
                 Duration.ofMillis(MOVE_INTERVAL_MS)
         );
+        animationQueue.addLast(animation);
         previousPositions = List.copyOf(snake);
     }
 
@@ -226,6 +277,15 @@ public class SnakeGame extends VSvg {
         // If crashed, resume the game from current position with the new direction
         if (crashed) {
             resume(direction);
+            return;
+        }
+
+        // Start game on first joystick input
+        if (!gameStarted && ui != null) {
+            gameStarted = true;
+            currentDirection = direction;
+            nextDirection = direction;
+            startGameLoop();
             return;
         }
 
@@ -335,19 +395,28 @@ public class SnakeGame extends VSvg {
             snakeBody.removeAllChildren();
             snakeHeadShape.removeAllChildren();
             warningAnimation = null;
+            animationQueue.clear();
         }
         // Restore colors
         snakeBody.stroke(NamedColor.FORESTGREEN);
         snakeHeadShape.fill(NamedColor.LIMEGREEN);
     }
 
+    private boolean initialized = false;
+
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         super.onAttach(attachEvent);
         ui = attachEvent.getUI();
-        if (!crashed) {
-            startGameLoop();
+
+        // Defer SVG building until after the view is fully attached (fixes Safari timing issue)
+        if (!initialized) {
+            getElement().executeJs("").then(v -> {
+                buildSvgElements();
+                initialized = true;
+            });
         }
+        // Game starts on first joystick input, not automatically
     }
 
     @Override
@@ -379,15 +448,13 @@ public class SnakeGame extends VSvg {
     }
 
     /**
-     * Resets the snake to its initial state.
+     * Resets the snake to its initial state. Snake waits for first joystick input to start moving.
      */
     public void reset() {
         stopGameLoop();
         currentDirection = Direction.RIGHT;
         nextDirection = Direction.RIGHT;
+        gameStarted = false;
         initializeSnake();
-        if (ui != null) {
-            startGameLoop();
-        }
     }
 }
